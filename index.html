@@ -1,296 +1,307 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png" type="image/png">
-<title>Home</title>
-<style>
-  :root{--glass:rgba(18,20,38,0.78);--border:rgba(120,100,255,0.3);--glow:0 0 30px rgba(120,100,255,0.5);--text:#e0e7ff}
-  body,html{margin:0;height:100%;font-family:'Google Sans','Segoe UI',sans-serif;color:var(--text);overflow:hidden}
-  body::before{content:"";position:fixed;inset:0;background:linear-gradient(45deg,#0f0f2e,#1f1f4b,#2d1b69,#4c1d95,#0f0f2e);background-size:500%;animation:a 18s ease infinite;z-index:-2}
-  body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle at 50% 50%,rgba(120,100,255,0.12),transparent 70%);backdrop-filter:blur(120px);z-index:-1}
-  @keyframes a{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-  .lock{height:100vh;display:flex;align-items:center;justify-content:center}
-  .card{background:var(--glass);backdrop-filter:blur(22px);border:1px solid var(--border);border-radius:32px;padding:60px 50px;box-shadow:var(--glow);text-align:center;max-width:460px;width:92%}
-  h1{font-size:38px;margin:0;background:linear-gradient(90deg,#8b5cf6,#ec4899,#06b6d4);background-clip:text;-webkit-background-clip:text;color:transparent}
-  p{color:#aaa;margin:25px 0 40px}
-  .code{display:flex;gap:16px;justify-content:center;margin-bottom:40px}
-  .code input{width:64px;height:76px;font-size:38px;text-align:center;background:rgba(255,255,255,0.06);border:2px solid var(--border);border-radius:20px;color:#fff}
-  .code input:focus{border-color:#8b5cf6;box-shadow:0 0 35px rgba(139,92,246,0.7);outline:none}
-  button{background:linear-gradient(135deg,#8b5cf6,#ec4899);border:none;padding:18px 44px;border-radius:60px;color:#fff;font-weight:bold;font-size:18px;cursor:pointer;box-shadow:var(--glow);transition:.4s}
-  button:hover{transform:scale(1.07);box-shadow:0 0 50px rgba(139,92,246,0.6)}
-  .hidden{display:none}
-  .main{min-height:100vh;padding:60px 20px}
-  .container{max-width:1350px;margin:0 auto}
-  .tabs{display:flex;gap:24px;justify-content:center;margin-bottom:60px;flex-wrap:wrap}
-  .tab{background:var(--glass);border:1px solid var(--border);padding:16px 36px;border-radius:60px;cursor:pointer;transition:.4s;box-shadow:var(--glow)}
-  .tab:hover,.tab.active{background:rgba(139,92,246,0.3);transform:scale(1.1)}
-  .section{display:none}
-  .section.active{display:block}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(370px,1fr));gap:32px}
-  .card2{background:var(--glass);backdrop-filter:blur(22px);border:1px solid var(--border);border-radius:28px;padding:32px;box-shadow:var(--glow);transition:.4s}
-  .card2:hover{transform:translateY(-16px);box-shadow:0 30px 70px rgba(139,92,246,0.5)}
-  h2{font-size:30px;margin:0 0 24px;text-align:center;background:linear-gradient(90deg,#8b5cf6,#ec4899,#06b6d4);background-clip:text;-webkit-background-clip:text;color:transparent}
-  a{color:var(--text);text-decoration:none;display:block;padding:16px 22px;margin:10px 0;background:rgba(255,255,255,0.07);border-radius:18px;transition:.3s}
-  a:hover{background:rgba(139,92,246,0.3);padding-left:34px;transform:scale(1.03)}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AURORA — Proxy & Games Dashboard</title>
+  <link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png" />
+  <meta name="description" content="Clean, responsive dashboard for proxies, games and streaming links." />
+  <style>
+    /* Variables */
+    :root{
+      --bg-1:#060617; --bg-2:#0f0f2e; --glass:rgba(255,255,255,0.04);
+      --accent-1:linear-gradient(90deg,#8b5cf6,#ec4899,#06b6d4);
+      --accent-color: #8b5cf6; --muted:#9aa3c7; --text:#e6eefc;
+      --card-radius:16px; --max-width:1200px;
+    }
+
+    /* Reset & base */
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial; background:radial-gradient(1200px 600px at 10% 10%, rgba(139,92,246,0.08), transparent), linear-gradient(180deg,var(--bg-1),var(--bg-2)); color:var(--text); -webkit-font-smoothing:antialiased}
+    a{color:inherit}
+
+    /* App layout */
+    .app{min-height:100vh;display:flex;align-items:stretch;justify-content:center;padding:36px}
+    .shell{width:100%;max-width:var(--max-width);display:grid;grid-template-columns:320px 1fr;gap:28px}
+
+    /* Left pane - auth */
+    .auth{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:18px;padding:28px;border:1px solid rgba(255,255,255,0.03);backdrop-filter:blur(8px)}
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    .logo{width:48px;height:48px;border-radius:12px;background:var(--accent-color);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;box-shadow:0 8px 30px rgba(139,92,246,0.15)}
+    .brand h1{font-size:18px;margin:0}
+    .brand p{margin:0;color:var(--muted);font-size:13px}
+
+    .lock-card{margin-top:16px;background:var(--glass);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .pin-inputs{display:flex;gap:10px;justify-content:center;margin:12px 0}
+    .pin-inputs input{width:54px;height:64px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--text);font-size:28px;text-align:center}
+    .btn{display:inline-block;padding:12px 18px;border-radius:999px;border:none;background:var(--accent-color);color:#fff;font-weight:600;cursor:pointer}
+    .note{font-size:13px;color:var(--muted);margin-top:10px;text-align:center}
+
+    /* Right pane - content */
+    .content{display:flex;flex-direction:column;gap:18px}
+    .controls{display:flex;gap:12px;align-items:center;justify-content:space-between}
+    .search{flex:1;display:flex;align-items:center;gap:8px;background:var(--glass);padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .search input{flex:1;background:transparent;border:0;color:var(--text);outline:none;font-size:15px}
+    .filter{display:flex;gap:8px}
+    .chip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);cursor:pointer;font-size:13px}
+    .chip.active{background:linear-gradient(90deg,#6b46c1,#ec4899);box-shadow:0 8px 40px rgba(139,92,246,0.12);color:#fff}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .group{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);min-height:120px}
+    .group h3{margin:0;font-size:16px;background:var(--accent-1);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .links{margin-top:10px;display:flex;flex-direction:column;gap:8px;max-height:320px;overflow:auto;padding-right:6px}
+    .link{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:10px;background:rgba(255,255,255,0.01);border:1px solid rgba(255,255,255,0.02);font-size:13px}
+    .link small{color:var(--muted);margin-left:8px}
+    .link a{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-right:10px}
+    .link .actions{display:flex;gap:8px}
+    .icon-btn{border:none;background:transparent;color:var(--muted);cursor:pointer;padding:6px;border-radius:8px}
+    .icon-btn:hover{color:var(--text);background:rgba(255,255,255,0.02)}
+
+    /* Empty state */
+    .empty{padding:40px;text-align:center;color:var(--muted)}
+
+    /* Responsive */
+    @media(max-width:840px){.shell{grid-template-columns:1fr}.auth{order:2}.content{order:1}}
+
+    /* small helpers */
+    .muted{color:var(--muted);font-size:13px}
+  </style>
 </head>
 <body>
+  <div class="app">
+    <div class="shell">
 
-<div id="lock" class="lock">
-  <div class="card">
-    <h1>AURORA</h1>
-    <p>Enter 5-letter code</p>
-    <div class="code">
-      <input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1">
-    </div>
-    <button onclick="check()">Enter</button>
-    <p id="error" style="color:#ff6b6b;display:none;margin-top:20px">Wrong code</p>
-  </div>
-</div>
-
-<div id="main" class="hidden">
-  <div class="main">
-    <div class="container">
-      <div class="tabs">
-        <div class="tab active" onclick="openTab('proxies')">Proxies</div>
-        <div class="tab" onclick="openTab('games')">Games</div>
-        <div class="tab" onclick="openTab('streaming')">Streaming</div>
-      </div>
-
-      <!-- PROXIES TAB -->
-      <div id="proxies" class="section active">
-        <div class="grid">
-
-          <div class="card2"><h2>ROSIN</h2>
-            <a href="http://trzxvycsql.kionom.biz/">http://trzxvycsql.kionom.biz/</a>
-            <a href="http://dfimxnrsnr.kionom.biz/">http://dfimxnrsnr.kionom.biz/</a>
-            <a href="http://shaierkbvd.kionom.biz/">http://shaierkbvd.kionom.biz/</a>
-            <a href="http://tksyioijlu.kionom.biz/">http://tksyioijlu.kionom.biz/</a>
-            <a href="http://otuubzjpbd.kionom.biz/">http://otuubzjpbd.kionom.biz/</a>
-          </div>
-
-          <div class="card2"><h2>UNIUB</h2>
-            <a href="https://hehewkdhdidjd.fabricecosta.com/#home">https://hehewkdhdidjd.fabricecosta.com/#home</a>
-            <a href="https://wildcard.khsonthespot.com/#home">https://wildcard.khsonthespot.com/#home</a>
-            <a href="https://uniubsite2.glitch.me">https://uniubsite2.glitch.me</a>
-            <a href="https://uniubsite4.glitch.me">https://uniubsite4.glitch.me</a>
-            <a href="https://uniub.pages.dev">https://uniub.pages.dev</a>
-            <a href="https://jobidev.github.io">https://jobidev.github.io</a>
-            <a href="https://uniubsite5.vercel.app">https://uniubsite5.vercel.app</a>
-            <a href="https://securly.mom">https://securly.mom</a>
-          </div>
-
-          <div class="card2"><h2>JORDANS MATH</h2>
-            <a href="https://repent.fcpchurch.org/active/index.html?autofill=lookatthisistworkguys&goback=true">https://repent.fcpchurch.org/…</a>
-            <a href="https://ilove.jrdnswork.dyndns1.de/">https://ilove.jrdnswork.dyndns1.de/</a>
-            <a href="https://putanythinghere.jrdnswork.myhome-server.de/">https://putanythinghere.jrdnswork.myhome-server.de/</a>
-            <a href="https://jrdnswork.ddnss.org/">https://jrdnswork.ddnss.org/</a>
-            <a href="https://jrdnswork.myhome-server.de/">https://jrdnswork.myhome-server.de/</a>
-            <a href="https://wrcqfyg.beanweb.qzz.io.cdn.cloudflare.net/">https://wrcqfyg.beanweb.qzz.io.cdn.cloudflare.net/</a>
-            <a href="https://we54xjd.beanweb.qzz.io.cdn.cloudflare.net/">https://we54xjd.beanweb.qzz.io.cdn.cloudflare.net/</a>
-            <a href="https://w179tp8.beanweb.qzz.io.cdn.cloudflare.net/">https://w179tp8.beanweb.qzz.io.cdn.cloudflare.net/</a>
-            <a href="https://wv5u9z4.beanweb.qzz.io.cdn.cloudflare.net/">https://wv5u9z4.beanweb.qzz.io.cdn.cloudflare.net/</a>
-            <a href="https://repent.fcpchurch.org/">https://repent.fcpchurch.org/</a>
-            <a href="https://galacticnetwork.github.io/jordansmathwork-v2.5/">https://galacticnetwork.github.io/jordansmathwork-v2.5/</a>
-            <a href="https://coolmath-games.vercel.app/">https://coolmath-games.vercel.app/</a>
-            <a href="https://urslow.myglobaltutors.xyz/">https://urslow.myglobaltutors.xyz/</a>
-            <a href="https://areudumb.myglobaltutors.xyz/">https://areudumb.myglobaltutors.xyz/</a>
-            <a href="https://urstupid.myglobaltutors.xyz/">https://urstupid.myglobaltutors.xyz/</a>
-          </div>          
-          <div class="card2">
-            <h2>PETEZAH</h2>
-            <a href="https://chejfnreeje.vets.co.il/">https://chejfnreeje.vets.co.il/</a>
-            <a href="https://daddy.easynetti.biz.cdn.cloudflare.net/">https://daddy.easynetti.biz.cdn.cloudflare.net/</a>
-            <a href="https://jncbfekejd.vets.co.il/">https://jncbfekejd.vets.co.il/</a>
-            <a href="https://monkeys9238822.vets.co.il/">https://monkeys9238822.vets.co.il/</a>
-            <a href="https://wecookedthistimebri.vets.co.il/">https://wecookedthistimebri.vets.co.il/</a>
-            <a href="https://computerscience.tutor.deborahnairn.com/">https://computerscience.tutor.deborahnairn.com/</a>
-            <a href="https://doggysaresocutevro.vets.co.il/">https://doggysaresocutevro.vets.co.il/</a>
-            <a href="https://petezahgames5.web.app/">https://petezahgames5.web.app/</a>
-            <a href="https://pineapple-petezah.web.app/">https://pineapple-petezah.web.app/</a>
-            <a href="https://petezahissexy.firebaseapp.com/">https://petezahissexy.firebaseapp.com/</a>
-            <a href="https://petezahsigma.web.app/">https://petezahsigma.web.app/</a>
-            <a href="https://kind-house-60.puter.site/">https://kind-house-60.puter.site/</a>
-            <a href="https://pxfjekejdn.campori.cl/">https://pxfjekejdn.campori.cl/</a>
-            <a href="https://dkfjdjdjrnrn.campori.cl/">https://dkfjdjdjrnrn.campori.cl/</a>
-            <a href="https://codkekrnfdn.campori.cl/">https://codkekrnfdn.campori.cl/</a>
-            <a href="https://diligent-room-5074.puter.site/">https://diligent-room-5074.puter.site/</a>
-            <a href="https://nirbytes.com/sub2unlock/512ea42">https://nirbytes.com/sub2unlock/512ea42</a>
-            <a href="https://direct-link.net/501980/xZFh1pJDctXi">https://direct-link.net/501980/xZFh1pJDctXi</a>
-            <a href="https://nirbytes.com/sub2unlock/7cf4abd">https://nirbytes.com/sub2unlock/7cf4abd</a>
-            <a href="https://nirbytes.com/sub2unlock/b328c5f">https://nirbytes.com/sub2unlock/b328c5f</a>
-            <a href="https://playernation1.blogspot.com">https://playernation1.blogspot.com</a>
-            <a href="https://sigmasigmatoiletedge.github.io/">https://sigmasigmatoiletedge.github.io/</a>
-            <a href="https://petezah.pages.dev/p">https://petezah.pages.dev/p</a>
-          </div>
-
-          <div class="card2">
-            <h2>LUMINAL</h2>
-            <a href="https://temp.vacte.org.cdn.cloudflare.net/">https://temp.vacte.org.cdn.cloudflare.net/</a>
-            <a href="https://sealiee.shop.cdn.cloudflare.net/">https://sealiee.shop.cdn.cloudflare.net/</a>
-            <a href="https://luminalos.shop.cdn.cloudflare.net/">https://luminalos.shop.cdn.cloudflare.net/</a>
-            <a href="https://luminalos.click.cdn.cloudflare.net/-by">https://luminalos.click.cdn.cloudflare.net/-by</a>
-            <a href="https://luminal.riversideacademy.site.cdn.cloudflare.net/">https://luminal.riversideacademy.site.cdn.cloudflare.net/</a>
-            <a href="https://luminal.cc">https://luminal.cc</a>
-          </div>
-
-          <div class="card2">
-            <h2>VOID</h2>
-            <a href="https://voidnetwork.space.cdn.cloudflare.net/">https://voidnetwork.space.cdn.cloudflare.net/</a>
-            <a href="https://void.radio.fm.cdn.cloudflare.net/">https://void.radio.fm.cdn.cloudflare.net/</a>
-            <a href="https://lion.bg.geek.nz.cdn.cloudflare.net/">https://lion.bg.geek.nz.cdn.cloudflare.net/</a>
-            <a href="https://cdn.voidd.network/g.html">https://cdn.voidd.network/g.html</a>
-            <a href="https://arts.bcsdnysucks.org/">https://arts.bcsdnysucks.org/</a>
-            <a href="https://voidofficial.100mountain.com/">https://voidofficial.100mountain.com/</a>
-            <a href="https://voidofficial.yourspecialtee.com/">https://voidofficial.yourspecialtee.com/</a>
-            <a href="https://voidofficial.minecraftnoob.com/">https://voidofficial.minecraftnoob.com/</a>
-            <a href="https://voidofficial.vctel.com/">https://voidofficial.vctel.com/</a>
-            <a href="https://voidofficial.port0.org/">https://voidofficial.port0.org/</a>
-            <a href="https://generals.jumpingcrab.com/">https://generals.jumpingcrab.com/</a>
-            <a href="https://faze.custom-gaming.net/">https://faze.custom-gaming.net/</a>
-          </div>
-
-          <div class="card2">
-            <h2>AXIOM</h2>
-            <a href="https://axiom.deborahnairn.com/">https://axiom.deborahnairn.com/</a>
-          </div>
-
+      <!-- LEFT: AUTH / LOCK -->
+      <aside class="auth" aria-label="Authentication / lock">
+        <div class="brand">
+          <div class="logo">A</div>
+          <div>
+            <h1>AURORA</h1>
+            <p class="muted">Proxy & games dashboard — rebuilt</p>
           </div>
         </div>
-      </div>          
-    <div class="card2">
-            <h2>FROGIE</h2>
-            <a href="https://putanythinghere.william.tienda/">https://putanythinghere.william.tienda/</a>
-            <a href="https://directory.leeschoolsk12.org.cdn.cloudflare.net/">https://directory.leeschoolsk12.org.cdn.cloudflare.net/</a>
-            <a href="https://frogiesarcade.dev/">https://frogiesarcade.dev/</a>
-            <a href="https://frogiesarca.de.cdn.cloudflare.net/">https://frogiesarca.de.cdn.cloudflare.net/</a>
-            <a href="https://204.12.217.138.worldplus-intl.org/">https://204.12.217.138.worldplus-intl.org/</a>
-            <a href="https://sports.coaching2lead.com/">https://sports.coaching2lead.com/</a>
-          </div>
 
-          <div class="card2">
-            <h2>GHOST</h2>
-            <a href="https://dqwoj91bhqrbe.cloudfront.net/browser/">https://dqwoj91bhqrbe.cloudfront.net/browser/</a>
-            <a href="https://d35gtlphuqnydv.cloudfront.net/">https://d35gtlphuqnydv.cloudfront.net/</a>
+        <div class="lock-card" id="lockCard">
+          <p style="margin:0;font-weight:600;text-align:center">Enter 5-letter access code</p>
+          <div class="pin-inputs" style="margin-top:12px">
+            <input maxlength="1" inputmode="text" aria-label="code-1">
+            <input maxlength="1" inputmode="text" aria-label="code-2">
+            <input maxlength="1" inputmode="text" aria-label="code-3">
+            <input maxlength="1" inputmode="text" aria-label="code-4">
+            <input maxlength="1" inputmode="text" aria-label="code-5">
           </div>
-
-          <div class="card2">
-            <h2>TRUFFLED</h2>
-            <a href="https://artclasses.buzz.cdn.cloudflare.net/">https://artclasses.buzz.cdn.cloudflare.net/</a>
-            <a href="https://discord.tattoo.cdn.cloudflare.net/">https://discord.tattoo.cdn.cloudflare.net/</a>
-            <a href="https://educational.mom.cdn.cloudflare.net/">https://educational.mom.cdn.cloudflare.net/</a>
+          <div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
+            <button class="btn" id="enterBtn">Enter</button>
+            <button class="btn" id="demoBtn" style="background:transparent;border:1px solid rgba(255,255,255,0.04)">Preview</button>
           </div>
-
-          <div class="card2">
-            <h2>LUNAR</h2>
-            <a href="https://getajoburchopped.knowhowit.com.au/">https://getajoburchopped.knowhowit.com.au/</a>
-            <a href="https://rainbowflagisgaysadly.knowhowit.com.au/">https://rainbowflagisgaysadly.knowhowit.com.au/</a>
-            <a href="https://pdiddyisntfree.knowhowit.com.au/">https://pdiddyisntfree.knowhowit.com.au/</a>
-            <a href="https://werethebestenince.knowhowit.com.au/">https://werethebestenince.knowhowit.com.au/</a>
-            <a href="https://lunar.goguardian.pro.cdn.cloudflare.net/">https://lunar.goguardian.pro.cdn.cloudflare.net/</a>
-            <a href="https://buy.ddnss.org/">https://buy.ddnss.org/</a>
-            <a href="https://lunarproxy.net">https://lunarproxy.net</a>
-          </div>
-
-          <div class="card2">
-            <h2>CROXYPROXY</h2>
-            <a href="https://www.croxyproxy.com/">https://www.croxyproxy.com/</a>
-            <a href="https://www.croxyproxy.rocks/">https://www.croxyproxy.rocks/</a>
-            <a href="https://croxyproxy.net">https://croxyproxy.net</a>
-            <a href="https://proxy.croxy">https://proxy.croxy</a>
-            <a href="https://cdn.youtubeunblocked.live/">https://cdn.youtubeunblocked.live/</a>
-            <a href="https://cdn.blockaway.net/">https://cdn.blockaway.net/</a>
-          </div>
-
-          <!-- END OF PROXIES -->
+          <p class="note">Tip: you can open the dashboard with <code>#diddy</code> in the URL for quick access.</p>
+          <p id="errorMsg" class="note" style="color:#ff8b8b;display:none">Wrong code — try again.</p>
         </div>
-      </div>
 
-      <!-- GAMES TAB -->
-      <div id="games" class="section">
-        <div class="grid">
+        <div style="margin-top:18px;font-size:13px;color:var(--muted)">
+          <strong>Quick filters</strong>
+          <p style="margin:8px 0 0">Click a category on the right to filter groups. Use the search to find a specific link.</p>
+        </div>
+      </aside>
 
-          <div class="card2"><h2>POLAR</h2><a href="https://sites.google.com/view/mathissuperfunn">https://sites.google.com/view/mathissuperfunn</a></div>
-          <div class="card2"><h2>DELTAMATH</h2><a href="https://sites.google.com/view/deltamathcom/explorer">https://sites.google.com/view/deltamathcom/explorer</a></div>
-          <div class="card2"><h2>SAKURA</h2><a href="https://sites.google.com/view/sakura-site">https://sites.google.com/view/sakura-site</a></div>
-          <div class="card2"><h2>FAKE GOOGLE CLASSROOM</h2><a href="https://sites.google.com/classroom.events/view/home">https://sites.google.com/classroom.events/view/home</a></div>
-          <div class="card2"><h2>ANOTHER FAKE GOOGLE CLASSROOM</h2><a href="https://sites.google.com/view/drive-u-7-home-2/">https://sites.google.com/view/drive-u-7-home-2/</a></div>
-          <div class="card2"><h2>ANOTHER ANOTHER FAKE GOOGLE CLASSROOM</h2><a href="https://sites.google.com/classroom.center/view/home">https://sites.google.com/classroom.center/view/home</a></div>
-          <div class="card2"><h2>GN-MATH</h2><a href="https://script.google.com/macros/s/AKfycbxQvbCW4DXTvZxQnB6f8h1IkWR_l2Yos4ww0196J9st06UOZyl8sAEGweDDW8IVtoaG/exec">https://script.google.com/macros/s/…</a></div>
-          <div class="card2"><h2>POKI</h2><a href="https://poki.com">https://poki.com</a></div>
-          <div class="card2"><h2>KUBA</h2><a href="https://kuba.fireyh8.workers.dev/kuba">https://kuba.fireyh8.workers.dev/kuba</a></div>
-          <div class="card2"><h2>ZAYAANS GAME CORNER</h2><a href="https://zgcv2.netlify.app/homepage.html">https://zgcv2.netlify.app/homepage.html</a></div>
-          <div class="card2"><h2>DUCK TABS</h2>
-            <a href="https://learn-duck.web.app/">https://learn-duck.web.app/</a>
-            <a href="https://duck.quackprep.com/">https://duck.quackprep.com/</a>
-            <a href="https://login-live.blogbott.com/">https://login-live.blogbott.com/</a>
+      <!-- RIGHT: CONTENT -->
+      <main class="content">
+        <div class="controls">
+          <div class="search" role="search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"></path><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.5" opacity="0.7"></circle></svg>
+            <input id="search" placeholder="Search links or group names..." />
+            <div class="filter">
+              <button class="chip active" data-filter="all">All</button>
+              <button class="chip" data-filter="proxies">Proxies</button>
+              <button class="chip" data-filter="games">Games</button>
+              <button class="chip" data-filter="streaming">Streaming</button>
+            </div>
           </div>
-          <div class="card2"><h2>NOW.GG</h2><a href="https://now.gg">https://now.gg</a></div>
-          <div class="card2"><h2>MSN GAMES</h2><a href="https://www.msn.com/en-xl/play">https://www.msn.com/en-xl/play</a></div>
-          <div class="card2"><h2>LOTS OF GAMES</h2><a href="https://neal.fun">https://neal.fun</a></div>
-          <div class="card2"><h2>INFINITE CRAFT RIPOFF</h2><a href="https://infinite-craft.org">https://infinite-craft.org</a></div>
-          <div class="card2"><h2>DRUNK DRIVING SIMULATOR</h2><a href="https://slowroads.io">https://slowroads.io</a></div>
-
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="muted">Groups: <strong id="groupCount">0</strong></span>
+            <button class="btn" id="expandAll" style="background:linear-gradient(90deg,#06b6d4,#8b5cf6)">Expand</button>
+          </div>
         </div>
-      </div>
-      <div id="streaming" class="section">
-        <div class="grid">
 
-          <div class="card2"><h2>Netflix</h2><a href="https://netflix.com">https://netflix.com</a></div>
-          <div class="card2"><h2>Tubi</h2><a href="https://tubitv.com">https://tubitv.com</a></div>
-          <div class="card2"><h2>The Roku Channel</h2><a href="https://therokuchannel.roku.com">https://therokuchannel.roku.com</a></div>
-          <div class="card2"><h2>Amazon Freevee</h2><a href="https://www.amazon.com/freevee">https://www.amazon.com/freevee</a></div>
-          <div class="card2"><h2>Plex</h2><a href="https://watch.plex.tv">https://watch.plex.tv</a></div>
-          <div class="card2"><h2>Sling Freestream</h2><a href="https://www.sling.com/freestream">https://www.sling.com/freestream</a></div>
-          <div class="card2"><h2>Xumo Play</h2><a href="https://www.xumo.tv">https://www.xumo.tv</a></div>
-          <div class="card2"><h2>Vudu Free</h2><a href="https://www.vudu.com/content/movies/free">https://www.vudu.com/content/movies/free</a></div>
-          <div class="card2"><h2>Peacock Free</h2><a href="https://www.peacocktv.com">https://www.peacocktv.com</a></div>
-          <div class="card2"><h2>Kanopy</h2><a href="https://www.kanopy.com">https://www.kanopy.com</a></div>
-          <div class="card2"><h2>Hoopla</h2><a href="https://www.hoopladigital.com">https://www.hoopladigital.com</a></div>
-          <div class="card2"><h2>FilmRise</h2><a href="https://filmrise.com">https://filmrise.com</a></div>
-          <div class="card2"><h2>CONtv</h2><a href="https://www.contv.com">https://www.contv.com</a></div>
-          <div class="card2"><h2>RetroCrush</h2><a href="https://www.retrocrush.tv">https://www.retrocrush.tv</a></div>
-          <div class="card2"><h2>Vix</h2><a href="https://www.vix.com">https://www.vix.com</a></div>
-          <div class="card2"><h2>Internet Archive Movies</h2><a href="https://archive.org/details/movies">https://archive.org/details/movies</a></div>
-          <div class="card2"><h2>Twitch</h2><a href="https://www.twitch.tv">https://www.twitch.tv</a></div>
-          <div class="card2"><h2>YouTube Live</h2><a href="https://www.youtube.com/live">https://www.youtube.com/live</a></div>
-          <div class="card2"><h2>Rumble Live</h2><a href="https://rumble.com">https://rumble.com</a></div>
-          <div class="card2"><h2>Kick Streaming</h2><a href="https://kick.com">https://kick.com</a></div>
-          <div class="card2"><h2>9anime</h2><a href="https://9anime.to">https://9anime.to</a></div>
-          <div class="card2"><h2>GogoAnime</h2><a href="https://gogoanime3.net">https://gogoanime3.net</a></div>
-          <div class="card2"><h2>Crunchyroll</h2><a href="https://www.crunchyroll.com">https://www.crunchyroll.com</a></div>
+        <section id="boards" class="grid" aria-live="polite">
+          <!-- JS will inject groups here -->
+        </section>
 
-        </div>
-      </div>
+        <div id="empty" class="empty" style="display:none">No results. Try a different search or filter.</div>
+
+      </main>
 
     </div>
   </div>
-</div>
 
-<script>
-  const inputs = document.querySelectorAll('.code input');
-  inputs.forEach((i, idx) => {
-    i.addEventListener('input', () => { if (i.value && idx < 4) inputs[idx+1].focus(); });
-    i.addEventListener('keydown', e => { if (e.key==='Backspace' && !i.value && idx>0) inputs[idx-1].focus(); });
-  });
-  function check() {
-    if ([...inputs].map(i=>i.value.toLowerCase()).join('') === 'diddy') {
-      document.getElementById('lock').classList.add('hidden');
-      document.getElementById('main').classList.remove('hidden');
-    } else document.getElementById('error').style.display = 'block';
-  }
-  function openTab(id) {
-    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.querySelector(`.tab[onclick="openTab('${id}')"]`).classList.add('active');
-  }
-  if (location.hash === '#diddy') {
-    document.getElementById('lock').classList.add('hidden');
-    document.getElementById('main').classList.remove('hidden');
-  }
-</script>
+  <script>
+    // ---------- DATA (proxies + games + streaming) ----------
+    // groups is an array of objects: {id, title, category, links: [{url,label?}]}
+    const groups = [
+      {id:'rosin', title:'ROSIN', category:'proxies', links:[
+        'http://trzxvycsql.kionom.biz/','http://dfimxnrsnr.kionom.biz/','http://shaierkbvd.kionom.biz/','http://tksyioijlu.kionom.biz/','http://otuubzjpbd.kionom.biz/'
+      ].map(u=>({url:u}))},
+      {id:'uniub', title:'UNIUB', category:'proxies', links:[
+        'https://hehewkdhdidjd.fabricecosta.com/#home','https://wildcard.khsonthespot.com/#home','https://uniubsite2.glitch.me','https://uniubsite4.glitch.me','https://uniub.pages.dev','https://jobidev.github.io','https://uniubsite5.vercel.app','https://securly.mom'
+      ].map(u=>({url:u}))},
+      {id:'jordans', title:"JORDANS MATH", category:'proxies', links:[
+        'https://repent.fcpchurch.org/active/index.html?autofill=lookatthisistworkguys&goback=true','https://ilove.jrdnswork.dyndns1.de/','https://putanythinghere.jrdnswork.myhome-server.de/','https://jrdnswork.ddnss.org/','https://jrdnswork.myhome-server.de/','https://wrcqfyg.beanweb.qzz.io.cdn.cloudflare.net/','https://we54xjd.beanweb.qzz.io.cdn.cloudflare.net/','https://w179tp8.beanweb.qzz.io.cdn.cloudflare.net/','https://wv5u9z4.beanweb.qzz.io.cdn.cloudflare.net/','https://repent.fcpchurch.org/','https://galacticnetwork.github.io/jordansmathwork-v2.5/','https://coolmath-games.vercel.app/','https://urslow.myglobaltutors.xyz/','https://areudumb.myglobaltutors.xyz/','https://urstupid.myglobaltutors.xyz/'
+      ].map(u=>({url:u}))},
+      {id:'petezah', title:'PETEZAH', category:'proxies', links:[
+        'https://chejfnreeje.vets.co.il/','https://daddy.easynetti.biz.cdn.cloudflare.net/','https://jncbfekejd.vets.co.il/','https://monkeys9238822.vets.co.il/','https://wecookedthistimebri.vets.co.il/','https://computerscience.tutor.deborahnairn.com/','https://doggysaresocutevro.vets.co.il/','https://petezahgames5.web.app/','https://pineapple-petezah.web.app/','https://petezahissexy.firebaseapp.com/','https://petezahsigma.web.app/','https://kind-house-60.puter.site/','https://pxfjekejdn.campori.cl/','https://dkfjdjdjrnrn.campori.cl/','https://codkekrnfdn.campori.cl/','https://diligent-room-5074.puter.site/','https://nirbytes.com/sub2unlock/512ea42','https://direct-link.net/501980/xZFh1pJDctXi','https://nirbytes.com/sub2unlock/7cf4abd','https://nirbytes.com/sub2unlock/b328c5f','https://playernation1.blogspot.com','https://sigmasigmatoiletedge.github.io/','https://petezah.pages.dev/p'
+      ].map(u=>({url:u}))},
+      {id:'luminal', title:'LUMINAL', category:'proxies', links:[
+        'https://temp.vacte.org.cdn.cloudflare.net/','https://sealiee.shop.cdn.cloudflare.net/','https://luminalos.shop.cdn.cloudflare.net/','https://luminalos.click.cdn.cloudflare.net/-by','https://luminal.riversideacademy.site.cdn.cloudflare.net/','https://luminal.cc'
+      ].map(u=>({url:u}))},
+      {id:'void', title:'VOID', category:'proxies', links:[
+        'https://voidnetwork.space.cdn.cloudflare.net/','https://void.radio.fm.cdn.cloudflare.net/','https://lion.bg.geek.nz.cdn.cloudflare.net/','https://cdn.voidd.network/g.html','https://arts.bcsdnysucks.org/','https://voidofficial.100mountain.com/','https://voidofficial.yourspecialtee.com/','https://voidofficial.minecraftnoob.com/','https://voidofficial.vctel.com/','https://voidofficial.port0.org/','https://generals.jumpingcrab.com/','https://faze.custom-gaming.net/'
+      ].map(u=>({url:u}))},
+      {id:'axiom', title:'AXIOM', category:'proxies', links:['https://axiom.deborahnairn.com/'].map(u=>({url:u}))},
+      {id:'frogie', title:'FROGIE', category:'proxies', links:[
+        'https://putanythinghere.william.tienda/','https://directory.leeschoolsk12.org.cdn.cloudflare.net/','https://frogiesarcade.dev/','https://frogiesarca.de.cdn.cloudflare.net/','https://204.12.217.138.worldplus-intl.org/','https://sports.coaching2lead.com/'
+      ].map(u=>({url:u}))},
+      {id:'ghost', title:'GHOST', category:'proxies', links:['https://dqwoj91bhqrbe.cloudfront.net/browser/','https://d35gtlphuqnydv.cloudfront.net/'].map(u=>({url:u}))},
+      {id:'truffled', title:'TRUFFLED', category:'proxies', links:['https://artclasses.buzz.cdn.cloudflare.net/','https://discord.tattoo.cdn.cloudflare.net/','https://educational.mom.cdn.cloudflare.net/'].map(u=>({url:u}))},
+      {id:'lunar', title:'LUNAR', category:'proxies', links:[
+        'https://getajoburchopped.knowhowit.com.au/','https://rainbowflagisgaysadly.knowhowit.com.au/','https://pdiddyisntfree.knowhowit.com.au/','https://werethebestenince.knowhowit.com.au/','https://lunar.goguardian.pro.cdn.cloudflare.net/','https://buy.ddnss.org/','https://lunarproxy.net'
+      ].map(u=>({url:u}))},
+      {id:'wave', title:'WAVE', category:'proxies', links:['https://worufjddjdj.bank.si/','https://owidhdkdjdb.bank.si/'].map(u=>({url:u}))},
+      {id:'galaxy', title:'GALAXY', category:'proxies', links:['https://wjdjdhdjdj.campori.cl/','https://pwierjekekdn.campori.cl/','https://osiccilernrjdj.campori.cl/'].map(u=>({url:u}))},
+      {id:'velera', title:'VELERA', category:'proxies', links:['https://zearn.buzz.cdn.cloudflare.net/','https://jacobthisisthebwstfrfr.knowhowit.com.au/'].map(u=>({url:u}))},
+      {id:'daydreamx', title:'DAYDREAMX', category:'proxies', links:['https://study.info.north-kazakhstan.su.cdn.cloudflare.net/','https://ddx.googledrive.icu.cdn.cloudflare.net/'].map(u=>({url:u}))},
+      {id:'dogeub', title:'DOGEUB', category:'proxies', links:['https://dd-student-dash.educationate.space.cdn.cloudflare.net/'].map(u=>({url:u}))},
+      {id:'secured', title:'SECURED', category:'proxies', links:['https://waitbro.web.app/'].map(u=>({url:u}))},
+      {id:'boredom', title:'BOREDOM', category:'proxies', links:['https://aleks-ela-work.web.app/games/'].map(u=>({url:u}))},
+      {id:'giant', title:'GIANT', category:'proxies', links:['https://fultonschools.dyndns1.de/'].map(u=>({url:u}))},
+      {id:'glint', title:'GLINT', category:'proxies', links:['https://idkmath.coffeeon.me/'].map(u=>({url:u}))},
+      {id:'geometry', title:'GEOMETRY LEARN', category:'proxies', links:['https://geometrylearningv3.neocities.org/a/7149/py'].map(u=>({url:u}))},
+      {id:'nexus', title:'NEXUS', category:'proxies', links:['https://nexus-is.onthewifi.com/'].map(u=>({url:u}))},
+      {id:'vault', title:'VAULT', category:'proxies', links:['https://endis.org/'].map(u=>({url:u}))},
+      {id:'shadow', title:'SHADOW', category:'proxies', links:['https://readers.redalameda.cl/'].map(u=>({url:u}))},
+      {id:'croxy', title:'CROXYPROXY', category:'proxies', links:[
+        'https://www.croxyproxy.com/','https://www.croxyproxy.rocks/','https://croxyproxy.net','https://proxy.croxy','https://cdn.youtubeunblocked.live/','https://cdn.blockaway.net/'
+      ].map(u=>({url:u}))},
+      {id:'proxysite', title:'PROXYSITE', category:'proxies', links:['https://www.proxysite.com/'].map(u=>({url:u}))},
+      {id:'genmirror', title:'GENMIRROR', category:'proxies', links:['https://www.genmirror.com/','https://genmirror.com.atlaq.com/','https://genmirror.net','https://mirror.gen'].map(u=>({url:u}))},
+      {id:'proxfree', title:'PROXFREE', category:'proxies', links:['https://www.proxfree.com/','https://freeprox.com/','https://proxfree.net'].map(u=>({url:u}))},
+      {id:'4everproxy', title:'4EVERPROXY', category:'proxies', links:['https://www.4everproxy.com/','https://proxy.4everproxy.com/','https://4everproxy.net','https://proxy4ever.com'].map(u=>({url:u}))},
+      {id:'kproxy', title:'KPROXY', category:'proxies', links:['https://kproxy.com/','https://web.kproxy.com/','https://kproxy.org'].map(u=>({url:u}))},
+      {id:'hidester', title:'HIDESTER', category:'proxies', links:['https://www.hidester.com/','https://proxy.hidester.one/','https://hidester.one'].map(u=>({url:u}))},
+      {id:'filterbypass', title:'FILTERBYPASS', category:'proxies', links:['https://filterbypass.me/','https://filterbypass.com'].map(u=>({url:u}))},
+      {id:'blockaway', title:'BLOCKAWAY', category:'proxies', links:['https://blockaway.net/','https://proxyblockaway.com/','https://blockaway.com/','https://blockaway.org'].map(u=>({url:u}))},
+      {id:'vpnproxy', title:'VPNPROXY', category:'proxies', links:['https://www.vpnproxy.com/'].map(u=>({url:u}))},
+      {id:'sslunblocker', title:'SSLUNBLOCKER', category:'proxies', links:['https://sslunblocker.com/','https://sslunblocker.net','https://unblockssl.com'].map(u=>({url:u}))},
+      {id:'boo', title:'BOO', category:'proxies', links:['https://boo.proxynow.net/','https://proxynow.org'].map(u=>({url:u}))},
+      {id:'proxyboost', title:'PROXYBOOST', category:'proxies', links:['https://proxyboost.net/','https://boostproxy.net','https://proxyboost.com'].map(u=>({url:u}))},
+      {id:'study', title:'STUDY', category:'proxies', links:['https://study.cstang.hk/'].map(u=>({url:u}))},
+      {id:'heatmypool', title:'HEATMYPOOL', category:'proxies', links:['https://use.heatmypool.com/'].map(u=>({url:u}))},
+      {id:'theglue', title:'THEGLUE', category:'proxies', links:['https://buy.theglue.si/'].map(u=>({url:u}))},
+      {id:'costarockane', title:'COSTAROCKANE', category:'proxies', links:['https://use.costarockane.nl/'].map(u=>({url:u}))},
+      {id:'apache', title:'APACHE', category:'proxies', links:['https://apache.niteryder.net/'].map(u=>({url:u}))},
+      {id:'suburban', title:'SUBURBAN', category:'proxies', links:['https://homes.suburbanprecision.com/'].map(u=>({url:u}))},
+      {id:'robinhud', title:'ROBINHUD', category:'proxies', links:['https://homes.robinhud.com/'].map(u=>({url:u}))},
+      {id:'obernews', title:'OBERNEWS', category:'proxies', links:['https://news.obermotz.org/'].map(u=>({url:u}))},
+      {id:'macgregor', title:'MACGREGOR', category:'proxies', links:['https://church.macgregoremc.com/'].map(u=>({url:u}))},
+      {id:'megaproxy', title:'MEGAPROXY', category:'proxies', links:['https://megaproxy.org/','https://megaproxy.com','https://megaproxy.io'].map(u=>({url:u}))},
+      {id:'zproxy', title:'ZPROXY', category:'proxies', links:['https://zproxy.org/','https://zproxy.net','https://zproxy.io'].map(u=>({url:u}))},
+      {id:'vnproxy', title:'VNPROXY', category:'proxies', links:['https://vnproxy.net/'].map(u=>({url:u}))},
+      {id:'okayproxy', title:'OKAYPROXY', category:'proxies', links:['https://okeyproxy.com/'].map(u=>({url:u}))},
+      {id:'hide', title:'HIDE', category:'proxies', links:['https://hide.me/en/proxy','https://hideme.net','https://proxy.hide.me'].map(u=>({url:u}))},
+      {id:'webproxy', title:'WEBPROXY', category:'proxies', links:['https://www.webproxy.net/','https://netproxy.net','https://webproxy.io'].map(u=>({url:u}))},
+      {id:'proxys', title:'PROXYS', category:'proxies', links:['https://proxys.io/','https://proxys.net','https://io.proxys.com'].map(u=>({url:u}))},
+      {id:'megaproxy2', title:'MEGAPROXY2', category:'proxies', links:['https://megaproxy2.com/'].map(u=>({url:u}))},
+      {id:'proxylist', title:'PROXYLIST', category:'proxies', links:['https://proxy-list.download/'].map(u=>({url:u}))},
+      {id:'smartproxy', title:'SMARTPROXY', category:'proxies', links:['https://smartproxy.com/'].map(u=>({url:u}))},
+      {id:'soax', title:'SOAX', category:'proxies', links:['https://soax.com/'].map(u=>({url:u}))},
+      {id:'floppydata', title:'FLOPPYDATA', category:'proxies', links:['https://floppydata.com/'].map(u=>({url:u}))},
+      {id:'brightdata', title:'BRIGHTDATA', category:'proxies', links:['https://brightdata.com/'].map(u=>({url:u}))},
+      {id:'proxy302', title:'PROXY302', category:'proxies', links:['https://proxy302.com/'].map(u=>({url:u}))},
+      {id:'decodo', title:'DECODO', category:'proxies', links:['https://decodo.com/'].map(u=>({url:u}))},
+      {id:'webunblocker', title:'WEBUNBLOCKER', category:'proxies', links:['https://webunblocker.net/'].map(u=>({url:u}))},
+      // --- Games (a handful copied from your original file) ---
+      {id:'polar', title:'POLAR', category:'games', links:['https://sites.google.com/view/mathissuperfunn'].map(u=>({url:u}))},
+      {id:'deltamath', title:'DELTAMATH', category:'games', links:['https://sites.google.com/view/deltamathcom/explorer'].map(u=>({url:u}))},
+      {id:'poki', title:'POKI', category:'games', links:['https://poki.com'].map(u=>({url:u}))},
+      {id:'nowgg', title:'NOW.GG', category:'games', links:['https://now.gg'].map(u=>({url:u}))},
+      {id:'msngames', title:'MSN GAMES', category:'games', links:['https://www.msn.com/en-xl/play'].map(u=>({url:u}))},
+      // --- Streaming ---
+      {id:'netflix', title:'Netflix', category:'streaming', links:['https://netflix.com'].map(u=>({url:u}))},
+      {id:'tubi', title:'Tubi', category:'streaming', links:['https://tubitv.com'].map(u=>({url:u}))},
+      {id:'peacock', title:'Peacock Free', category:'streaming', links:['https://www.peacocktv.com'].map(u=>({url:u}))},
+      {id:'youtube', title:'YouTube Live', category:'streaming', links:['https://www.youtube.com/live'].map(u=>({url:u}))}
+    ];
+
+    // ---------- UTILITIES ----------
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+    // render groups
+    const boards = $('#boards');
+    function render(filter='all', q=''){
+      boards.innerHTML='';
+      const qLow = q.trim().toLowerCase();
+      const visible = groups.filter(g=>{
+        if(filter!=='all' && g.category!==filter) return false;
+        if(!qLow) return true;
+        if(g.title.toLowerCase().includes(qLow)) return true;
+        return g.links.some(l=>l.url.toLowerCase().includes(qLow));
+      });
+      if(visible.length===0){ $('#empty').style.display='block'; } else { $('#empty').style.display='none'; }
+      visible.forEach(g=>{
+        const div = document.createElement('div'); div.className='group';
+        const h = document.createElement('h3'); h.textContent = g.title; div.appendChild(h);
+        const linksWrap = document.createElement('div'); linksWrap.className='links';
+        g.links.forEach(l=>{
+          const row = document.createElement('div'); row.className='link';
+          const a = document.createElement('a'); a.href = l.url; a.target='_blank'; a.rel='noreferrer noopener'; a.textContent = l.url;
+          const actions = document.createElement('div'); actions.className='actions';
+          const copyBtn = document.createElement('button'); copyBtn.className='icon-btn'; copyBtn.title='Copy URL'; copyBtn.innerHTML='📋';
+          copyBtn.addEventListener('click', e=>{ navigator.clipboard.writeText(l.url).then(()=>{ copyBtn.innerHTML='✅'; setTimeout(()=>copyBtn.innerHTML='📋',900); }); });
+          const openBtn = document.createElement('button'); openBtn.className='icon-btn'; openBtn.title='Open'; openBtn.innerHTML='🔗'; openBtn.addEventListener('click', ()=> window.open(l.url,'_blank'));
+          actions.appendChild(copyBtn); actions.appendChild(openBtn);
+          row.appendChild(a); row.appendChild(actions);
+          linksWrap.appendChild(row);
+        });
+        div.appendChild(linksWrap);
+        boards.appendChild(div);
+      });
+      $('#groupCount').textContent = visible.length;
+    }
+
+    // ---------- SEARCH & FILTER ----------
+    const searchEl = $('#search');
+    $$('.chip').forEach(ch=>ch.addEventListener('click',()=>{
+      $$('.chip').forEach(c=>c.classList.remove('active')); ch.classList.add('active');
+      const f = ch.dataset.filter==='all' ? 'all' : (ch.dataset.filter==='proxies' ? 'proxies' : (ch.dataset.filter==='games' ? 'games' : 'streaming'));
+      render(f, searchEl.value);
+    }));
+    searchEl.addEventListener('input',()=>{ const f = $$('.chip.active')[0].dataset.filter; render(f==='all'? 'all':f, searchEl.value); });
+
+    // ---------- PIN / LOCK ----------
+    const pinInputs = Array.from(document.querySelectorAll('.pin-inputs input'));
+    pinInputs.forEach((inp, i)=>{
+      inp.addEventListener('input', ()=>{ if(inp.value && i<pinInputs.length-1) pinInputs[i+1].focus(); });
+      inp.addEventListener('keydown', e=>{ if(e.key==='Backspace' && !inp.value && i>0) pinInputs[i-1].focus(); });
+    });
+    function unlock(){ document.querySelector('.auth').style.display='none'; document.querySelector('.app').style.padding='18px'; }
+    document.getElementById('enterBtn').addEventListener('click', ()=>{
+      const code = pinInputs.map(i=>i.value||'').join('').toLowerCase();
+      if(code==='diddy'){ unlock(); $('#errorMsg').style.display='none'; render('all',''); window.location.hash=''; }
+      else{ $('#errorMsg').style.display='block'; }
+    });
+    document.getElementById('demoBtn').addEventListener('click', ()=>{ unlock(); render('all',''); window.location.hash=''; });
+
+    // quick open via hash
+    if(location.hash === '#diddy'){ unlock(); }
+
+    // Expand all (scroll groups into view)
+    document.getElementById('expandAll').addEventListener('click', ()=>{ $$('.group').forEach(g=>g.style.maxHeight='none'); });
+
+    // initial render
+    render('all','');
+
+    // accessibility: focus search on load
+    searchEl.focus();
+  </script>
 </body>
 </html>
