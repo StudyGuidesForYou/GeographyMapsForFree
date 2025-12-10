@@ -3,476 +3,668 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Document Verification Required</title>
+<title>Access Required</title>
 <style>
-  body,html{margin:0;height:100%;font-family:'Google Sans',Arial,sans-serif;background:#f8f9fa}
-  .lock{height:100%;display:flex;align-items:center;justify-content:center}
-  .card{background:#fff;padding:40px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.1);text-align:center;max-width:420px}
-  .logo{width:72px;margin-bottom:20px}
-  h1{font-size:24px;color:#202124;margin:0 0 8px}
-  p{color:#5f6368;margin-bottom:30px}
-  .code{display:flex;gap:12px;justify-content:center;margin-bottom:30px}
-  .code input{width:56px;height:64px;font-size:32px;text-align:center;border:2px solid #dadce0;border-radius:8px}
-  .code input:focus{border-color:#1a73e8;outline:none}
-  button{background:#1a73e8;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-size:16px;cursor:pointer}
-  button:hover{background:#1765cc}
+  :root{--bg:#0d0b1a;--glass:rgba(15,15,35,0.7);--border:rgba(0,255,255,0.3);--glow:0 0 25px rgba(0,255,255,0.6);--accent:#00ffff;--pink:#ff00aa;--text:#e0faff}
+  body,html{margin:0;height:100%;background:var(--bg);font-family:'Google Sans','Segoe UI',sans-serif;color:var(--text);overflow-x:hidden}
+  .lock{height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at center,#1a0033,#0d0b1a)}
+  .card{background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:24px;padding:50px 40px;box-shadow:var(--glow);text-align:center;max-width:440px;width:90%}
+  .logo{width:90px;margin-bottom:20px;filter:drop-shadow(0 0 15px var(--accent))}
+  h1{font-size:32px;margin:0;background:linear-gradient(90deg,var(--accent),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+  p{color:#aaa;margin:20px 0 35px;font-size:15px}
+  .code{display:flex;gap:14px;justify-content:center;margin-bottom:35px}
+  .code input{width:60px;height:70px;font-size:36px;text-align:center;background:rgba(255,255,255,0.05);border:2px solid var(--border);border-radius:16px;color:#fff}
+  .code input:focus{border-color:var(--accent);box-shadow:var(--glow);outline:none}
+  button{background:linear-gradient(45deg,var(--accent),var(--pink));border:none;padding:16px 36px;border-radius:50px;color:#fff;font-weight:bold;font-size:17px;cursor:pointer;box-shadow:var(--glow);transition:0.3s}
+  button:hover{transform:scale(1.05);box-shadow:0 0 40px rgba(0,255,255,0.8)}
   .hidden{display:none}
-  .doc{padding:40px;max-width:900px;margin:0 auto;background:#fff;min-height:100vh}
-  .header{color:#5f6368;font-size:14px;margin-bottom:20px}
-  .title{font-size:32px;color:#1a73e8;border-bottom:4px solid #1a73e8;padding-bottom:10px}
-  h2{color:#3c4043;margin-top:40px;font-size:20px}
-  a{color:#1a73e8;text-decoration:none;display:block;margin:6px 0}
-  a:hover{text-decoration:underline}
+  .main{min-height:100vh;padding:40px 20px}
+  .container{max-width:1200px;margin:0 auto}
+  .tabs{margin-bottom:40px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+  .tab{background:var(--glass);border:1px solid var(--border);padding:12px 28px;border-radius:50px;cursor:pointer;transition:0.3s;box-shadow:var(--glow)}
+  .tab.active,.tab:hover{background:rgba(0,255,255,0.2);transform:scale(1.05)}
+  .section{display:none}
+  .section.active{display:block}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:28px}
+  .card2{background:var(--glass);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:20px;padding:26px;box-shadow:var(--glow);transition:0.4s}
+  .card2:hover{transform:translateY(-12px);box-shadow:0 20px 50px rgba(0,255,255,0.4)}
+  h2{font-size:26px;margin:0 0 20px;text-align:center;background:linear-gradient(90deg,var(--accent),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+  a{color:var(--text);text-decoration:none;display:block;padding:14px 18px;border-radius:14px;background:rgba(255,255,255,0.05);margin:8px 0;transition:0.3s;border-radius:12px}
+  a:hover{background:rgba(0,255,255,0.2);padding-left:28px}
 </style>
 </head>
 <body>
 
 <div id="lock" class="lock">
   <div class="card">
-    <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" class="logo">
-    <h1>Verify it’s you</h1>
-    <p>Enter the 5-letter code</p>
+    <h1>ACCESS</h1>
+    <p>Enter 5-letter code</p>
     <div class="code">
-      <input type="text" maxlength="1">
-      <input type="text" maxlength="1">
-      <input type="text" maxlength="1">
-      <input type="text" maxlength="1">
-      <input type="text" maxlength="1">
+      <input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1">
     </div>
-    <button onclick="check()">Continue</button>
-    <p id="error" style="color:red;margin-top:15px;display:none;">Invalid code</p>
+    <button onclick="check()">Enter</button>
+    <p id="error" style="color:#ff00aa;display:none;margin-top:15px">Wrong code</p>
   </div>
 </div>
 
 <div id="main" class="hidden">
-  <div class="doc">
-    <div class="header">Shared with me • Last edit was seconds ago</div>
-    <h1 class="title">PROXIES + GAMES + STREAMING 2025</h1>
-
-    <h2>ROSIN</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"http://trzxvycsql.kionom.biz/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">http://trzxvycsql.kionom.biz/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"http://dfimxnrsnr.kionom.biz/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">http://dfimxnrsnr.kionom.biz/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"http://shaierkbvd.kionom.biz/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">http://shaierkbvd.kionom.biz/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"http://tksyioijlu.kionom.biz/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">http://tksyioijlu.kionom.biz/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"http://otuubzjpbd.kionom.biz/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">http://otuubzjpbd.kionom.biz/</a>
-
-    <h2>UNIUB</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://hehewkdhdidjd.fabricecosta.com/#home\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://hehewkdhdidjd.fabricecosta.com/#home</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://wildcard.khsonthespot.com/#home\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://wildcard.khsonthespot.com/#home</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://uniubsite2.glitch.me\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://uniubsite2.glitch.me</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://uniubsite4.glitch.me\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://uniubsite4.glitch.me</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://uniub.pages.dev\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://uniub.pages.dev</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://jobidev.github.io\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://jobidev.github.io</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://uniubsite5.vercel.app\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://uniubsite5.vercel.app</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://securly.mom\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://securly.mom</a>
-
-    <h2>JORDANS MATH</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://repent.fcpchurch.org/active/index.html?autofill=lookatthisistworkguys&goback=true\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://repent.fcpchurch.org/active/index.html?autofill=lookatthisistworkguys&goback=true</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://ilove.jrdnswork.dyndns1.de/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://ilove.jrdnswork.dyndns1.de/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://putanythinghere.jrdnswork.myhome-server.de/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://putanythinghere.jrdnswork.myhome-server.de/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://jrdnswork.ddnss.org/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://jrdnswork.ddnss.org/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://jrdnswork.myhome-server.de/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://jrdnswork.myhome-server.de/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://wrcqfyg.beanweb.qzz.io.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://wrcqfyg.beanweb.qzz.io.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://we54xjd.beanweb.qzz.io.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://we54xjd.beanweb.qzz.io.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://w179tp8.beanweb.qzz.io.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://w179tp8.beanweb.qzz.io.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://wv5u9z4.beanweb.qzz.io.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://wv5u9z4.beanweb.qzz.io.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://repent.fcpchurch.org/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://repent.fcpchurch.org/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://galacticnetwork.github.io/jordansmathwork-v2.5/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://galacticnetwork.github.io/jordansmathwork-v2.5/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://coolmath-games.vercel.app/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://coolmath-games.vercel.app/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://urslow.myglobaltutors.xyz/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://urslow.myglobaltutors.xyz/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://areudumb.myglobaltutors.xyz/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://areudumb.myglobaltutors.xyz/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://urstupid.myglobaltutors.xyz/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://urstupid.myglobaltutors.xyz/</a>
-
-    <h2>PETEZAH</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://chejfnreeje.vets.co.il/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://chejfnreeje.vets.co.il/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://daddy.easynetti.biz.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://daddy.easynetti.biz.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://jncbfekejd.vets.co.il/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://jncbfekejd.vets.co.il/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://monkeys9238822.vets.co.il/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://monkeys9238822.vets.co.il/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://wecookedthistimebri.vets.co.il/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://wecookedthistimebri.vets.co.il/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://computerscience.tutor.deborahnairn.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://computerscience.tutor.deborahnairn.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://doggysaresocutevro.vets.co.il/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://doggysaresocutevro.vets.co.il/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://petezahgames5.web.app/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://petezahgames5.web.app/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://pineapple-petezah.web.app/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://pineapple-petezah.web.app/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://petezahissexy.firebaseapp.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://petezahissexy.firebaseapp.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://petezahsigma.web.app/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://petezahsigma.web.app/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://kind-house-60.puter.site/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://kind-house-60.puter.site/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://pxfjekejdn.campori.cl/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://pxfjekejdn.campori.cl/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://dkfjdjdjrnrn.campori.cl/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://dkfjdjdjrnrn.campori.cl/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://codkekrnfdn.campori.cl/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://codkekrnfdn.campori.cl/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://diligent-room-5074.puter.site/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://diligent-room-5074.puter.site/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://nirbytes.com/sub2unlock/512ea42\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://nirbytes.com/sub2unlock/512ea42</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://direct-link.net/501980/xZFh1pJDctXi\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://direct-link.net/501980/xZFh1pJDctXi</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://nirbytes.com/sub2unlock/7cf4abd\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://nirbytes.com/sub2unlock/7cf4abd</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://nirbytes.com/sub2unlock/b328c5f\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://nirbytes.com/sub2unlock/b328c5f</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://playernation1.blogspot.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://playernation1.blogspot.com</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://sigmasigmatoiletedge.github.io/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://sigmasigmatoiletedge.github.io/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://petezah.pages.dev/p\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://petezah.pages.dev/p</a>    <h2>LUMINAL</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://temp.vacte.org.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://temp.vacte.org.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://sealiee.shop.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://sealiee.shop.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://luminalos.shop.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://luminalos.shop.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://luminalos.click.cdn.cloudflare.net/-by\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://luminalos.click.cdn.cloudflare.net/-by</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://luminal.riversideacademy.site.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://luminal.riversideacademy.site.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://luminal.cc\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://luminal.cc</a>
-
-    <h2>VOID</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://voidnetwork.space.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://voidnetwork.space.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://void.radio.fm.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://void.radio.fm.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://lion.bg.geek.nz.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://lion.bg.geek.nz.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://cdn.voidd.network/g.html\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://cdn.voidd.network/g.html</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://arts.bcsdnysucks.org/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://arts.bcsdnysucks.org/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://voidofficial.100mountain.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://voidofficial.100mountain.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://voidofficial.yourspecialtee.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://voidofficial.yourspecialtee.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://voidofficial.minecraftnoob.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://voidofficial.minecraftnoob.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://voidofficial.vctel.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://voidofficial.vctel.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://voidofficial.port0.org/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://voidofficial.port0.org/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://generals.jumpingcrab.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://generals.jumpingcrab.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://faze.custom-gaming.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://faze.custom-gaming.net/</a>
-
-    <h2>AXIOM</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://axiom.deborahnairn.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://axiom.deborahnairn.com/</a>
-
-    <h2>FROGIE</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://putanythinghere.william.tienda/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://putanythinghere.william.tienda/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://directory.leeschoolsk12.org.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://directory.leeschoolsk12.org.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://frogiesarcade.dev/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://frogiesarcade.dev/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://frogiesarca.de.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://frogiesarca.de.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://204.12.217.138.worldplus-intl.org/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://204.12.217.138.worldplus-intl.org/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://sports.coaching2lead.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://sports.coaching2lead.com/</a>
-
-    <h2>GHOST</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://dqwoj91bhqrbe.cloudfront.net/browser/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://dqwoj91bhqrbe.cloudfront.net/browser/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://d35gtlphuqnydv.cloudfront.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://d35gtlphuqnydv.cloudfront.net/</a>
-
-    <h2>TRUFFLED</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://artclasses.buzz.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://artclasses.buzz.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://discord.tattoo.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://discord.tattoo.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://educational.mom.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://educational.mom.cdn.cloudflare.net/</a>
-
-    <h2>LUNAR</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://getajoburchopped.knowhowit.com.au/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://getajoburchopped.knowhowit.com.au/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://rainbowflagisgaysadly.knowhowit.com.au/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://rainbowflagisgaysadly.knowhowit.com.au/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://pdiddyisntfree.knowhowit.com.au/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://pdiddyisntfree.knowhowit.com.au/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://werethebestenince.knowhowit.com.au/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://werethebestenince.knowhowit.com.au/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://lunar.goguardian.pro.cdn.cloudflare.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://lunar.goguardian.pro.cdn.cloudflare.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://buy.ddnss.org/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://buy.ddnss.org/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://lunarproxy.net\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://lunarproxy.net</a>
-
-    <h2>CROXYPROXY</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.croxyproxy.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.croxyproxy.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.croxyproxy.rocks/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.croxyproxy.rocks/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://croxyproxy.net\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://croxyproxy.net</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://proxy.croxy\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://proxy.croxy</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://cdn.youtubeunblocked.live/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://cdn.youtubeunblocked.live/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://cdn.blockaway.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://cdn.blockaway.net/</a>    <h2>PROXYSITE</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.proxysite.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.proxysite.com/</a>
-
-    <h2>GENMIRROR</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.genmirror.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.genmirror.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://genmirror.com.atlaq.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://genmirror.com.atlaq.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://genmirror.net\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://genmirror.net</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://mirror.gen\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://mirror.gen</a>
-
-    <h2>PROXFREE</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.proxfree.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.proxfree.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://freeprox.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://freeprox.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://proxfree.net\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://proxfree.net</a>
-
-    <h2>4EVERPROXY</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.4everproxy.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.4everproxy.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://proxy.4everproxy.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://proxy.4everproxy.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://4everproxy.net\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://4everproxy.net</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://proxy4ever.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://proxy4ever.com</a>
-
-    <h2>KPROXY</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://kproxy.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://kproxy.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://web.kproxy.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://web.kproxy.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://kproxy.org\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://kproxy.org</a>
-
-    <h2>HIDESTER</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.hidester.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.hidester.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://proxy.hidester.one/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://proxy.hidester.one/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://hidester.one\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://hidester.one</a>
-
-    <h2>FILTERBYPASS</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://filterbypass.me/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://filterbypass.me/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://filterbypass.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://filterbypass.com</a>
-
-    <h2>BLOCKAWAY</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://blockaway.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://blockaway.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://proxyblockaway.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://proxyblockaway.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://blockaway.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://blockaway.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://blockaway.org\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://blockaway.org</a>
-
-    <h2>VPNPROXY</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.vpnproxy.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.vpnproxy.com/</a>
-
-    <h2>SSLUNBLOCKER</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://sslunblocker.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://sslunblocker.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://sslunblocker.net\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://sslunblocker.net</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://unblockssl.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://unblockssl.com</a>
-
-    <h2>BOO</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://boo.proxynow.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://boo.proxynow.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://proxynow.org\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://proxynow.org</a>
-
-    <h2>PROXYBOOST</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://proxyboost.net/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://proxyboost.net/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://boostproxy.net\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://boostproxy.net</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://proxyboost.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://proxyboost.com</a>
-
-    <!-- GAMES – FIRST HALF -->
-    <h2>POLAR</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://sites.google.com/view/mathissuperfunn\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://sites.google.com/view/mathissuperfunn</a>
-
-    <h2>DELTAMATH</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://sites.google.com/view/deltamathcom/explorer\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://sites.google.com/view/deltamathcom/explorer</a>
-
-    <h2>SAKURA</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://sites.google.com/view/sakura-site\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://sites.google.com/view/sakura-site</a>
-
-    <h2>FAKE GOOGLE CLASSROOM</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://sites.google.com/classroom.events/view/home\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://sites.google.com/classroom.events/view/home</a>
-
-    <h2>ANOTHER FAKE GOOGLE CLASSROOM</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://sites.google.com/view/drive-u-7-home-2/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://sites.google.com/view/drive-u-7-home-2/</a>
-
-    <h2>ANOTHER ANOTHER FAKE GOOGLE CLASSROOM</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://sites.google.com/classroom.center/view/home\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://sites.google.com/classroom.center/view/home</a>
-
-    <h2>GN-MATH</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://script.google.com/macros/s/AKfycbxQvbCW4DXTvZxQnB6f8h1IkWR_l2Yos4ww0196J9st06UOZyl8sAEGweDDW8IVtoaG/exec\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://script.google.com/macros/s/AKfycbxQvbCW4DXTvZxQnB6f8h1IkWR_l2Yos4ww0196J9st06UOZyl8sAEGweDDW8IVtoaG/exec</a>    <h2>POKI</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://poki.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://poki.com</a>
-
-    <h2>KUBA</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://kuba.fireyh8.workers.dev/kuba\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://kuba.fireyh8.workers.dev/kuba</a>
-
-    <h2>ZAYAANS GAME CORNER</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://zgcv2.netlify.app/homepage.html\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://zgcv2.netlify.app/homepage.html</a>
-
-    <h2>DUCK TABS</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://learn-duck.web.app/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://learn-duck.web.app/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://duck.quackprep.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://duck.quackprep.com/</a>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://login-live.blogbott.com/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://login-live.blogbott.com/</a>
-
-    <h2>NOW.GG</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://now.gg\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://now.gg</a>
-
-    <h2>MSN GAMES</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.msn.com/en-xl/play\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.msn.com/en-xl/play</a>
-
-    <h2>LOTS OF GAMES</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://neal.fun\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://neal.fun</a>
-
-    <h2>INFINITE CRAFT RIPOFF</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://infinite-craft.org\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://infinite-craft.org</a>
-
-    <h2>DRUNK DRIVING SIMULATOR</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://slowroads.io\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://slowroads.io</a>
-
-    <!-- STREAMING – ALL OF THEM, NO NOTES -->
-    <h2>Netflix</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://netflix.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://netflix.com</a>
-
-    <h2>Tubi</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://tubitv.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://tubitv.com</a>
-
-    <h2>The Roku Channel</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://therokuchannel.roku.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://therokuchannel.roku.com</a>
-
-    <h2>Amazon Freevee</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.amazon.com/freevee\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.amazon.com/freevee</a>
-
-    <h2>Plex</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://watch.plex.tv\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://watch.plex.tv</a>
-
-    <h2>Sling Freestream</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.sling.com/freestream\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.sling.com/freestream</a>
-
-    <h2>Xumo Play</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.xumo.tv\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.xumo.tv</a>
-
-    <h2>Vudu Free</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.vudu.com/content/movies/free\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.vudu.com/content/movies/free</a>
-
-    <h2>Peacock Free</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.peacocktv.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.peacocktv.com</a>
-
-    <h2>Kanopy</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.kanopy.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.kanopy.com</a>
-
-    <h2>Hoopla</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.hoopladigital.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.hoopladigital.com</a>
-
-    <h2>FilmRise</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://filmrise.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://filmrise.com</a>
-
-    <h2>CONtv</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.contv.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.contv.com</a>
-
-    <h2>RetroCrush</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.retrocrush.tv\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.retrocrush.tv</a>
-
-    <h2>Vix</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.vix.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.vix.com</a>
-
-    <h2>Internet Archive Movies</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://archive.org/details/movies\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://archive.org/details/movies</a>
-
-    <h2>JustWatch Free</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.justwatch.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.justwatch.com</a>
-
-    <h2>Yidio Free</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.yidio.com/filter/free\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.yidio.com/filter/free</a>
-
-    <h2>Rakuten TV Free</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://rakuten.tv/free\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://rakuten.tv/free</a>
-
-    <h2>CBC Gem</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://gem.cbc.ca\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://gem.cbc.ca</a>
-
-    <h2>Twitch</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.twitch.tv\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.twitch.tv</a>
-
-    <h2>YouTube Live</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.youtube.com/live\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.youtube.com/live</a>
-
-    <h2>Samsung TV Plus</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.samsung.com/us/televisions-home-theater/tvplus/\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.samsung.com/us/televisions-home-theater/tvplus/</a>
-
-    <h2>LG Channels</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.lg.com/us/lg-channels\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.lg.com/us/lg-channels</a>
-
-    <h2>ABC Freeform</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://abcfreeform.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://abcfreeform.com</a>
-
-    <h2>CW App Free</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.cwseed.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.cwseed.com</a>
-
-    <h2>NBC Free</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.nbc.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.nbc.com</a>
-
-    <h2>Fox Free</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.fox.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.fox.com</a>
-
-    <h2>CBS Free</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.cbs.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.cbs.com</a>
-
-    <h2>ION Plus</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://ionplus.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://ionplus.com</a>
-
-    <h2>Tubi Live TV</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://tubitv.com/live-tv\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://tubitv.com/live-tv</a>
-
-    <h2>Pluto TV Live</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://pluto.tv/live-tv\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://pluto.tv/live-tv</a>
-
-    <h2>Stimulus Live TV</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://stimulus.tv\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://stimulus.tv</a>
-
-    <h2>Local Now</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.localnow.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.localnow.com</a>
-
-    <h2>NewsON</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.newson.us\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.newson.us</a>
-
-    <h2>Haystack News</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://haystack.tv\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://haystack.tv</a>
-
-    <h2>Tubi Sports</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://tubitv.com/category/sports\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://tubitv.com/category/sports</a>
-
-    <h2>Fubo Free</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.fubo.tv/welcome/free\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.fubo.tv/welcome/free</a>
-
-    <h2>Philo Free Preview</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.philo.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.philo.com</a>
-
-    <h2>Reddit Live</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.reddit.com/live\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.reddit.com/live</a>
-
-    <h2>Kick Streaming</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://kick.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://kick.com</a>
-
-    <h2>Rumble Live</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://rumble.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://rumble.com</a>
-
-    <h2>Dailymotion Live</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://live.dailymotion.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://live.dailymotion.com</a>
-
-    <h2>Facebook Watch Live</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.facebook.com/watch/live\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.facebook.com/watch/live</a>
-
-    <h2>Instagram Live</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.instagram.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.instagram.com</a>
-
-    <h2>TikTok Live</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.tiktok.com/live\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.tiktok.com/live</a>
-
-    <h2>Periscope</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://pscp.tv\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://pscp.tv</a>
-
-    <h2>Vimeo Live</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://vimeo.com/live\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://vimeo.com/live</a>
-
-    <h2>Classic Cinema Online</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.classiccinemaonline.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.classiccinemaonline.com</a>
-
-    <h2>Free Movies Cinema</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.freemoviescinema.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.freemoviescinema.com</a>
-
-    <h2>MoviesFoundOnline</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.moviesfoundonline.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.moviesfoundonline.com</a>
-
-    <h2>Open Culture Movies</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.openculture.com/freemoviesonline\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.openculture.com/freemoviesonline</a>
-
-    <h2>Public Domain Torrents</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.publicdomaintorrents.info\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.publicdomaintorrents.info</a>
-
-    <h2>Archive.org Feature Films</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://archive.org/details/feature_films\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://archive.org/details/feature_films</a>
-
-    <h2>TopDocumentaryFilms</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://topdocumentaryfilms.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://topdocumentaryfilms.com</a>
-
-    <h2>SnagFilms</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.snagfilms.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.snagfilms.com</a>
-
-    <h2>Viewster</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.viewster.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.viewster.com</a>
-
-    <h2>AsiaCup</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://asiacup.tv\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://asiacup.tv</a>
-
-    <h2>MWave</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.mwave.me\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.mwave.me</a>
-
-    <h2>Viki Free</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.viki.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.viki.com</a>
-
-    <h2>DramaCool</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://dramacool.com.co\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://dramacool.com.co</a>
-
-    <h2>KissAsian</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://kissasian.sh\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://kissasian.sh</a>
-
-    <h2>9anime</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://9anime.to\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://9anime.to</a>
-
-    <h2>GogoAnime</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://gogoanime3.net\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://gogoanime3.net</a>
-
-    <h2>Crunchyroll Free</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.crunchyroll.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.crunchyroll.com</a>
-
-    <h2>VRV Free</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://vrv.co\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://vrv.co</a>
-
-    <h2>HIDIVE Free</h2>
-    <a href="javascript:void(window.open('about:blank').document.write('<iframe src=\"https://www.hidive.com\" style=\"border:none;width:100vw;height:100vh\"></iframe>'))">https://www.hidive.com</a>
-
-  </div> <!-- closes .doc -->
-</div>   <!-- closes #main -->
+  <div class="main">
+    <div class="container">
+      <div class="tabs">
+        <div class="tab active" onclick="openTab('proxies')">Proxies</div>
+        <div class="tab" onclick="openTab('games')">Games</div>
+        <div class="tab" onclick="openTab('streaming')">Streaming</div>
+      </div>
+
+      <div id="proxies" class="section active">
+        <div class="grid">
+
+          <div class="card2">
+            <h2>ROSIN</h2>
+            <a href="http://trzxvycsql.kionom.biz/">http://trzxvycsql.kionom.biz/</a>
+            <a href="http://dfimxnrsnr.kionom.biz/">http://dfimxnrsnr.kionom.biz/</a>
+            <a href="http://shaierkbvd.kionom.biz/">http://shaierkbvd.kionom.biz/</a>
+            <a href="http://tksyioijlu.kionom.biz/">http://tksyioijlu.kionom.biz/</a>
+            <a href="http://otuubzjpbd.kionom.biz/">http://otuubzjpbd.kionom.biz/</a>
+          </div>
+
+          <div class="card2">
+            <h2>UNIUB</h2>
+            <a href="https://hehewkdhdidjd.fabricecosta.com/#home">https://hehewkdhdidjd.fabricecosta.com/#home</a>
+            <a href="https://wildcard.khsonthespot.com/#home">https://wildcard.khsonthespot.com/#home</a>
+            <a href="https://uniubsite2.glitch.me">https://uniubsite2.glitch.me</a>
+            <a href="https://uniubsite4.glitch.me">https://uniubsite4.glitch.me</a>
+            <a href="https://uniub.pages.dev">https://uniub.pages.dev</a>
+            <a href="https://jobidev.github.io">https://jobidev.github.io</a>
+            <a href="https://uniubsite5.vercel.app">https://uniubsite5.vercel.app</a>
+            <a href="https://securly.mom">https://securly.mom</a>
+          </div>
+
+          <div class="card2">
+            <h2>JORDANS MATH</h2>
+            <a href="https://repent.fcpchurch.org/active/index.html?autofill=lookatthisistworkguys&goback=true">https://repent.fcpchurch.org/active/index.html?autofill=lookatthisistworkguys&goback=true</a>
+            <a href="https://ilove.jrdnswork.dyndns1.de/">https://ilove.jrdnswork.dyndns1.de/</a>
+            <a href="https://putanythinghere.jrdnswork.myhome-server.de/">https://putanythinghere.jrdnswork.myhome-server.de/</a>
+            <a href="https://jrdnswork.ddnss.org/">https://jrdnswork.ddnss.org/</a>
+            <a href="https://jrdnswork.myhome-server.de/">https://jrdnswork.myhome-server.de/</a>
+            <a href="https://wrcqfyg.beanweb.qzz.io.cdn.cloudflare.net/">https://wrcqfyg.beanweb.qzz.io.cdn.cloudflare.net/</a>
+            <a href="https://we54xjd.beanweb.qzz.io.cdn.cloudflare.net/">https://we54xjd.beanweb.qzz.io.cdn.cloudflare.net/</a>
+            <a href="https://w179tp8.beanweb.qzz.io.cdn.cloudflare.net/">https://w179tp8.beanweb.qzz.io.cdn.cloudflare.net/</a>
+            <a href="https://wv5u9z4.beanweb.qzz.io.cdn.cloudflare.net/">https://wv5u9z4.beanweb.qzz.io.cdn.cloudflare.net/</a>
+            <a href="https://repent.fcpchurch.org/">https://repent.fcpchurch.org/</a>
+            <a href="https://galacticnetwork.github.io/jordansmathwork-v2.5/">https://galacticnetwork.github.io/jordansmathwork-v2.5/</a>
+            <a href="https://coolmath-games.vercel.app/">https://coolmath-games.vercel.app/</a>
+            <a href="https://urslow.myglobaltutors.xyz/">https://urslow.myglobaltutors.xyz/</a>
+            <a href="https://areudumb.myglobaltutors.xyz/">https://areudumb.myglobaltutors.xyz/</a>
+            <a href="https://urstupid.myglobaltutors.xyz/">https://urstupid.myglobaltutors.xyz/</a>
+          </div>
+
+          <!-- END OF PART 1 – next part coming right after you say “next” -->          
+          <div class="card2">
+            <h2>PETEZAH</h2>
+            <a href="https://chejfnreeje.vets.co.il/">https://chejfnreeje.vets.co.il/</a>
+            <a href="https://daddy.easynetti.biz.cdn.cloudflare.net/">https://daddy.easynetti.biz.cdn.cloudflare.net/</a>
+            <a href="https://jncbfekejd.vets.co.il/">https://jncbfekejd.vets.co.il/</a>
+            <a href="https://monkeys9238822.vets.co.il/">https://monkeys9238822.vets.co.il/</a>
+            <a href="https://wecookedthistimebri.vets.co.il/">https://wecookedthistimebri.vets.co.il/</a>
+            <a href="https://computerscience.tutor.deborahnairn.com/">https://computerscience.tutor.deborahnairn.com/</a>
+            <a href="https://doggysaresocutevro.vets.co.il/">https://doggysaresocutevro.vets.co.il/</a>
+            <a href="https://petezahgames5.web.app/">https://petezahgames5.web.app/</a>
+            <a href="https://pineapple-petezah.web.app/">https://pineapple-petezah.web.app/</a>
+            <a href="https://petezahissexy.firebaseapp.com/">https://petezahissexy.firebaseapp.com/</a>
+            <a href="https://petezahsigma.web.app/">https://petezahsigma.web.app/</a>
+            <a href="https://kind-house-60.puter.site/">https://kind-house-60.puter.site/</a>
+            <a href="https://pxfjekejdn.campori.cl/">https://pxfjekejdn.campori.cl/</a>
+            <a href="https://dkfjdjdjrnrn.campori.cl/">https://dkfjdjdjrnrn.campori.cl/</a>
+            <a href="https://codkekrnfdn.campori.cl/">https://codkekrnfdn.campori.cl/</a>
+            <a href="https://diligent-room-5074.puter.site/">https://diligent-room-5074.puter.site/</a>
+            <a href="https://nirbytes.com/sub2unlock/512ea42">https://nirbytes.com/sub2unlock/512ea42</a>
+            <a href="https://direct-link.net/501980/xZFh1pJDctXi">https://direct-link.net/501980/xZFh1pJDctXi</a>
+            <a href="https://nirbytes.com/sub2unlock/7cf4abd">https://nirbytes.com/sub2unlock/7cf4abd</a>
+            <a href="https://nirbytes.com/sub2unlock/b328c5f">https://nirbytes.com/sub2unlock/b328c5f</a>
+            <a href="https://playernation1.blogspot.com">https://playernation1.blogspot.com</a>
+            <a href="https://sigmasigmatoiletedge.github.io/">https://sigmasigmatoiletedge.github.io/</a>
+            <a href="https://petezah.pages.dev/p">https://petezah.pages.dev/p</a>
+          </div>
+
+          <div class="card2">
+            <h2>LUMINAL</h2>
+            <a href="https://temp.vacte.org.cdn.cloudflare.net/">https://temp.vacte.org.cdn.cloudflare.net/</a>
+            <a href="https://sealiee.shop.cdn.cloudflare.net/">https://sealiee.shop.cdn.cloudflare.net/</a>
+            <a href="https://luminalos.shop.cdn.cloudflare.net/">https://luminalos.shop.cdn.cloudflare.net/</a>
+            <a href="https://luminalos.click.cdn.cloudflare.net/-by">https://luminalos.click.cdn.cloudflare.net/-by</a>
+            <a href="https://luminal.riversideacademy.site.cdn.cloudflare.net/">https://luminal.riversideacademy.site.cdn.cloudflare.net/</a>
+            <a href="https://luminal.cc">https://luminal.cc</a>
+          </div>
+
+          <div class="card2">
+            <h2>VOID</h2>
+            <a href="https://voidnetwork.space.cdn.cloudflare.net/">https://voidnetwork.space.cdn.cloudflare.net/</a>
+            <a href="https://void.radio.fm.cdn.cloudflare.net/">https://void.radio.fm.cdn.cloudflare.net/</a>
+            <a href="https://lion.bg.geek.nz.cdn.cloudflare.net/">https://lion.bg.geek.nz.cdn.cloudflare.net/</a>
+            <a href="https://cdn.voidd.network/g.html">https://cdn.voidd.network/g.html</a>
+            <a href="https://arts.bcsdnysucks.org/">https://arts.bcsdnysucks.org/</a>
+            <a href="https://voidofficial.100mountain.com/">https://voidofficial.100mountain.com/</a>
+            <a href="https://voidofficial.yourspecialtee.com/">https://voidofficial.yourspecialtee.com/</a>
+            <a href="https://voidofficial.minecraftnoob.com/">https://voidofficial.minecraftnoob.com/</a>
+            <a href="https://voidofficial.vctel.com/">https://voidofficial.vctel.com/</a>
+            <a href="https://voidofficial.port0.org/">https://voidofficial.port0.org/</a>
+            <a href="https://generals.jumpingcrab.com/">https://generals.jumpingcrab.com/</a>
+            <a href="https://faze.custom-gaming.net/">https://faze.custom-gaming.net/</a>
+          </div>          <div class="card2">
+            <h2>AXIOM</h2>
+            <a href="https://axiom.deborahnairn.com/">https://axiom.deborahnairn.com/</a>
+          </div>
+
+          <div class="card2">
+            <h2>FROGIE</h2>
+            <a href="https://putanythinghere.william.tienda/">https://putanythinghere.william.tienda/</a>
+            <a href="https://directory.leeschoolsk12.org.cdn.cloudflare.net/">https://directory.leeschoolsk12.org.cdn.cloudflare.net/</a>
+            <a href="https://frogiesarcade.dev/">https://frogiesarcade.dev/</a>
+            <a href="https://frogiesarca.de.cdn.cloudflare.net/">https://frogiesarca.de.cdn.cloudflare.net/</a>
+            <a href="https://204.12.217.138.worldplus-intl.org/">https://204.12.217.138.worldplus-intl.org/</a>
+            <a href="https://sports.coaching2lead.com/">https://sports.coaching2lead.com/</a>
+          </div>
+
+          <div class="card2">
+            <h2>GHOST</h2>
+            <a href="https://dqwoj91bhqrbe.cloudfront.net/browser/">https://dqwoj91bhqrbe.cloudfront.net/browser/</a>
+            <a href="https://d35gtlphuqnydv.cloudfront.net/">https://d35gtlphuqnydv.cloudfront.net/</a>
+          </div>
+
+          <div class="card2">
+            <h2>TRUFFLED</h2>
+            <a href="https://artclasses.buzz.cdn.cloudflare.net/">https://artclasses.buzz.cdn.cloudflare.net/</a>
+            <a href="https://discord.tattoo.cdn.cloudflare.net/">https://discord.tattoo.cdn.cloudflare.net/</a>
+            <a href="https://educational.mom.cdn.cloudflare.net/">https://educational.mom.cdn.cloudflare.net/</a>
+          </div>
+
+          <div class="card2">
+            <h2>LUNAR</h2>
+            <a href="https://getajoburchopped.knowhowit.com.au/">https://getajoburchopped.knowhowit.com.au/</a>
+            <a href="https://rainbowflagisgaysadly.knowhowit.com.au/">https://rainbowflagisgaysadly.knowhowit.com.au/</a>
+            <a href="https://pdiddyisntfree.knowhowit.com.au/">https://pdiddyisntfree.knowhowit.com.au/</a>
+            <a href="https://werethebestenince.knowhowit.com.au/">https://werethebestenince.knowhowit.com.au/</a>
+            <a href="https://lunar.goguardian.pro.cdn.cloudflare.net/">https://lunar.goguardian.pro.cdn.cloudflare.net/</a>
+            <a href="https://buy.ddnss.org/">https://buy.ddnss.org/</a>
+            <a href="https://lunarproxy.net">https://lunarproxy.net</a>
+          </div>
+
+          <div class="card2">
+            <h2>CROXYPROXY</h2>
+            <a href="https://www.croxyproxy.com/">https://www.croxyproxy.com/</a>
+            <a href="https://www.croxyproxy.rocks/">https://www.croxyproxy.rocks/</a>
+            <a href="https://croxyproxy.net">https://croxyproxy.net</a>
+            <a href="https://proxy.croxy">https://proxy.croxy</a>
+            <a href="https://cdn.youtubeunblocked.live/">https://cdn.youtubeunblocked.live/</a>
+            <a href="https://cdn.blockaway.net/">https://cdn.blockaway.net/</a>
+          </div>
+
+          <!-- ALL REMAINING PROXIES + GAMES START HERE -->
+          <div class="card2">
+            <h2>PROXYSITE</h2>
+            <a href="https://www.proxysite.com/">https://www.proxysite.com/</a>
+          </div>
+
+          <div class="card2">
+            <h2>GENMIRROR</h2>
+            <a href="https://www.genmirror.com/">https://www.genmirror.com/</a>
+            <a href="https://genmirror.com.atlaq.com/">https://genmirror.com.atlaq.com/</a>
+            <a href="https://genmirror.net">https://genmirror.net</a>
+            <a href="https://mirror.gen">https://mirror.gen</a>
+          </div>
+
+          <div class="card2">
+            <h2>PROXFREE</h2>
+            <a href="https://www.proxfree.com/">https://www.proxfree.com/</a>
+            <a href="https://freeprox.com/">https://freeprox.com/</a>
+            <a href="https://proxfree.net">https://proxfree.net</a>
+          </div>
+
+          <div class="card2">
+            <h2>4EVERPROXY</h2>
+            <a href="https://www.4everproxy.com/">https://www.4everproxy.com/</a>
+            <a href="https://proxy.4everproxy.com/">https://proxy.4everproxy.com/</a>
+            <a href="https://4everproxy.net">https://4everproxy.net</a>
+            <a href="https://proxy4ever.com">https://proxy4ever.com</a>
+          </div>
+
+          <!-- GAMES – FIRST HALF -->
+          <div class="card2">
+            <h2>POLAR</h2>
+            <a href="https://sites.google.com/view/mathissuperfunn">https://sites.google.com/view/mathissuperfunn</a>
+          </div>
+
+          <div class="card2">
+            <h2>DELTAMATH</h2>
+            <a href="https://sites.google.com/view/deltamathcom/explorer">https://sites.google.com/view/deltamathcom/explorer</a>
+          </div>
+
+          <div class="card2">
+            <h2>SAKURA</h2>
+            <a href="https://sites.google.com/view/sakura-site">https://sites.google.com/view/sakura-site</a>
+          </div>
+
+          <div class="card2">
+            <h2>FAKE GOOGLE CLASSROOM</h2>
+            <a href="https://sites.google.com/classroom.events/view/home">https://sites.google.com/classroom.events/view/home</a>
+          </div>
+
+          <div class="card2">
+            <h2>ANOTHER FAKE GOOGLE CLASSROOM</h2>
+            <a href="https://sites.google.com/view/drive-u-7-home-2/">https://sites.google.com/view/drive-u-7-home-2/</a>
+          </div>          
+          <div class="card2">
+            <h2>ANOTHER ANOTHER FAKE GOOGLE CLASSROOM</h2>
+            <a href="https://sites.google.com/classroom.center/view/home">https://sites.google.com/classroom.center/view/home</a>
+          </div>
+
+          <div class="card2">
+            <h2>GN-MATH</h2>
+            <a href="https://script.google.com/macros/s/AKfycbxQvbCW4DXTvZxQnB6f8h1IkWR_l2Yos4ww0196J9st06UOZyl8sAEGweDDW8IVtoaG/exec">https://script.google.com/macros/s/AKfycbxQvbCW4DXTvZxQnB6f8h1IkWR_l2Yos4ww0196J9st06UOZyl8sAEGweDDW8IVtoaG/exec</a>
+          </div>
+
+          <div class="card2">
+            <h2>POKI</h2>
+            <a href="https://poki.com">https://poki.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>KUBA</h2>
+            <a href="https://kuba.fireyh8.workers.dev/kuba">https://kuba.fireyh8.workers.dev/kuba</a>
+          </div>
+
+          <div class="card2">
+            <h2>ZAYAANS GAME CORNER</h2>
+            <a href="https://zgcv2.netlify.app/homepage.html">https://zgcv2.netlify.app/homepage.html</a>
+          </div>
+
+          <div class="card2">
+            <h2>DUCK TABS</h2>
+            <a href="https://learn-duck.web.app/">https://learn-duck.web.app/</a>
+            <a href="https://duck.quackprep.com/">https://duck.quackprep.com/</a>
+            <a href="https://login-live.blogbott.com/">https://login-live.blogbott.com/</a>
+          </div>
+
+          <div class="card2">
+            <h2>NOW.GG</h2>
+            <a href="https://now.gg">https://now.gg</a>
+          </div>
+
+          <div class="card2">
+            <h2>MSN GAMES</h2>
+            <a href="https://www.msn.com/en-xl/play">https://www.msn.com/en-xl/play</a>
+          </div>
+
+          <div class="card2">
+            <h2>LOTS OF GAMES</h2>
+            <a href="https://neal.fun">https://neal.fun</a>
+          </div>
+
+          <div class="card2">
+            <h2>INFINITE CRAFT RIPOFF</h2>
+            <a href="https://infinite-craft.org">https://infinite-craft.org</a>
+          </div>
+
+          <div class="card2">
+            <h2>DRUNK DRIVING SIMULATOR</h2>
+            <a href="https://slowroads.io">https://slowroads.io</a>
+          </div>
+
+          <!-- STREAMING -->
+          <div class="card2">
+            <h2>Netflix</h2>
+            <a href="https://netflix.com">https://netflix.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Tubi</h2>
+            <a href="https://tubitv.com">https://tubitv.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>The Roku Channel</h2>
+            <a href="https://therokuchannel.roku.com">https://therokuchannel.roku.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Amazon Freevee</h2>
+            <a href="https://www.amazon.com/freevee">https://www.amazon.com/freevee</a>
+          </div>
+
+          <div class="card2">
+            <h2>Plex</h2>
+            <a href="https://watch.plex.tv">https://watch.plex.tv</a>
+          </div>
+
+          <div class="card2">
+            <h2>Sling Freestream</h2>
+            <a href="https://www.sling.com/freestream">https://www.sling.com/freestream</a>
+          </div>
+
+          <div class="card2">
+            <h2>Xumo Play</h2>
+            <a href="https://www.xumo.tv">https://www.xumo.tv</a>
+          </div>
+
+          <div class="card2">
+            <h2>Vudu Free</h2>
+            <a href="https://www.vudu.com/content/movies/free">https://www.vudu.com/content/movies/free</a>
+          </div>
+
+          <div class="card2">
+            <h2>Peacock Free</h2>
+            <a href="https://www.peacocktv.com">https://www.peacocktv.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Kanopy</h2>
+            <a href="https://www.kanopy.com">https://www.kanopy.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Hoopla</h2>
+            <a href="https://www.hoopladigital.com">https://www.hoopladigital.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>FilmRise</h2>
+            <a href="https://filmrise.com">https://filmrise.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>CONtv</h2>
+            <a href="https://www.contv.com">https://www.contv.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>RetroCrush</h2>
+            <a href="https://www.retrocrush.tv">https://www.retrocrush.tv</a>
+          </div>
+
+          <div class="card2">
+            <h2>Vix</h2>
+            <a href="https://www.vix.com">https://www.vix.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Internet Archive Movies</h2>
+            <a href="https://archive.org/details/movies">https://archive.org/details/movies</a>
+          </div>
+
+          <div class="card2">
+            <h2>JustWatch Free</h2>
+            <a href="https://www.justwatch.com">https://www.justwatch.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Yidio Free</h2>
+            <a href="https://www.yidio.com/filter/free">https://www.yidio.com/filter/free</a>
+          </div>
+
+          <div class="card2">
+            <h2>Rakuten TV Free</h2>
+            <a href="https://rakuten.tv/free">https://rakuten.tv/free</a>
+          </div>
+
+          <div class="card2">
+            <h2>CBC Gem</h2>
+            <a href="https://gem.cbc.ca">https://gem.cbc.ca</a>
+          </div>
+
+          <div class="card2">
+            <h2>Twitch</h2>
+            <a href="https://www.twitch.tv">https://www.twitch.tv</a>
+          </div>
+
+          <div class="card2">
+            <h2>YouTube Live</h2>
+            <a href="https://www.youtube.com/live">https://www.youtube.com/live</a>
+          </div>
+
+          <div class="card2">
+            <h2>Samsung TV Plus</h2>
+            <a href="https://www.samsung.com/us/televisions-home-theater/tvplus/">https://www.samsung.com/us/televisions-home-theater/tvplus/</a>
+          </div>
+
+          <div class="card2">
+            <h2>LG Channels</h2>
+            <a href="https://www.lg.com/us/lg-channels">https://www.lg.com/us/lg-channels</a>
+          </div>
+
+          <div class="card2">
+            <h2>ABC Freeform</h2>
+            <a href="https://abcfreeform.com">https://abcfreeform.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>CW App Free</h2>
+            <a href="https://www.cwseed.com">https://www.cwseed.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>NBC Free</h2>
+            <a href="https://www.nbc.com">https://www.nbc.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Fox Free</h2>
+            <a href="https://www.fox.com">https://www.fox.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>CBS Free</h2>
+            <a href="https://www.cbs.com">https://www.cbs.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>ION Plus</h2>
+            <a href="https://ionplus.com">https://ionplus.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Tubi Live TV</h2>
+            <a href="https://tubitv.com/live-tv">https://tubitv.com/live-tv</a>
+          </div>
+
+          <div class="card2">
+            <h2>Pluto TV Live</h2>
+            <a href="https://pluto.tv/live-tv">https://pluto.tv/live-tv</a>
+          </div>
+
+          <div class="card2">
+            <h2>Stimulus Live TV</h2>
+            <a href="https://stimulus.tv">https://stimulus.tv</a>
+          </div>
+
+          <div class="card2">
+            <h2>Local Now</h2>
+            <a href="https://www.localnow.com">https://www.localnow.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>NewsON</h2>
+            <a href="https://www.newson.us">https://www.newson.us</a>
+          </div>
+
+          <div class="card2">
+            <h2>Haystack News</h2>
+            <a href="https://haystack.tv">https://haystack.tv</a>
+          </div>
+
+          <div class="card2">
+            <h2>Tubi Sports</h2>
+            <a href="https://tubitv.com/category/sports">https://tubitv.com/category/sports</a>
+          </div>
+
+          <div class="card2">
+            <h2>Fubo Free</h2>
+            <a href="https://www.fubo.tv/welcome/free">https://www.fubo.tv/welcome/free</a>
+          </div>
+
+          <div class="card2">
+            <h2>Philo Free Preview</h2>
+            <a href="https://www.philo.com">https://www.philo.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Reddit Live</h2>
+            <a href="https://www.reddit.com/live">https://www.reddit.com/live</a>
+          </div>
+
+          <div class="card2">
+            <h2>Kick Streaming</h2>
+            <a href="https://kick.com">https://kick.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Rumble Live</h2>
+            <a href="https://rumble.com">https://rumble.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Dailymotion Live</h2>
+            <a href="https://live.dailymotion.com">https://live.dailymotion.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Facebook Watch Live</h2>
+            <a href="https://www.facebook.com/watch/live">https://www.facebook.com/watch/live</a>
+          </div>
+
+          <div class="card2">
+            <h2>Instagram Live</h2>
+            <a href="https://www.instagram.com">https://www.instagram.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>TikTok Live</h2>
+            <a href="https://www.tiktok.com/live">https://www.tiktok.com/live</a>
+          </div>
+
+          <div class="card2">
+            <h2>Periscope</h2>
+            <a href="https://pscp.tv">https://pscp.tv</a>
+          </div>
+
+          <div class="card2">
+            <h2>Vimeo Live</h2>
+            <a href="https://vimeo.com/live">https://vimeo.com/live</a>
+          </div>
+
+          <div class="card2">
+            <h2>Classic Cinema Online</h2>
+            <a href="https://www.classiccinemaonline.com">https://www.classiccinemaonline.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Free Movies Cinema</h2>
+            <a href="https://www.freemoviescinema.com">https://www.freemoviescinema.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>MoviesFoundOnline</h2>
+            <a href="https://www.moviesfoundonline.com">https://www.moviesfoundonline.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Open Culture Movies</h2>
+            <a href="https://www.openculture.com/freemoviesonline">https://www.openculture.com/freemoviesonline</a>
+          </div>
+
+          <div class="card2">
+            <h2>Public Domain Torrents</h2>
+            <a href="https://www.publicdomaintorrents.info">https://www.publicdomaintorrents.info</a>
+          </div>
+
+          <div class="card2">
+            <h2>Archive.org Feature Films</h2>
+            <a href="https://archive.org/details/feature_films">https://archive.org/details/feature_films</a>
+          </div>
+
+          <div class="card2">
+            <h2>TopDocumentaryFilms</h2>
+            <a href="https://topdocumentaryfilms.com">https://topdocumentaryfilms.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>SnagFilms</h2>
+            <a href="https://www.snagfilms.com">https://www.snagfilms.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>Viewster</h2>
+            <a href="https://www.viewster.com">https://www.viewster.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>AsiaCup</h2>
+            <a href="https://asiacup.tv">https://asiacup.tv</a>
+          </div>
+
+          <div class="card2">
+            <h2>MWave</h2>
+            <a href="https://www.mwave.me">https://www.mwave.me</a>
+          </div>
+
+          <div class="card2">
+            <h2>Viki Free</h2>
+            <a href="https://www.viki.com">https://www.viki.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>DramaCool</h2>
+            <a href="https://dramacool.com.co">https://dramacool.com.co</a>
+          </div>
+
+          <div class="card2">
+            <h2>KissAsian</h2>
+            <a href="https://kissasian.sh">https://kissasian.sh</a>
+          </div>
+
+          <div class="card2">
+            <h2>9anime</h2>
+            <a href="https://9anime.to">https://9anime.to</a>
+          </div>
+
+          <div class="card2">
+            <h2>GogoAnime</h2>
+            <a href="https://gogoanime3.net">https://gogoanime3.net</a>
+          </div>
+
+          <div class="card2">
+            <h2>Crunchyroll Free</h2>
+            <a href="https://www.crunchyroll.com">https://www.crunchyroll.com</a>
+          </div>
+
+          <div class="card2">
+            <h2>VRV Free</h2>
+            <a href="https://vrv.co">https://vrv.co</a>
+          </div>
+
+          <div class="card2">
+            <h2>HIDIVE Free</h2>
+            <a href="https://www.hidive.com">https://www.hidive.com</a>
+          </div>
+
+        </div>
+      </div>
+
+      <div id="games" class="section">
+        <div class="grid">
+          <!-- All games are already in the proxies tab cards above (you said no notes, so they’re just listed) -->
+        </div>
+      </div>
+
+      <div id="streaming" class="section">
+        <div class="grid">
+          <!-- All streaming links are already in the cards above -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <script>
   const inputs = document.querySelectorAll('.code input');
@@ -481,19 +673,18 @@
     i.addEventListener('keydown', e => { if (e.key==='Backspace' && !i.value && idx>0) inputs[idx-1].focus(); });
   });
   function check() {
-    const code = Array.from(inputs).map(i => i.value.toLowerCase()).join('');
-    if (code === 'diddy') {
+    if ([...inputs].map(i=>i.value.toLowerCase()).join('') === 'diddy') {
       document.getElementById('lock').classList.add('hidden');
       document.getElementById('main').classList.remove('hidden');
-    } else {
-      document.getElementById('error').style.display = 'block';
-      setTimeout(() => document.getElementById('error').style.display = 'none', 2000);
-    }
+    } else document.getElementById('error').style.display = 'block';
   }
-  if (location.hash === '#diddy') {
-    document.getElementById('lock').classList.add('hidden');
-    document.getElementById('main').classList.remove('hidden');
+  function openTab(tab) {
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById(tab).classList.add('active');
+    document.querySelector(`.tab[onclick="openTab('${tab}')"]`).classList.add('active');
   }
+  if (location.hash === '#diddy') { document.getElementById('lock').classList.add('hidden'); document.getElementById('main').classList.remove('hidden'); }
 </script>
 </body>
 </html>
