@@ -3,47 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Access Required</title>
+<link rel="icon" href="https://ssl.gstatic.com/classroom/favicon.png" type="image/png">
+<title>Home</title>
 <style>
-  :root{--bg:#0d0b1a;--glass:rgba(15,15,35,0.7);--border:rgba(0,255,255,0.3);--glow:0 0 25px rgba(0,255,255,0.6);--accent:#00ffff;--pink:#ff00aa;--text:#e0faff}
-  body,html{margin:0;height:100%;background:var(--bg);font-family:'Google Sans','Segoe UI',sans-serif;color:var(--text);overflow-x:hidden}
-  .lock{height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at center,#1a0033,#0d0b1a)}
-  .card{background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:24px;padding:50px 40px;box-shadow:var(--glow);text-align:center;max-width:440px;width:90%}
-  .logo{width:90px;margin-bottom:20px;filter:drop-shadow(0 0 15px var(--accent))}
-  h1{font-size:32px;margin:0;background:linear-gradient(90deg,var(--accent),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
-  p{color:#aaa;margin:20px 0 35px;font-size:15px}
-  .code{display:flex;gap:14px;justify-content:center;margin-bottom:35px}
-  .code input{width:60px;height:70px;font-size:36px;text-align:center;background:rgba(255,255,255,0.05);border:2px solid var(--border);border-radius:16px;color:#fff}
-  .code input:focus{border-color:var(--accent);box-shadow:var(--glow);outline:none}
-  button{background:linear-gradient(45deg,var(--accent),var(--pink));border:none;padding:16px 36px;border-radius:50px;color:#fff;font-weight:bold;font-size:17px;cursor:pointer;box-shadow:var(--glow);transition:0.3s}
-  button:hover{transform:scale(1.05);box-shadow:0 0 40px rgba(0,255,255,0.8)}
+  :root{--glass:rgba(18,20,38,0.78);--border:rgba(120,100,255,0.3);--glow:0 0 30px rgba(120,100,255,0.5);--text:#e0e7ff}
+  body,html{margin:0;height:100%;font-family:'Google Sans','Segoe UI',sans-serif;color:var(--text);overflow:hidden}
+  body::before{content:"";position:fixed;inset:0;background:linear-gradient(45deg,#0f0f2e,#1f1f4b,#2d1b69,#4c1d95,#0f0f2e);background-size:500%;animation:a 18s ease infinite;z-index:-2}
+  body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle at 50% 50%,rgba(120,100,255,0.12),transparent 70%);backdrop-filter:blur(120px);z-index:-1}
+  @keyframes a{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  .lock{height:100vh;display:flex;align-items:center;justify-content:center}
+  .card{background:var(--glass);backdrop-filter:blur(22px);border:1px solid var(--border);border-radius:32px;padding:60px 50px;box-shadow:var(--glow);text-align:center;max-width:460px;width:92%}
+  h1{font-size:38px;margin:0;background:linear-gradient(90deg,#8b5cf6,#ec4899,#06b6d4);background-clip:text;-webkit-background-clip:text;color:transparent}
+  p{color:#aaa;margin:25px 0 40px}
+  .code{display:flex;gap:16px;justify-content:center;margin-bottom:40px}
+  .code input{width:64px;height:76px;font-size:38px;text-align:center;background:rgba(255,255,255,0.06);border:2px solid var(--border);border-radius:20px;color:#fff}
+  .code input:focus{border-color:#8b5cf6;box-shadow:0 0 35px rgba(139,92,246,0.7);outline:none}
+  button{background:linear-gradient(135deg,#8b5cf6,#ec4899);border:none;padding:18px 44px;border-radius:60px;color:#fff;font-weight:bold;font-size:18px;cursor:pointer;box-shadow:var(--glow);transition:.4s}
+  button:hover{transform:scale(1.07);box-shadow:0 0 50px rgba(139,92,246,0.6)}
   .hidden{display:none}
-  .main{min-height:100vh;padding:40px 20px}
-  .container{max-width:1200px;margin:0 auto}
-  .tabs{margin-bottom:40px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
-  .tab{background:var(--glass);border:1px solid var(--border);padding:12px 28px;border-radius:50px;cursor:pointer;transition:0.3s;box-shadow:var(--glow)}
-  .tab.active,.tab:hover{background:rgba(0,255,255,0.2);transform:scale(1.05)}
+  .main{min-height:100vh;padding:60px 20px}
+  .container{max-width:1350px;margin:0 auto}
+  .tabs{display:flex;gap:24px;justify-content:center;margin-bottom:60px;flex-wrap:wrap}
+  .tab{background:var(--glass);border:1px solid var(--border);padding:16px 36px;border-radius:60px;cursor:pointer;transition:.4s;box-shadow:var(--glow)}
+  .tab:hover,.tab.active{background:rgba(139,92,246,0.3);transform:scale(1.1)}
   .section{display:none}
   .section.active{display:block}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:28px}
-  .card2{background:var(--glass);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:20px;padding:26px;box-shadow:var(--glow);transition:0.4s}
-  .card2:hover{transform:translateY(-12px);box-shadow:0 20px 50px rgba(0,255,255,0.4)}
-  h2{font-size:26px;margin:0 0 20px;text-align:center;background:linear-gradient(90deg,var(--accent),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
-  a{color:var(--text);text-decoration:none;display:block;padding:14px 18px;border-radius:14px;background:rgba(255,255,255,0.05);margin:8px 0;transition:0.3s;border-radius:12px}
-  a:hover{background:rgba(0,255,255,0.2);padding-left:28px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(370px,1fr));gap:32px}
+  .card2{background:var(--glass);backdrop-filter:blur(22px);border:1px solid var(--border);border-radius:28px;padding:32px;box-shadow:var(--glow);transition:.4s}
+  .card2:hover{transform:translateY(-16px);box-shadow:0 30px 70px rgba(139,92,246,0.5)}
+  h2{font-size:30px;margin:0 0 24px;text-align:center;background:linear-gradient(90deg,#8b5cf6,#ec4899,#06b6d4);background-clip:text;-webkit-background-clip:text;color:transparent}
+  a{color:var(--text);text-decoration:none;display:block;padding:16px 22px;margin:10px 0;background:rgba(255,255,255,0.07);border-radius:18px;transition:.3s}
+  a:hover{background:rgba(139,92,246,0.3);padding-left:34px;transform:scale(1.03)}
 </style>
 </head>
 <body>
 
 <div id="lock" class="lock">
   <div class="card">
-    <h1>ACCESS</h1>
+    <h1>AURORA</h1>
     <p>Enter 5-letter code</p>
     <div class="code">
       <input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1">
     </div>
     <button onclick="check()">Enter</button>
-    <p id="error" style="color:#ff00aa;display:none;margin-top:15px">Wrong code</p>
+    <p id="error" style="color:#ff6b6b;display:none;margin-top:20px">Wrong code</p>
   </div>
 </div>
 
@@ -56,11 +59,11 @@
         <div class="tab" onclick="openTab('streaming')">Streaming</div>
       </div>
 
+      <!-- PROXIES TAB -->
       <div id="proxies" class="section active">
         <div class="grid">
 
-          <div class="card2">
-            <h2>ROSIN</h2>
+          <div class="card2"><h2>ROSIN</h2>
             <a href="http://trzxvycsql.kionom.biz/">http://trzxvycsql.kionom.biz/</a>
             <a href="http://dfimxnrsnr.kionom.biz/">http://dfimxnrsnr.kionom.biz/</a>
             <a href="http://shaierkbvd.kionom.biz/">http://shaierkbvd.kionom.biz/</a>
@@ -68,8 +71,7 @@
             <a href="http://otuubzjpbd.kionom.biz/">http://otuubzjpbd.kionom.biz/</a>
           </div>
 
-          <div class="card2">
-            <h2>UNIUB</h2>
+          <div class="card2"><h2>UNIUB</h2>
             <a href="https://hehewkdhdidjd.fabricecosta.com/#home">https://hehewkdhdidjd.fabricecosta.com/#home</a>
             <a href="https://wildcard.khsonthespot.com/#home">https://wildcard.khsonthespot.com/#home</a>
             <a href="https://uniubsite2.glitch.me">https://uniubsite2.glitch.me</a>
@@ -80,9 +82,8 @@
             <a href="https://securly.mom">https://securly.mom</a>
           </div>
 
-          <div class="card2">
-            <h2>JORDANS MATH</h2>
-            <a href="https://repent.fcpchurch.org/active/index.html?autofill=lookatthisistworkguys&goback=true">https://repent.fcpchurch.org/active/index.html?autofill=lookatthisistworkguys&goback=true</a>
+          <div class="card2"><h2>JORDANS MATH</h2>
+            <a href="https://repent.fcpchurch.org/active/index.html?autofill=lookatthisistworkguys&goback=true">https://repent.fcpchurch.org/…</a>
             <a href="https://ilove.jrdnswork.dyndns1.de/">https://ilove.jrdnswork.dyndns1.de/</a>
             <a href="https://putanythinghere.jrdnswork.myhome-server.de/">https://putanythinghere.jrdnswork.myhome-server.de/</a>
             <a href="https://jrdnswork.ddnss.org/">https://jrdnswork.ddnss.org/</a>
@@ -97,9 +98,7 @@
             <a href="https://urslow.myglobaltutors.xyz/">https://urslow.myglobaltutors.xyz/</a>
             <a href="https://areudumb.myglobaltutors.xyz/">https://areudumb.myglobaltutors.xyz/</a>
             <a href="https://urstupid.myglobaltutors.xyz/">https://urstupid.myglobaltutors.xyz/</a>
-          </div>
-
-          <!-- END OF PART 1 – next part coming right after you say “next” -->          
+          </div>          
           <div class="card2">
             <h2>PETEZAH</h2>
             <a href="https://chejfnreeje.vets.co.il/">https://chejfnreeje.vets.co.il/</a>
@@ -151,12 +150,17 @@
             <a href="https://voidofficial.port0.org/">https://voidofficial.port0.org/</a>
             <a href="https://generals.jumpingcrab.com/">https://generals.jumpingcrab.com/</a>
             <a href="https://faze.custom-gaming.net/">https://faze.custom-gaming.net/</a>
-          </div>          <div class="card2">
+          </div>
+
+          <div class="card2">
             <h2>AXIOM</h2>
             <a href="https://axiom.deborahnairn.com/">https://axiom.deborahnairn.com/</a>
           </div>
 
-          <div class="card2">
+          </div>
+        </div>
+      </div>          
+    <div class="card2">
             <h2>FROGIE</h2>
             <a href="https://putanythinghere.william.tienda/">https://putanythinghere.william.tienda/</a>
             <a href="https://directory.leeschoolsk12.org.cdn.cloudflare.net/">https://directory.leeschoolsk12.org.cdn.cloudflare.net/</a>
@@ -200,465 +204,64 @@
             <a href="https://cdn.blockaway.net/">https://cdn.blockaway.net/</a>
           </div>
 
-          <!-- ALL REMAINING PROXIES + GAMES START HERE -->
-          <div class="card2">
-            <h2>PROXYSITE</h2>
-            <a href="https://www.proxysite.com/">https://www.proxysite.com/</a>
-          </div>
+          <!-- END OF PROXIES -->
+        </div>
+      </div>
 
-          <div class="card2">
-            <h2>GENMIRROR</h2>
-            <a href="https://www.genmirror.com/">https://www.genmirror.com/</a>
-            <a href="https://genmirror.com.atlaq.com/">https://genmirror.com.atlaq.com/</a>
-            <a href="https://genmirror.net">https://genmirror.net</a>
-            <a href="https://mirror.gen">https://mirror.gen</a>
-          </div>
+      <!-- GAMES TAB -->
+      <div id="games" class="section">
+        <div class="grid">
 
-          <div class="card2">
-            <h2>PROXFREE</h2>
-            <a href="https://www.proxfree.com/">https://www.proxfree.com/</a>
-            <a href="https://freeprox.com/">https://freeprox.com/</a>
-            <a href="https://proxfree.net">https://proxfree.net</a>
-          </div>
-
-          <div class="card2">
-            <h2>4EVERPROXY</h2>
-            <a href="https://www.4everproxy.com/">https://www.4everproxy.com/</a>
-            <a href="https://proxy.4everproxy.com/">https://proxy.4everproxy.com/</a>
-            <a href="https://4everproxy.net">https://4everproxy.net</a>
-            <a href="https://proxy4ever.com">https://proxy4ever.com</a>
-          </div>
-
-          <!-- GAMES – FIRST HALF -->
-          <div class="card2">
-            <h2>POLAR</h2>
-            <a href="https://sites.google.com/view/mathissuperfunn">https://sites.google.com/view/mathissuperfunn</a>
-          </div>
-
-          <div class="card2">
-            <h2>DELTAMATH</h2>
-            <a href="https://sites.google.com/view/deltamathcom/explorer">https://sites.google.com/view/deltamathcom/explorer</a>
-          </div>
-
-          <div class="card2">
-            <h2>SAKURA</h2>
-            <a href="https://sites.google.com/view/sakura-site">https://sites.google.com/view/sakura-site</a>
-          </div>
-
-          <div class="card2">
-            <h2>FAKE GOOGLE CLASSROOM</h2>
-            <a href="https://sites.google.com/classroom.events/view/home">https://sites.google.com/classroom.events/view/home</a>
-          </div>
-
-          <div class="card2">
-            <h2>ANOTHER FAKE GOOGLE CLASSROOM</h2>
-            <a href="https://sites.google.com/view/drive-u-7-home-2/">https://sites.google.com/view/drive-u-7-home-2/</a>
-          </div>          
-          <div class="card2">
-            <h2>ANOTHER ANOTHER FAKE GOOGLE CLASSROOM</h2>
-            <a href="https://sites.google.com/classroom.center/view/home">https://sites.google.com/classroom.center/view/home</a>
-          </div>
-
-          <div class="card2">
-            <h2>GN-MATH</h2>
-            <a href="https://script.google.com/macros/s/AKfycbxQvbCW4DXTvZxQnB6f8h1IkWR_l2Yos4ww0196J9st06UOZyl8sAEGweDDW8IVtoaG/exec">https://script.google.com/macros/s/AKfycbxQvbCW4DXTvZxQnB6f8h1IkWR_l2Yos4ww0196J9st06UOZyl8sAEGweDDW8IVtoaG/exec</a>
-          </div>
-
-          <div class="card2">
-            <h2>POKI</h2>
-            <a href="https://poki.com">https://poki.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>KUBA</h2>
-            <a href="https://kuba.fireyh8.workers.dev/kuba">https://kuba.fireyh8.workers.dev/kuba</a>
-          </div>
-
-          <div class="card2">
-            <h2>ZAYAANS GAME CORNER</h2>
-            <a href="https://zgcv2.netlify.app/homepage.html">https://zgcv2.netlify.app/homepage.html</a>
-          </div>
-
-          <div class="card2">
-            <h2>DUCK TABS</h2>
+          <div class="card2"><h2>POLAR</h2><a href="https://sites.google.com/view/mathissuperfunn">https://sites.google.com/view/mathissuperfunn</a></div>
+          <div class="card2"><h2>DELTAMATH</h2><a href="https://sites.google.com/view/deltamathcom/explorer">https://sites.google.com/view/deltamathcom/explorer</a></div>
+          <div class="card2"><h2>SAKURA</h2><a href="https://sites.google.com/view/sakura-site">https://sites.google.com/view/sakura-site</a></div>
+          <div class="card2"><h2>FAKE GOOGLE CLASSROOM</h2><a href="https://sites.google.com/classroom.events/view/home">https://sites.google.com/classroom.events/view/home</a></div>
+          <div class="card2"><h2>ANOTHER FAKE GOOGLE CLASSROOM</h2><a href="https://sites.google.com/view/drive-u-7-home-2/">https://sites.google.com/view/drive-u-7-home-2/</a></div>
+          <div class="card2"><h2>ANOTHER ANOTHER FAKE GOOGLE CLASSROOM</h2><a href="https://sites.google.com/classroom.center/view/home">https://sites.google.com/classroom.center/view/home</a></div>
+          <div class="card2"><h2>GN-MATH</h2><a href="https://script.google.com/macros/s/AKfycbxQvbCW4DXTvZxQnB6f8h1IkWR_l2Yos4ww0196J9st06UOZyl8sAEGweDDW8IVtoaG/exec">https://script.google.com/macros/s/…</a></div>
+          <div class="card2"><h2>POKI</h2><a href="https://poki.com">https://poki.com</a></div>
+          <div class="card2"><h2>KUBA</h2><a href="https://kuba.fireyh8.workers.dev/kuba">https://kuba.fireyh8.workers.dev/kuba</a></div>
+          <div class="card2"><h2>ZAYAANS GAME CORNER</h2><a href="https://zgcv2.netlify.app/homepage.html">https://zgcv2.netlify.app/homepage.html</a></div>
+          <div class="card2"><h2>DUCK TABS</h2>
             <a href="https://learn-duck.web.app/">https://learn-duck.web.app/</a>
             <a href="https://duck.quackprep.com/">https://duck.quackprep.com/</a>
             <a href="https://login-live.blogbott.com/">https://login-live.blogbott.com/</a>
           </div>
-
-          <div class="card2">
-            <h2>NOW.GG</h2>
-            <a href="https://now.gg">https://now.gg</a>
-          </div>
-
-          <div class="card2">
-            <h2>MSN GAMES</h2>
-            <a href="https://www.msn.com/en-xl/play">https://www.msn.com/en-xl/play</a>
-          </div>
-
-          <div class="card2">
-            <h2>LOTS OF GAMES</h2>
-            <a href="https://neal.fun">https://neal.fun</a>
-          </div>
-
-          <div class="card2">
-            <h2>INFINITE CRAFT RIPOFF</h2>
-            <a href="https://infinite-craft.org">https://infinite-craft.org</a>
-          </div>
-
-          <div class="card2">
-            <h2>DRUNK DRIVING SIMULATOR</h2>
-            <a href="https://slowroads.io">https://slowroads.io</a>
-          </div>
-
-          <!-- STREAMING -->
-          <div class="card2">
-            <h2>Netflix</h2>
-            <a href="https://netflix.com">https://netflix.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Tubi</h2>
-            <a href="https://tubitv.com">https://tubitv.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>The Roku Channel</h2>
-            <a href="https://therokuchannel.roku.com">https://therokuchannel.roku.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Amazon Freevee</h2>
-            <a href="https://www.amazon.com/freevee">https://www.amazon.com/freevee</a>
-          </div>
-
-          <div class="card2">
-            <h2>Plex</h2>
-            <a href="https://watch.plex.tv">https://watch.plex.tv</a>
-          </div>
-
-          <div class="card2">
-            <h2>Sling Freestream</h2>
-            <a href="https://www.sling.com/freestream">https://www.sling.com/freestream</a>
-          </div>
-
-          <div class="card2">
-            <h2>Xumo Play</h2>
-            <a href="https://www.xumo.tv">https://www.xumo.tv</a>
-          </div>
-
-          <div class="card2">
-            <h2>Vudu Free</h2>
-            <a href="https://www.vudu.com/content/movies/free">https://www.vudu.com/content/movies/free</a>
-          </div>
-
-          <div class="card2">
-            <h2>Peacock Free</h2>
-            <a href="https://www.peacocktv.com">https://www.peacocktv.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Kanopy</h2>
-            <a href="https://www.kanopy.com">https://www.kanopy.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Hoopla</h2>
-            <a href="https://www.hoopladigital.com">https://www.hoopladigital.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>FilmRise</h2>
-            <a href="https://filmrise.com">https://filmrise.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>CONtv</h2>
-            <a href="https://www.contv.com">https://www.contv.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>RetroCrush</h2>
-            <a href="https://www.retrocrush.tv">https://www.retrocrush.tv</a>
-          </div>
-
-          <div class="card2">
-            <h2>Vix</h2>
-            <a href="https://www.vix.com">https://www.vix.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Internet Archive Movies</h2>
-            <a href="https://archive.org/details/movies">https://archive.org/details/movies</a>
-          </div>
-
-          <div class="card2">
-            <h2>JustWatch Free</h2>
-            <a href="https://www.justwatch.com">https://www.justwatch.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Yidio Free</h2>
-            <a href="https://www.yidio.com/filter/free">https://www.yidio.com/filter/free</a>
-          </div>
-
-          <div class="card2">
-            <h2>Rakuten TV Free</h2>
-            <a href="https://rakuten.tv/free">https://rakuten.tv/free</a>
-          </div>
-
-          <div class="card2">
-            <h2>CBC Gem</h2>
-            <a href="https://gem.cbc.ca">https://gem.cbc.ca</a>
-          </div>
-
-          <div class="card2">
-            <h2>Twitch</h2>
-            <a href="https://www.twitch.tv">https://www.twitch.tv</a>
-          </div>
-
-          <div class="card2">
-            <h2>YouTube Live</h2>
-            <a href="https://www.youtube.com/live">https://www.youtube.com/live</a>
-          </div>
-
-          <div class="card2">
-            <h2>Samsung TV Plus</h2>
-            <a href="https://www.samsung.com/us/televisions-home-theater/tvplus/">https://www.samsung.com/us/televisions-home-theater/tvplus/</a>
-          </div>
-
-          <div class="card2">
-            <h2>LG Channels</h2>
-            <a href="https://www.lg.com/us/lg-channels">https://www.lg.com/us/lg-channels</a>
-          </div>
-
-          <div class="card2">
-            <h2>ABC Freeform</h2>
-            <a href="https://abcfreeform.com">https://abcfreeform.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>CW App Free</h2>
-            <a href="https://www.cwseed.com">https://www.cwseed.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>NBC Free</h2>
-            <a href="https://www.nbc.com">https://www.nbc.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Fox Free</h2>
-            <a href="https://www.fox.com">https://www.fox.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>CBS Free</h2>
-            <a href="https://www.cbs.com">https://www.cbs.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>ION Plus</h2>
-            <a href="https://ionplus.com">https://ionplus.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Tubi Live TV</h2>
-            <a href="https://tubitv.com/live-tv">https://tubitv.com/live-tv</a>
-          </div>
-
-          <div class="card2">
-            <h2>Pluto TV Live</h2>
-            <a href="https://pluto.tv/live-tv">https://pluto.tv/live-tv</a>
-          </div>
-
-          <div class="card2">
-            <h2>Stimulus Live TV</h2>
-            <a href="https://stimulus.tv">https://stimulus.tv</a>
-          </div>
-
-          <div class="card2">
-            <h2>Local Now</h2>
-            <a href="https://www.localnow.com">https://www.localnow.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>NewsON</h2>
-            <a href="https://www.newson.us">https://www.newson.us</a>
-          </div>
-
-          <div class="card2">
-            <h2>Haystack News</h2>
-            <a href="https://haystack.tv">https://haystack.tv</a>
-          </div>
-
-          <div class="card2">
-            <h2>Tubi Sports</h2>
-            <a href="https://tubitv.com/category/sports">https://tubitv.com/category/sports</a>
-          </div>
-
-          <div class="card2">
-            <h2>Fubo Free</h2>
-            <a href="https://www.fubo.tv/welcome/free">https://www.fubo.tv/welcome/free</a>
-          </div>
-
-          <div class="card2">
-            <h2>Philo Free Preview</h2>
-            <a href="https://www.philo.com">https://www.philo.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Reddit Live</h2>
-            <a href="https://www.reddit.com/live">https://www.reddit.com/live</a>
-          </div>
-
-          <div class="card2">
-            <h2>Kick Streaming</h2>
-            <a href="https://kick.com">https://kick.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Rumble Live</h2>
-            <a href="https://rumble.com">https://rumble.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Dailymotion Live</h2>
-            <a href="https://live.dailymotion.com">https://live.dailymotion.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Facebook Watch Live</h2>
-            <a href="https://www.facebook.com/watch/live">https://www.facebook.com/watch/live</a>
-          </div>
-
-          <div class="card2">
-            <h2>Instagram Live</h2>
-            <a href="https://www.instagram.com">https://www.instagram.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>TikTok Live</h2>
-            <a href="https://www.tiktok.com/live">https://www.tiktok.com/live</a>
-          </div>
-
-          <div class="card2">
-            <h2>Periscope</h2>
-            <a href="https://pscp.tv">https://pscp.tv</a>
-          </div>
-
-          <div class="card2">
-            <h2>Vimeo Live</h2>
-            <a href="https://vimeo.com/live">https://vimeo.com/live</a>
-          </div>
-
-          <div class="card2">
-            <h2>Classic Cinema Online</h2>
-            <a href="https://www.classiccinemaonline.com">https://www.classiccinemaonline.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Free Movies Cinema</h2>
-            <a href="https://www.freemoviescinema.com">https://www.freemoviescinema.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>MoviesFoundOnline</h2>
-            <a href="https://www.moviesfoundonline.com">https://www.moviesfoundonline.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Open Culture Movies</h2>
-            <a href="https://www.openculture.com/freemoviesonline">https://www.openculture.com/freemoviesonline</a>
-          </div>
-
-          <div class="card2">
-            <h2>Public Domain Torrents</h2>
-            <a href="https://www.publicdomaintorrents.info">https://www.publicdomaintorrents.info</a>
-          </div>
-
-          <div class="card2">
-            <h2>Archive.org Feature Films</h2>
-            <a href="https://archive.org/details/feature_films">https://archive.org/details/feature_films</a>
-          </div>
-
-          <div class="card2">
-            <h2>TopDocumentaryFilms</h2>
-            <a href="https://topdocumentaryfilms.com">https://topdocumentaryfilms.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>SnagFilms</h2>
-            <a href="https://www.snagfilms.com">https://www.snagfilms.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>Viewster</h2>
-            <a href="https://www.viewster.com">https://www.viewster.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>AsiaCup</h2>
-            <a href="https://asiacup.tv">https://asiacup.tv</a>
-          </div>
-
-          <div class="card2">
-            <h2>MWave</h2>
-            <a href="https://www.mwave.me">https://www.mwave.me</a>
-          </div>
-
-          <div class="card2">
-            <h2>Viki Free</h2>
-            <a href="https://www.viki.com">https://www.viki.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>DramaCool</h2>
-            <a href="https://dramacool.com.co">https://dramacool.com.co</a>
-          </div>
-
-          <div class="card2">
-            <h2>KissAsian</h2>
-            <a href="https://kissasian.sh">https://kissasian.sh</a>
-          </div>
-
-          <div class="card2">
-            <h2>9anime</h2>
-            <a href="https://9anime.to">https://9anime.to</a>
-          </div>
-
-          <div class="card2">
-            <h2>GogoAnime</h2>
-            <a href="https://gogoanime3.net">https://gogoanime3.net</a>
-          </div>
-
-          <div class="card2">
-            <h2>Crunchyroll Free</h2>
-            <a href="https://www.crunchyroll.com">https://www.crunchyroll.com</a>
-          </div>
-
-          <div class="card2">
-            <h2>VRV Free</h2>
-            <a href="https://vrv.co">https://vrv.co</a>
-          </div>
-
-          <div class="card2">
-            <h2>HIDIVE Free</h2>
-            <a href="https://www.hidive.com">https://www.hidive.com</a>
-          </div>
+          <div class="card2"><h2>NOW.GG</h2><a href="https://now.gg">https://now.gg</a></div>
+          <div class="card2"><h2>MSN GAMES</h2><a href="https://www.msn.com/en-xl/play">https://www.msn.com/en-xl/play</a></div>
+          <div class="card2"><h2>LOTS OF GAMES</h2><a href="https://neal.fun">https://neal.fun</a></div>
+          <div class="card2"><h2>INFINITE CRAFT RIPOFF</h2><a href="https://infinite-craft.org">https://infinite-craft.org</a></div>
+          <div class="card2"><h2>DRUNK DRIVING SIMULATOR</h2><a href="https://slowroads.io">https://slowroads.io</a></div>
 
         </div>
       </div>
-
-      <div id="games" class="section">
-        <div class="grid">
-          <!-- All games are already in the proxies tab cards above (you said no notes, so they’re just listed) -->
-        </div>
-      </div>
-
       <div id="streaming" class="section">
         <div class="grid">
-          <!-- All streaming links are already in the cards above -->
+
+          <div class="card2"><h2>Netflix</h2><a href="https://netflix.com">https://netflix.com</a></div>
+          <div class="card2"><h2>Tubi</h2><a href="https://tubitv.com">https://tubitv.com</a></div>
+          <div class="card2"><h2>The Roku Channel</h2><a href="https://therokuchannel.roku.com">https://therokuchannel.roku.com</a></div>
+          <div class="card2"><h2>Amazon Freevee</h2><a href="https://www.amazon.com/freevee">https://www.amazon.com/freevee</a></div>
+          <div class="card2"><h2>Plex</h2><a href="https://watch.plex.tv">https://watch.plex.tv</a></div>
+          <div class="card2"><h2>Sling Freestream</h2><a href="https://www.sling.com/freestream">https://www.sling.com/freestream</a></div>
+          <div class="card2"><h2>Xumo Play</h2><a href="https://www.xumo.tv">https://www.xumo.tv</a></div>
+          <div class="card2"><h2>Vudu Free</h2><a href="https://www.vudu.com/content/movies/free">https://www.vudu.com/content/movies/free</a></div>
+          <div class="card2"><h2>Peacock Free</h2><a href="https://www.peacocktv.com">https://www.peacocktv.com</a></div>
+          <div class="card2"><h2>Kanopy</h2><a href="https://www.kanopy.com">https://www.kanopy.com</a></div>
+          <div class="card2"><h2>Hoopla</h2><a href="https://www.hoopladigital.com">https://www.hoopladigital.com</a></div>
+          <div class="card2"><h2>FilmRise</h2><a href="https://filmrise.com">https://filmrise.com</a></div>
+          <div class="card2"><h2>CONtv</h2><a href="https://www.contv.com">https://www.contv.com</a></div>
+          <div class="card2"><h2>RetroCrush</h2><a href="https://www.retrocrush.tv">https://www.retrocrush.tv</a></div>
+          <div class="card2"><h2>Vix</h2><a href="https://www.vix.com">https://www.vix.com</a></div>
+          <div class="card2"><h2>Internet Archive Movies</h2><a href="https://archive.org/details/movies">https://archive.org/details/movies</a></div>
+          <div class="card2"><h2>Twitch</h2><a href="https://www.twitch.tv">https://www.twitch.tv</a></div>
+          <div class="card2"><h2>YouTube Live</h2><a href="https://www.youtube.com/live">https://www.youtube.com/live</a></div>
+          <div class="card2"><h2>Rumble Live</h2><a href="https://rumble.com">https://rumble.com</a></div>
+          <div class="card2"><h2>Kick Streaming</h2><a href="https://kick.com">https://kick.com</a></div>
+          <div class="card2"><h2>9anime</h2><a href="https://9anime.to">https://9anime.to</a></div>
+          <div class="card2"><h2>GogoAnime</h2><a href="https://gogoanime3.net">https://gogoanime3.net</a></div>
+          <div class="card2"><h2>Crunchyroll</h2><a href="https://www.crunchyroll.com">https://www.crunchyroll.com</a></div>
+
         </div>
       </div>
 
@@ -678,13 +281,16 @@
       document.getElementById('main').classList.remove('hidden');
     } else document.getElementById('error').style.display = 'block';
   }
-  function openTab(tab) {
+  function openTab(id) {
     document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    document.getElementById(tab).classList.add('active');
-    document.querySelector(`.tab[onclick="openTab('${tab}')"]`).classList.add('active');
+    document.getElementById(id).classList.add('active');
+    document.querySelector(`.tab[onclick="openTab('${id}')"]`).classList.add('active');
   }
-  if (location.hash === '#diddy') { document.getElementById('lock').classList.add('hidden'); document.getElementById('main').classList.remove('hidden'); }
+  if (location.hash === '#diddy') {
+    document.getElementById('lock').classList.add('hidden');
+    document.getElementById('main').classList.remove('hidden');
+  }
 </script>
 </body>
 </html>
