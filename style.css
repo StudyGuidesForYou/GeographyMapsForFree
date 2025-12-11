@@ -1,143 +1,222 @@
-/* styles.css — Modern, animated, professional UI for Game Hub
-   - Glassmorphism, neon accents
-   - Smooth micro-interactions and focus states
-   - Supports both .code-box and .code-input selectors
-   - Responsive grid and animated cards
-*/
+/* ============================================================
+   🌙 GLOBAL THEME
+   ------------------------------------------------------------
+   Clean modern dashboard look, smooth animations everywhere.
+=========================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
-
-:root{
-  --bg-1: #071322;    /* deep navy */
-  --bg-2: #021124;    /* almost black */
-  --glass: rgba(255,255,255,0.04);
-  --glass-2: rgba(255,255,255,0.02);
-  --text: #e6eef6;
-  --muted: #9aa6b2;
-  --accent1: #00e5ff; /* cyan */
-  --accent2: #7b61ff; /* purple */
-  --good: #4af27a;
-  --bad: #ff5c7a;
-  --glass-border: rgba(255,255,255,0.06);
-  --card-shadow: 0 10px 30px rgba(2,8,20,0.6);
+:root {
+  --bg: #1a1b1e;
+  --card: #222327;
+  --text: #f5f6fa;
+  --text-soft: #bfc2ce;
+  --accent: #4c8dff;
+  --accent-soft: rgba(76,141,255,0.15);
+  --radius: 18px;
+  --shadow: 0 4px 18px rgba(0,0,0,0.25);
+  font-family: "Inter", sans-serif;
 }
 
-*{box-sizing:border-box}
-html,body{height:100%;}
-body{
-  margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
-  background: radial-gradient(1200px 800px at 10% 10%, rgba(123,97,255,0.06), transparent 6%),
-              radial-gradient(900px 600px at 90% 90%, rgba(0,229,255,0.04), transparent 6%),
-              linear-gradient(180deg,var(--bg-1),var(--bg-2));
-  color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
-  overflow-y:auto;
+body {
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 40px;
+  animation: fadeIn 0.5s ease-out;
 }
 
-/* ===== global layout helpers ===== */
-.container{max-width:1200px;margin:0 auto;padding:28px}
-.hidden{display:none}
-.center{display:flex;align-items:center;justify-content:center}
-
-/* ===== animated background layers (from index.html) ===== */
-.absolute{position:absolute}
-.inset-0{top:0;right:0;bottom:0;left:0}
-.-z-10{z-index:-10}
-.-z-20{z-index:-20}
-.opacity-40{opacity:0.4}
-
-/* simple utility for motion safe */
-@media (prefers-reduced-motion: reduce){
-  .animate-*{animation:none!important;transition:none!important}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ===== TITLES & HEADINGS ===== */
-h1{margin:0}
-.text-5xl{font-size:3rem}
-.text-6xl{font-size:3.75rem}
-.font-extrabold{font-weight:800}
-.drop-shadow-lg{text-shadow:0 6px 30px rgba(2,8,30,0.6)}
+/* ============================================================
+   🔐 CODE WALL
+=========================================================== */
 
-/* ===== CODE WALL ===== */
-#code-wall{min-height:100vh;padding:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
-#code-wall h1{letter-spacing:6px;color:var(--text);}
-
-/* input boxes (supporting old and new classes) */
-.code-box, .code-input, #code-wall input{
-  width:72px;height:72px;border-radius:14px;border:none;outline:none;
-  display:inline-flex;align-items:center;justify-content:center;text-align:center;font-size:32px;font-weight:800;color:var(--text);
-  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  box-shadow: 0 8px 30px rgba(2,8,30,0.6), inset 0 -2px 8px rgba(0,0,0,0.5);
-  border:1px solid var(--glass-border);transition:transform .18s cubic-bezier(.2,.9,.3,1), box-shadow .18s;
-}
-.code-box:focus, .code-input:focus, #code-wall input:focus{
-  transform:translateY(-6px) scale(1.02);
-  box-shadow:0 18px 40px rgba(11,21,40,0.7), 0 0 18px rgba(123,97,255,0.12), inset 0 -2px 8px rgba(0,0,0,0.6);
-  border-color: rgba(123,97,255,0.32);
-}
-.code-input[aria-invalid="true"], .code-box.invalid{animation: shake .45s ease}
-@keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}100%{transform:translateX(0)}}
-
-#code-error{height:20px;color:var(--bad);font-weight:700}
-
-/* ===== MAIN CONTENT & GRID ===== */
-#main-content{padding:36px}
-#game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
-
-/* card style */
-.game-card, .item-card{
-  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  border-radius:14px;padding:14px;border:1px solid rgba(255,255,255,0.03);box-shadow:var(--card-shadow);
-  transition:transform .32s cubic-bezier(.2,.9,.3,1), box-shadow .32s, border-color .2s;
-  overflow:hidden;position:relative;backdrop-filter: blur(6px);
-}
-.item-card h3{margin:0 0 8px 0;font-size:1.05rem}
-.item-card .links{display:flex;gap:8px;flex-wrap:wrap}
-.item-card .links a{
-  display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:10px;font-weight:700;text-decoration:none;color:#021125;background:linear-gradient(90deg,var(--accent1),var(--accent2));box-shadow:0 8px 20px rgba(11,20,40,0.6);
+.lock-screen {
+  background: var(--bg);
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.item-card:hover{transform:translateY(-8px);box-shadow:0 30px 60px rgba(2,8,30,0.6);border-color:rgba(123,97,255,0.12)}
-
-/* subtle floating decorative badge */
-.item-card::before{content:"";position:absolute;right:-40px;top:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%, rgba(123,97,255,0.12), transparent 30%), radial-gradient(circle at 70% 70%, rgba(0,229,255,0.06), transparent 30%);transform:rotate(12deg);pointer-events:none}
-
-/* ===== BUTTONS & controls ===== */
-.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:800;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#021125}
-.btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
-
-/* ===== TOASTS / MESSAGES ===== */
-.toast{position:fixed;right:20px;bottom:20px;background:rgba(2,8,20,0.8);padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 12px 40px rgba(0,0,0,0.6);color:var(--text)}
-
-/* ===== ANIMATIONS ===== */
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@keyframes fadeInUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-@keyframes titleFloat{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
-@keyframes pulse{0%{transform:scale(1);opacity:1}50%{transform:scale(1.06);opacity:.9}100%{transform:scale(1);opacity:1}}
-
-.animate-fade-in{animation:fadeIn .6s ease both}
-.animate-fade-in-up{animation:fadeInUp .6s cubic-bezier(.2,.9,.3,1) both}
-.animate-title-float{animation:titleFloat 4s ease-in-out infinite}
-.animate-pulse{animation:pulse 3s ease-in-out infinite}
-.fadeInUp{animation:fadeInUp .6s both}
-.fadeIn{animation:fadeIn .45s both}
-
-/* ===== responsive tweaks ===== */
-@media (max-width:900px){
-  .text-6xl{font-size:2.2rem}
-  #game-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
-  .code-box, .code-input{width:56px;height:56px;font-size:26px}
-}
-@media (max-width:520px){
-  #game-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
-  .code-box, .code-input{width:48px;height:48px;font-size:22px}
+.code-title {
+  font-size: 32px;
+  margin-bottom: 20px;
+  font-weight: 700;
 }
 
-/* ===== accessibility focus outlines ===== */
-:focus{outline:none}
-:focus-visible{box-shadow:0 0 0 4px rgba(0,229,255,0.12), 0 12px 36px rgba(2,8,30,0.6)}
+.code-row {
+  display: flex;
+  gap: 12px;
+}
 
-/* ===== small helpers for legacy classes used earlier ===== */
-.lock-screen{display:block}
-.content{display:block}
+.code-input {
+  width: 60px;
+  height: 70px;
+  background: var(--card);
+  border: 2px solid var(--accent);
+  color: var(--text);
+  font-size: 32px;
+  text-align: center;
+  border-radius: 10px;
+  outline: none;
+  box-shadow: var(--shadow);
+  transition: 0.2s;
+}
 
-/* ===== end ===== */
+.code-input:focus {
+  transform: scale(1.1);
+}
+
+/* Fade animations */
+.fadeOut { animation: fadeOutAnim 0.4s forwards; }
+.fadeIn  { animation: fadeIn 0.5s ease-out forwards; }
+
+@keyframes fadeOutAnim {
+  to { opacity: 0; transform: scale(0.95); }
+}
+
+/* ============================================================
+   🏷 TOP BAR + CONTROLS
+=========================================================== */
+
+.top-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+#searchBar {
+  width: 320px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: none;
+  color: var(--text);
+  font-size: 16px;
+}
+
+button,
+select {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--accent);
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover,
+select:hover {
+  background: var(--accent);
+}
+
+/* ============================================================
+   🎮 GAME GRID
+=========================================================== */
+
+#itemsContainer {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+.item-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.item-card h3 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+}
+
+.links a {
+  display: block;
+  margin-top: 6px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.links a:hover {
+  background: var(--accent);
+  color: white;
+  transform: translateX(4px);
+}
+
+/* "BEST" BUTTON */
+.open-best {
+  display: inline-block;
+  background: var(--accent);
+  color: white;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  margin-top: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* ============================================================
+   ⭐ FAVORITES BADGE
+=========================================================== */
+
+.fav-star {
+  font-size: 22px;
+  cursor: pointer;
+  float: right;
+  color: #888;
+  transition: 0.2s;
+}
+
+.fav-star.active {
+  color: gold;
+  transform: scale(1.2);
+}
+
+/* ============================================================
+   📡 STATUS BADGES
+=========================================================== */
+
+.status-badge {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  background: #444;
+}
+
+.status-ok {
+  background: #2ecc71 !important;
+  color: black;
+}
+
+.status-bad {
+  background: #e74c3c !important;
+  color: white;
+}
+
