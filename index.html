@@ -1,40 +1,71 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Game Hub</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Library</title>
 
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
 <body>
 
-  <!-- Animated Background -->
-  <div class="background-layer pulse"></div>
-  <div class="background-noise"></div>
+<!-- 🔐 LOCK SCREEN -->
+<div class="lock-screen">
+  <div class="code-title">ENTER ACCESS CODE</div>
+  <div class="code-row">
+    <input class="code-input" maxlength="1">
+    <input class="code-input" maxlength="1">
+    <input class="code-input" maxlength="1">
+    <input class="code-input" maxlength="1">
+    <input class="code-input" maxlength="1">
+  </div>
+</div>
 
-  <!-- ========== ACCESS CODE SCREEN ========== -->
-  <section id="code-wall">
-    <h1 class="title animate-title-float">ENTER ACCESS CODE</h1>
+<!-- 🌐 MAIN CONTENT -->
+<div class="content" style="display:none;">
 
-    <div class="code-container">
-      <input maxlength="1" class="code-input" />
-      <input maxlength="1" class="code-input" />
-      <input maxlength="1" class="code-input" />
-      <input maxlength="1" class="code-input" />
-      <input maxlength="1" class="code-input" />
+  <!-- ===== TOP CONTROLS ===== -->
+  <div class="top-controls">
+
+    <!-- Search -->
+    <input id="searchBar" placeholder="Search games, proxies, tools...">
+
+    <!-- Buttons group -->
+    <div class="control-buttons">
+      <button class="category-btn active" data-category="games">Games</button>
+      <button class="category-btn" data-category="proxies">Proxies</button>
+      <button class="category-btn" data-category="apps">Apps</button>
+      <button class="category-btn" data-category="tools">Tools</button>
     </div>
 
-    <p id="code-error"></p>
-  </section>
+    <!-- Right side -->
+    <div class="right-controls">
+      <button id="favoritesBtn">⭐ Favorites</button>
+      <button id="randomBtn">🎲 Random Working</button>
 
-  <!-- ========== MAIN CONTENT AFTER UNLOCK ========== -->
-  <main id="main-content" class="hidden">
-    <h1 class="library-title">Game Library</h1>
+      <button id="exportBtn">📤 Export JSON</button>
+      <label class="file-upload">
+        <input type="file" id="importFile" style="display:none">
+        <button id="importBtn">📥 Import</button>
+      </label>
 
-    <div id="game-grid"></div>
-  </main>
+      <button id="themeToggle">🌙 Toggle Theme</button>
+    </div>
 
-  <script src="script.js"></script>
+  </div>
+
+  <!-- ===== GAME GRID ===== -->
+  <div id="itemsContainer"></div>
+
+</div>
+
+
+<!-- Scripts -->
+<script src="script.js"></script>
+
 </body>
 </html>
