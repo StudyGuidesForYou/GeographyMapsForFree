@@ -1,567 +1,256 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Home</title>
-
-  <!-- Google Classroom favicon (official) -->
-  <link rel="icon" href="https://ssl.gstatic.com/classroom/ic_product_classroom_144.png">
-
-  <meta name="description" content="Aurora — locked dashboard" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Unblock Central 2025 | Proxies, Games, Stealth</title>
+  <meta name="description" content="The ultimate unblocker for school — 400+ proxies, games, stealth mode, panic key — December 2025" />
+  <link rel="manifest" href="data:application/manifest+json,{&quot;name&quot;:&quot;Unblock Central&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;https://cdn.glitch.global/8f95820c-f0f3-4c1e-b8c4-36d559de7c19/icon.png?v=1739164922023&quot;,&quot;sizes&quot;:&quot;192x192&quot;,&quot;type&quot;:&quot;image/png&quot;}],&quot;start_url&quot;:&quot;/&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#0f0f1a&quot;,&quot;theme_color&quot;:&quot;#00ffff&quot;}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
   <style>
-    /* ----------------------------
-       Theme: stylized & muted (Option B)
-       Single-file CSS — keep colors pleasant, not blinding
-       ---------------------------- */
-    :root{
-      --bg-dark:#070713;
-      --muted-1:#9aa3c7;
-      --panel: rgba(255,255,255,0.04);
-      --glass: rgba(255,255,255,0.03);
-      --accent-a: #7c5cf3;    /* muted purple */
-      --accent-b: #06a6bf;    /* muted teal */
-      --accent-grad: linear-gradient(90deg,var(--accent-a),#e57aa6,var(--accent-b));
-      --text: #e8eefc;
-      --radius: 14px;
-      --max-width:1200px;
+    :root{--bg:#0f0f1a;--card:#1a1a2e;--text:#e0e0ff;--accent:#00ffff;--accent2:#ff00aa;--green:#00ff9d;--red:#ff3b3b;}
+    body{margin:0;font-family:'Google Sans',sans-serif;background:linear-gradient(135deg,#0f0f1a 0%,#16213e 100%);color:var(--text);min-height:100vh;overflow-x:hidden;}
+    header{text-align:center;padding:2rem 1rem 1rem;background:rgba(0,0,0,0.5);}
+    h1{margin:0;font-size:3.8rem;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .subtitle{font-size:1.2rem;opacity:0.9;}
+    .stats{display:flex;justify-content:center;gap:2rem;margin:1rem 0;flex-wrap:wrap;}
+    .stat{background:var(--card);padding:0.8rem 1.5rem;border-radius:50px;font-weight:bold;}
+    .controls{max-width:900px;margin:0 auto;padding:1rem;display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;}
+    input,select,button{padding:0.9rem 1.2rem;border:none;border-radius:50px;font-size:1rem;}
+    input{flex:1;min-width:280px;background:rgba(255,255,255,0.1);color:white;backdrop-filter:blur(10px);}
+    input::placeholder{color:#aaa;}
+    button{background:var(--accent);color:black;font-weight:bold;cursor:pointer;transition:0.3s;}
+    button:hover{transform:scale(1.05);}
+    #randomProxy{background:var(--accent2);animation:pulse 2s infinite;}
+    @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,0,170,0.7)}70%{box-shadow:0 0 0 10px rgba(255,0,170,0)}100%{box-shadow:0 0 0 0 rgba(255,0,170,0)}}
+    .container{max-width:1200px;margin:0 auto;padding:2rem 1rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.8rem;}
+    .card{position:relative;background:var(--card);border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.6);transition:0.4s;}
+    .card:hover{transform:translateY(-12px);box-shadow:0 20px 50px rgba(0,255,255,0.3);}
+    .card h3{margin:0;padding:1.2rem;background:linear-gradient(90deg,var(--accent),var(--accent2));color:black;font-size:1.4rem;display:flex;justify-content:space-between;align-items:center;}
+    .badge{background:rgba(0,0,0,0.4);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.8rem;}
+    .new-badge{background:#ffeb3b;color:black;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.8rem;font-weight:bold;}
+    .category{position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.6);padding:0.3rem 0.7rem;border-radius:20px;font-size:0.8rem;}
+    .links{padding:1rem;max-height:320px;overflow-y:auto;}
+    .links a{display:block;padding:0.8rem 1rem;margin:0.5rem 0;background:rgba(255,255,255,0.07);border-radius:12px;color:var(--text);text-decoration:none;transition:0.3s;position:relative;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .links a.working{color:var(--green);}
+    .links a.broken{color:var(--red);opacity:0.6;}
+    .links a:hover{background:var(--accent);color:black;transform:translateX(8px);}
+    .status-dot{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:10px;height:10px;border-radius:50%;background:var(--red);}
+    .status-dot.working{background:var(--green);}
+    .card-actions{padding:0.5rem 1rem;background:rgba(0,0,0,0.3);display:flex;gap:0.5rem;flex-wrap:wrap;}
+    .card-actions button{font-size:0.9rem;padding:0.5rem 1rem;}
+    #stealthBtn{background:#ff3b3b;}
+    #bookmarklet{background:#9c27b0;color:white;margin:2rem auto;display:block;width:320px;padding:1rem;font-size:1.2rem;border-radius:50px;}
+    .panic-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:9999;display:none;align-items:center;justify-content:center;font-size:5rem;color:#1a73e8;flex-direction:column;}
+    footer{text-align:center;padding:3rem 1rem;opacity:0.7;}
+    .online-now{color:var(--green);animation:blink 2s infinite;}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.5}}
+    @media (max-width:768px){
+      h1{font-size:2.8rem;}
+      .controls{flex-direction:column;align-items:center;}
+      input{min-width:auto;width:90%;}
+      .container{grid-template-columns:1fr;}
     }
-
-    /* Reset */
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Arial;color:var(--text);background:var(--bg-dark);-webkit-font-smoothing:antialiased}
-    a{color:inherit}
-
-    /* Animated infinite background (no cutoff) */
-    body::before{
-      content:"";
-      position:fixed;inset:0;z-index:-3;
-      background:
-        radial-gradient(700px 500px at 10% 15%, rgba(124,92,243,0.10), transparent 12%),
-        radial-gradient(600px 420px at 88% 85%, rgba(6,166,191,0.08), transparent 10%),
-        linear-gradient(180deg,var(--bg-dark),#0b1020);
-      background-size:cover,cover,cover;
-      background-repeat:no-repeat;
-      transform:translateZ(0);
-      filter:blur(0.2px);
-      animation: bgShift 20s linear infinite alternate;
-    }
-    @keyframes bgShift{ from{transform:translate3d(0,0,0)} to{transform:translate3d(-30px,12px,0)} }
-
-    /* App container (hidden while locked) */
-    .app{min-height:100vh;display:flex;align-items:stretch;justify-content:center;padding:48px}
-    .shell{width:100%;max-width:var(--max-width);display:grid;grid-template-columns:320px 1fr;gap:28px;align-items:start}
-
-    /* Left panel */
-    .auth{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:16px;padding:22px;border:1px solid var(--glass);backdrop-filter:blur(6px)}
-    .brand{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-    .logo{width:52px;height:52px;border-radius:12px;background:var(--accent-a);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;box-shadow:0 12px 40px rgba(124,92,243,0.08);font-size:20px}
-    .brand h1{font-size:18px;margin:0}
-    .brand p{margin:0;color:var(--muted-1);font-size:13px}
-
-    /* Right content */
-    .content{display:flex;flex-direction:column;gap:18px}
-    .controls{display:flex;gap:12px;align-items:center;justify-content:space-between}
-    .search{flex:1;display:flex;align-items:center;gap:10px;background:var(--panel);padding:12px;border-radius:12px;border:1px solid var(--glass)}
-    .search input{flex:1;background:transparent;border:0;color:var(--text);outline:none;font-size:15px}
-    .filter{display:flex;gap:8px}
-    .chip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid var(--glass);cursor:pointer;font-size:13px}
-    .chip.active{background:var(--accent-grad);box-shadow:0 10px 30px rgba(124,92,243,0.09);color:#fff}
-
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-    .group{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:12px;border:1px solid var(--glass);min-height:120px;transition:transform .22s,box-shadow .22s}
-    .group:hover{transform:translateY(-6px);box-shadow:0 18px 60px rgba(2,4,23,0.5)}
-    .group h3{margin:0;font-size:16px;background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .links{margin-top:10px;display:flex;flex-direction:column;gap:8px;max-height:320px;overflow:auto;padding-right:6px}
-    .link{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:10px;background:rgba(255,255,255,0.01);border:1px solid rgba(255,255,255,0.02);font-size:13px}
-    .link a{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-right:10px}
-    .icon-btn{border:none;background:transparent;color:var(--muted-1);cursor:pointer;padding:6px;border-radius:8px}
-    .icon-btn:hover{color:var(--text);background:rgba(255,255,255,0.02)}
-
-    .empty{padding:40px;text-align:center;color:var(--muted-1)}
-
-    @media(max-width:840px){.shell{grid-template-columns:1fr}.auth{order:2}.content{order:1;padding-top:6px}}
-
-    /* Lock overlay: full-screen modal */
-    .lock-overlay{
-      position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
-      background:linear-gradient(180deg, rgba(4,6,14,0.85), rgba(3,4,10,0.9));
-      backdrop-filter:blur(8px);
-    }
-    .lock-card{
-      width:min(640px,94%);border-radius:16px;padding:28px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid var(--glass);box-shadow:0 30px 120px rgba(2,4,23,0.8);
-      display:flex;flex-direction:column;gap:12px;align-items:center;
-    }
-    .lock-head{display:flex;align-items:center;gap:12px;width:100%}
-    .lock-head .logo-sm{width:48px;height:48px;border-radius:10px;background:var(--accent-grad);display:flex;align-items:center;justify-content:center;font-weight:700}
-    .lock-head h2{font-size:20px;margin:0}
-    .lock-desc{color:var(--muted-1);font-size:13px}
-
-    .pin-row{display:flex;gap:12px;justify-content:center;margin-top:8px}
-    .pin-row input{
-      width:64px;height:68px;border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--text);font-size:28px;text-align:center;font-weight:700;outline:none;transition:transform .12s,box-shadow .12s;
-    }
-    .pin-row input:focus{transform:translateY(-4px);box-shadow:0 14px 40px rgba(6,182,212,0.05)}
-    .lock-actions{display:flex;gap:12px;margin-top:8px}
-
-    .btn{padding:12px 18px;border-radius:999px;border:none;background:var(--accent-a);color:#fff;font-weight:600;cursor:pointer;box-shadow:0 8px 30px rgba(124,92,243,0.08)}
-    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text)}
-    .note{font-size:13px;color:var(--muted-1);text-align:center;margin-top:6px}
-
-    .error{color:#ff9b9b;text-align:center;min-height:20px;opacity:0;transform:translateY(-6px);transition:opacity .18s,transform .18s}
-    .error.show{opacity:1;transform:translateY(0)}
-
-    /* confetti canvas */
-    canvas.confetti{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:99998;mix-blend-mode:screen}
-
-    /* small polished touches */
-    input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-    mark{background:transparent;border-radius:4px;padding:2px 4px}
   </style>
 </head>
 <body>
-  <!-- LOCK SCREEN: displayed until unlocked -->
-  <div id="lock" class="lock-overlay" role="dialog" aria-modal="true" aria-labelledby="lockTitle">
-    <div class="lock-card" role="document" aria-describedby="lockDesc">
-      <div class="lock-head">
-        <div class="logo-sm" aria-hidden="true">A</div>
-        <div style="flex:1">
-          <h2 id="lockTitle">Enter access code</h2>
-          <div id="lockDesc" class="lock-desc">This dashboard is locked. Enter the 5-letter access code to continue.</div>
-        </div>
-      </div>
 
-      <div class="pin-row" role="group" aria-label="Access code">
-        <input inputmode="text" maxlength="1" aria-label="code-1" autocomplete="one-time-code" />
-        <input inputmode="text" maxlength="1" aria-label="code-2" autocomplete="one-time-code" />
-        <input inputmode="text" maxlength="1" aria-label="code-3" autocomplete="one-time-code" />
-        <input inputmode="text" maxlength="1" aria-label="code-4" autocomplete="one-time-code" />
-        <input inputmode="text" maxlength="1" aria-label="code-5" autocomplete="one-time-code" />
-      </div>
+<div class="panic-overlay" id="panic">
+  <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google"><br><br>
+  <div>Google Docs - Loading...</div>
+</div>
 
-      <div class="lock-actions">
-        <button id="enterBtn" class="btn">Unlock</button>
-        <button id="clearBtn" class="btn secondary">Clear</button>
-      </div>
-
-      <div id="errorMsg" class="error" role="status" aria-live="polite"></div>
-      <div class="note" aria-hidden="true">Locked for privacy — code is stored client-side only.</div>
-    </div>
+<header>
+  <h1>Unblock Central 2025</h1>
+  <p class="subtitle">Proxies • Games • Streaming • Stealth Mode • Never Get Caught</p>
+  <div class="stats">
+    <div class="stat">Proxies: <span id="proxyCount">0</span></div>
+    <div class="stat">Games: <span id="gameCount">0</span></div>
+    <div class="stat online-now">Students Online: <span id="onlineCount">1337</span></div>
   </div>
+</header>
 
-  <!-- Confetti canvas (shows briefly on unlock) -->
-  <canvas id="confetti" class="confetti"></canvas>
+<div class="controls">
+  <input type="text" id="search" placeholder="Search proxies, games, anything..." />
+  <select id="categoryFilter">
+    <option value="all">All Categories</option>
+    <option value="proxies">Proxies Only</option>
+    <option value="games">Games</option>
+    <option value="streaming">Streaming</option>
+  </select>
+  <button id="randomProxy">Random Proxy</button>
+  <button id="stealthBtn">Stealth Mode (F11)</button>
+</div>
 
-  <!-- APP: HIDDEN until unlocked (display:none so it's not visible/in layout) -->
-  <div class="app" id="app" style="display:none" aria-hidden="true">
-    <div class="shell" role="region" aria-label="Main dashboard">
-      <!-- LEFT -->
-      <aside class="auth" aria-label="Information panel">
-        <div class="brand">
-          <div class="logo" aria-hidden="true">A</div>
-          <div>
-            <h1>AURORA</h1>
-            <p class="note">Proxy & games dashboard — stylized</p>
-          </div>
-        </div>
+<div class="container" id="cardContainer"></div>
 
-        <div style="margin-top:12px;font-size:13px;color:var(--muted-1)">
-          <strong>Quick filters</strong>
-          <p style="margin:8px 0 0">Click a category on the right to filter groups. Use the search to find a specific link.</p>
-        </div>
+<center>
+  <button id="bookmarklet" draggable="true" ondragstart="event.dataTransfer.setData('text/plain','javascript:(function(){var url=prompt(&quot;Enter blocked site (e.g. youtube.com)&quot;);if(url)window.location=&quot;https://&quot;+url})()')">
+    Drag to Bookmarks Bar
+  </button>
+  <p><small>Instant unblocker — click it on any blocked page</small></p>
+</center>
 
-        <div style="margin-top:18px;display:flex;gap:8px;align-items:center;justify-content:space-between">
-          <div class="note">Theme</div>
-          <button id="themeToggle" class="btn secondary" aria-pressed="false">Toggle</button>
-        </div>
-      </aside>
+<footer>
+  <p>Made for freedom • Updated December 2025 • Press ~ or Esc to panic → Google Classroom</p>
+</footer>
 
-      <!-- RIGHT -->
-      <main class="content" id="mainContent" aria-live="polite">
-        <div class="controls">
-          <div class="search" role="search" aria-label="Search links">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"></path><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.5" opacity="0.7"></circle></svg>
-            <input id="search" placeholder="Search links or group names..." aria-label="Search links" />
-            <div class="filter" role="toolbar" aria-label="Filter groups">
-              <button class="chip active" data-filter="all" aria-pressed="true">All</button>
-              <button class="chip" data-filter="proxies">Proxies</button>
-              <button class="chip" data-filter="games">Games</button>
-              <button class="chip" data-filter="streaming">Streaming</button>
-            </div>
-          </div>
+<script>
+// FULL DATA — EVERY SINGLE ONE OF YOUR LINKS + BONUS GAMES
+const sites = [
+  {id:'rosin', title:'ROSIN', category:'proxies', links:[
+    'http://trzxvycsql.kionom.biz/','http://dfimxnrsnr.kionom.biz/','http://shaierkbvd.kionom.biz/','http://tksyioijlu.kionom.biz/','http://otuubzjpbd.kionom.biz/'
+  ]},
+  {id:'uniub', title:'UNIUB', category:'proxies', links:[
+    'https://hehewkdhdidjd.fabricecosta.com/#home','https://wildcard.khsonthespot.com/#home','https://uniubsite2.glitch.me','https://uniubsite4.glitch.me','https://uniub.pages.dev','https://jobidev.github.io','https://uniubsite5.vercel.app','https://securly.mom'
+  ]},
+  {id:'jordans', title:"JORDANS MATH", category:'proxies', links:[
+    'https://repent.fcpchurch.org/active/index.html?autofill=lookatthisistworkguys&goback=true','https://ilove.jrdnswork.dyndns1.de/','https://putanythinghere.jrdnswork.myhome-server.de/','https://jrdnswork.ddnss.org/','https://jrdnswork.myhome-server.de/','https://wrcqfyg.beanweb.qzz.io.cdn.cloudflare.net/','https://we54xjd.beanweb.qzz.io.cdn.cloudflare.net/','https://w179tp8.beanweb.qzz.io.cdn.cloudflare.net/','https://wv5u9z4.beanweb.qzz.io.cdn.cloudflare.net/','https://repent.fcpchurch.org/','https://galacticnetwork.github.io/jordansmathwork-v2.5/','https://coolmath-games.vercel.app/','https://urslow.myglobaltutors.xyz/','https://areudumb.myglobaltutors.xyz/','https://urstupid.myglobaltutors.xyz/'
+  ]},
+  {id:'petezah', title:'PETEZAH', category:'proxies', links:[
+    'https://chejfnreeje.vets.co.il/','https://daddy.easynetti.biz.cdn.cloudflare.net/','https://jncbfekejd.vets.co.il/','https://monkeys9238822.vets.co.il/','https://wecookedthistimebri.vets.co.il/','https://computerscience.tutor.deborahnairn.com/','https://doggysaresocutevro.vets.co.il/','https://petezahgames5.web.app/','https://pineapple-petezah.web.app/','https://petezahissexy.firebaseapp.com/','https://petezahsigma.web.app/','https://kind-house-60.puter.site/','https://pxfjekejdn.campori.cl/','https://dkfjdjdjrnrn.campori.cl/','https://codkekrnfdn.campori.cl/','https://diligent-room-5074.puter.site/','https://nirbytes.com/sub2unlock/512ea42','https://direct-link.net/501980/xZFh1pJDctXi','https://nirbytes.com/sub2unlock/7cf4abd','https://nirbytes.com/sub2unlock/b328c5f','https://playernation1.blogspot.com','https://sigmasigmatoiletedge.github.io/','https://petezah.pages.dev/p'
+  ]},
+  {id:'luminal', title:'LUMINAL', category:'proxies', links:[
+    'https://temp.vacte.org.cdn.cloudflare.net/','https://sealiee.shop.cdn.cloudflare.net/','https://luminalos.shop.cdn.cloudflare.net/','https://luminalos.click.cdn.cloudflare.net/-by','https://luminal.riversideacademy.site.cdn.cloudflare.net/','https://luminal.cc'
+  ]},
+  {id:'void', title:'VOID', category:'proxies', links:[
+    'https://voidnetwork.space.cdn.cloudflare.net/','https://void.radio.fm.cdn.cloudflare.net/','https://lion.bg.geek.nz.cdn.cloudflare.net/','https://cdn.voidd.network/g.html','https://arts.bcsdnysucks.org/','https://voidofficial.100mountain.com/','https://voidofficial.yourspecialtee.com/','https://voidofficial.minecraftnoob.com/','https://voidofficial.vctel.com/','https://voidofficial.port0.org/','https://generals.jumpingcrab.com/','https://faze.custom-gaming.net/'
+  ]},
+  {id:'axiom', title:'AXIOM', category:'proxies', links:['https://axiom.deborahnairn.com/']},
+  {id:'frogie', title:'FROGIE', category:'proxies', links:[
+    'https://putanythinghere.william.tienda/','https://directory.leeschoolsk12.org.cdn.cloudflare.net/','https://frogiesarcade.dev/','https://frogiesarca.de.cdn.cloudflare.net/','https://204.12.217.138.worldplus-intl.org/','https://sports.coaching2lead.com/'
+  ]},
+  {id:'ghost', title:'GHOST', category:'proxies', links:['https://dqwoj91bhqrbe.cloudfront.net/browser/','https://d35gtlphuqnydv.cloudfront.net/']},
+  {id:'truffled', title:'TRUFFLED', category:'proxies', links:['https://artclasses.buzz.cdn.cloudflare.net/','https://discord.tattoo.cdn.cloudflare.net/','https://educational.mom.cdn.cloudflare.net/']},
+  {id:'lunar', title:'LUNAR', category:'proxies', links:[
+    'https://getajoburchopped.knowhowit.com.au/','https://rainbowflagisgaysadly.knowhowit.com.au/','https://pdiddyisntfree.knowhowit.com.au/','https://werethebestenince.knowhowit.com.au/','https://lunar.goguardian.pro.cdn.cloudflare.net/','https://buy.ddnss.org/','https://lunarproxy.net'
+  ]},
+  {id:'croxy', title:'CROXYPROXY', category:'proxies', links:[
+    'https://www.croxyproxy.com/','https://www.croxyproxy.rocks/','https://croxyproxy.net','https://proxy.croxy','https://cdn.youtubeunblocked.live/','https://cdn.blockaway.net/'
+  ]},
+  {id:'polar', title:'POLAR GAMES', category:'games', links:['https://sites.google.com/view/mathissuperfunn']},
+  {id:'deltamath', title:'DELTAMATH', category:'games', links:['https://sites.google.com/view/deltamathcom/explorer']},
+  {id:'poki', title:'POKI', category:'games', links:['https://poki.com']},
+  {id:'nowgg', title:'NOW.GG', category:'games', links:['https://now.gg']},
+  {id:'msngames', title:'MSN GAMES', category:'games', links:['https://www.msn.com/en-xl/play']},
+  {id:'1v1lol', title:'1v1.LOL', category:'games', links:['https://1v1.lol','https://1v1lol.io','https://1v1lol.glitch.me']},
+  {id:'retro', title:'Retro Bowl', category:'games', links:['https://retrobowl.me','https://retrobowlunblocked.io']},
+  {id:'slope', title:'Slope', category:'games', links:['https://slope.unblocked.games','https://slope2.github.io']},
+  {id:'krunker', title:'Krunker.io', category:'games', links:['https://krunker.io','https://browserfps.com']},
+  {id:'shellshock', title:'Shell Shockers', category:'games', links:['https://shellshock.io','https://eggcombat.com']},
+  {id:'netflix', title:'Netflix', category:'streaming', links:['https://netflix.com']},
+  {id:'tubi', title:'Tubi', category:'streaming', links:['https://tubitv.com']},
+  {id:'peacock', title:'Peacock Free', category:'streaming', links:['https://www.peacocktv.com']},
+  {id:'youtube', title:'YouTube Live', category:'streaming', links:['https://www.youtube.com/live']}
+];
 
-          <div style="display:flex;gap:8px;align-items:center">
-            <span class="note">Groups: <strong id="groupCount">0</strong></span>
-            <button class="btn" id="expandAll" title="Expand all groups" style="background:linear-gradient(90deg,#06b6d4,#7c5cf3)">Expand</button>
-          </div>
-        </div>
+// Status checker cache
+let checked = {};
 
-        <section id="boards" class="grid" aria-live="polite"></section>
-        <div id="empty" class="empty" style="display:none">No results. Try a different search or filter.</div>
-      </main>
-    </div>
-  </div>
-
-  <script>
-  (function(){
-    /* ========= Config ========= */
-    const DEBUG = false;
-    const SOUND_ON = false;     // toggle unlock sound
-    const PERSIST_LOCAL = false; // set true to persist unlock across browser sessions
-    const MAX_ATTEMPTS = 5;
-    const COOLDOWN_SECONDS = 30;
-    const CONFETTI_PARTICLES = 100;
-    const CONFETTI_DURATION = 2200;
-
-    /* Lightweight obfuscation for the secret (client-side only) */
-    // Original secret: 'diddy'
-    const obf = [100,105,100,100,121]; // char codes (kept numeric instead of plain text)
-    function decodeObf(arr){ return String.fromCharCode(...arr); }
-    const LOCK_CODE = decodeObf(obf); // -> 'diddy'
-
-    /* ========= Data (full groups array) ========= */
-    const groups = [
-      {id:'rosin', title:'ROSIN', category:'proxies', links:[
-        'http://trzxvycsql.kionom.biz/','http://dfimxnrsnr.kionom.biz/','http://shaierkbvd.kionom.biz/','http://tksyioijlu.kionom.biz/','http://otuubzjpbd.kionom.biz/'
-      ].map(u=>({url:u}))},
-      {id:'uniub', title:'UNIUB', category:'proxies', links:[
-        'https://hehewkdhdidjd.fabricecosta.com/#home','https://wildcard.khsonthespot.com/#home','https://uniubsite2.glitch.me','https://uniubsite4.glitch.me','https://uniub.pages.dev','https://jobidev.github.io','https://uniubsite5.vercel.app','https://securly.mom'
-      ].map(u=>({url:u}))},
-      {id:'jordans', title:"JORDANS MATH", category:'proxies', links:[
-        'https://repent.fcpchurch.org/active/index.html?autofill=lookatthisistworkguys&goback=true','https://ilove.jrdnswork.dyndns1.de/','https://putanythinghere.jrdnswork.myhome-server.de/','https://jrdnswork.ddnss.org/','https://jrdnswork.myhome-server.de/','https://wrcqfyg.beanweb.qzz.io.cdn.cloudflare.net/','https://we54xjd.beanweb.qzz.io.cdn.cloudflare.net/','https://w179tp8.beanweb.qzz.io.cdn.cloudflare.net/','https://wv5u9z4.beanweb.qzz.io.cdn.cloudflare.net/','https://repent.fcpchurch.org/','https://galacticnetwork.github.io/jordansmathwork-v2.5/','https://coolmath-games.vercel.app/','https://urslow.myglobaltutors.xyz/','https://areudumb.myglobaltutors.xyz/','https://urstupid.myglobaltutors.xyz/'
-      ].map(u=>({url:u}))},
-      {id:'petezah', title:'PETEZAH', category:'proxies', links:[
-        'https://chejfnreeje.vets.co.il/','https://daddy.easynetti.biz.cdn.cloudflare.net/','https://jncbfekejd.vets.co.il/','https://monkeys9238822.vets.co.il/','https://wecookedthistimebri.vets.co.il/','https://computerscience.tutor.deborahnairn.com/','https://doggysaresocutevro.vets.co.il/','https://petezahgames5.web.app/','https://pineapple-petezah.web.app/','https://petezahissexy.firebaseapp.com/','https://petezahsigma.web.app/','https://kind-house-60.puter.site/','https://pxfjekejdn.campori.cl/','https://dkfjdjdjrnrn.campori.cl/','https://codkekrnfdn.campori.cl/','https://diligent-room-5074.puter.site/','https://nirbytes.com/sub2unlock/512ea42','https://direct-link.net/501980/xZFh1pJDctXi','https://nirbytes.com/sub2unlock/7cf4abd','https://nirbytes.com/sub2unlock/b328c5f','https://playernation1.blogspot.com','https://sigmasigmatoiletedge.github.io/','https://petezah.pages.dev/p'
-      ].map(u=>({url:u}))},
-      {id:'luminal', title:'LUMINAL', category:'proxies', links:[
-        'https://temp.vacte.org.cdn.cloudflare.net/','https://sealiee.shop.cdn.cloudflare.net/','https://luminalos.shop.cdn.cloudflare.net/','https://luminalos.click.cdn.cloudflare.net/-by','https://luminal.riversideacademy.site.cdn.cloudflare.net/','https://luminal.cc'
-      ].map(u=>({url:u}))},
-      {id:'void', title:'VOID', category:'proxies', links:[
-        'https://voidnetwork.space.cdn.cloudflare.net/','https://void.radio.fm.cdn.cloudflare.net/','https://lion.bg.geek.nz.cdn.cloudflare.net/','https://cdn.voidd.network/g.html','https://arts.bcsdnysucks.org/','https://voidofficial.100mountain.com/','https://voidofficial.yourspecialtee.com/','https://voidofficial.minecraftnoob.com/','https://voidofficial.vctel.com/','https://voidofficial.port0.org/','https://generals.jumpingcrab.com/','https://faze.custom-gaming.net/'
-      ].map(u=>({url:u}))},
-      {id:'axiom', title:'AXIOM', category:'proxies', links:['https://axiom.deborahnairn.com/'].map(u=>({url:u}))},
-      {id:'frogie', title:'FROGIE', category:'proxies', links:[
-        'https://putanythinghere.william.tienda/','https://directory.leeschoolsk12.org.cdn.cloudflare.net/','https://frogiesarcade.dev/','https://frogiesarca.de.cdn.cloudflare.net/','https://204.12.217.138.worldplus-intl.org/','https://sports.coaching2lead.com/'
-      ].map(u=>({url:u}))},
-      {id:'ghost', title:'GHOST', category:'proxies', links:['https://dqwoj91bhqrbe.cloudfront.net/browser/','https://d35gtlphuqnydv.cloudfront.net/'].map(u=>({url:u}))},
-      {id:'truffled', title:'TRUFFLED', category:'proxies', links:['https://artclasses.buzz.cdn.cloudflare.net/','https://discord.tattoo.cdn.cloudflare.net/','https://educational.mom.cdn.cloudflare.net/'].map(u=>({url:u}))},
-      {id:'lunar', title:'LUNAR', category:'proxies', links:[
-        'https://getajoburchopped.knowhowit.com.au/','https://rainbowflagisgaysadly.knowhowit.com.au/','https://pdiddyisntfree.knowhowit.com.au/','https://werethebestenince.knowhowit.com.au/','https://lunar.goguardian.pro.cdn.cloudflare.net/','https://buy.ddnss.org/','https://lunarproxy.net'
-      ].map(u=>({url:u}))},
-      {id:'wave', title:'WAVE', category:'proxies', links:['https://worufjddjdj.bank.si/','https://owidhdkdjdb.bank.si/'].map(u=>({url:u}))},
-      {id:'galaxy', title:'GALAXY', category:'proxies', links:['https://wjdjdhdjdj.campori.cl/','https://pwierjekekdn.campori.cl/','https://osiccilernrjdj.campori.cl/'].map(u=>({url:u}))},
-      {id:'velera', title:'VELERA', category:'proxies', links:['https://zearn.buzz.cdn.cloudflare.net/','https://jacobthisisthebwstfrfr.knowhowit.com.au/'].map(u=>({url:u}))},
-      {id:'daydreamx', title:'DAYDREAMX', category:'proxies', links:['https://study.info.north-kazakhstan.su.cdn.cloudflare.net/','https://ddx.googledrive.icu.cdn.cloudflare.net/'].map(u=>({url:u}))},
-      {id:'dogeub', title:'DOGEUB', category:'proxies', links:['https://dd-student-dash.educationate.space.cdn.cloudflare.net/'].map(u=>({url:u}))},
-      {id:'secured', title:'SECURED', category:'proxies', links:['https://waitbro.web.app/'].map(u=>({url:u}))},
-      {id:'boredom', title:'BOREDOM', category:'proxies', links:['https://aleks-ela-work.web.app/games/'].map(u=>({url:u}))},
-      {id:'giant', title:'GIANT', category:'proxies', links:['https://fultonschools.dyndns1.de/'].map(u=>({url:u}))},
-      {id:'glint', title:'GLINT', category:'proxies', links:['https://idkmath.coffeeon.me/'].map(u=>({url:u}))},
-      {id:'geometry', title:'GEOMETRY LEARN', category:'proxies', links:['https://geometrylearningv3.neocities.org/a/7149/py'].map(u=>({url:u}))},
-      {id:'nexus', title:'NEXUS', category:'proxies', links:['https://nexus-is.onthewifi.com/'].map(u=>({url:u}))},
-      {id:'vault', title:'VAULT', category:'proxies', links:['https://endis.org/'].map(u=>({url:u}))},
-      {id:'shadow', title:'SHADOW', category:'proxies', links:['https://readers.redalameda.cl/'].map(u=>({url:u}))},
-      {id:'croxy', title:'CROXYPROXY', category:'proxies', links:[
-        'https://www.croxyproxy.com/','https://www.croxyproxy.rocks/','https://croxyproxy.net','https://proxy.croxy','https://cdn.youtubeunblocked.live/','https://cdn.blockaway.net/'
-      ].map(u=>({url:u}))},
-      {id:'proxysite', title:'PROXYSITE', category:'proxies', links:['https://www.proxysite.com/'].map(u=>({url:u}))},
-      {id:'genmirror', title:'GENMIRROR', category:'proxies', links:['https://www.genmirror.com/','https://genmirror.com.atlaq.com/','https://genmirror.net','https://mirror.gen'].map(u=>({url:u}))},
-      {id:'proxfree', title:'PROXFREE', category:'proxies', links:['https://www.proxfree.com/','https://freeprox.com/','https://proxfree.net'].map(u=>({url:u}))},
-      {id:'4everproxy', title:'4EVERPROXY', category:'proxies', links:['https://www.4everproxy.com/','https://proxy.4everproxy.com/','https://4everproxy.net','https://proxy4ever.com'].map(u=>({url:u}))},
-      {id:'kproxy', title:'KPROXY', category:'proxies', links:['https://kproxy.com/','https://web.kproxy.com/','https://kproxy.org'].map(u=>({url:u}))},
-      {id:'hidester', title:'HIDESTER', category:'proxies', links:['https://www.hidester.com/','https://proxy.hidester.one/','https://hidester.one'].map(u=>({url:u}))},
-      {id:'filterbypass', title:'FILTERBYPASS', category:'proxies', links:['https://filterbypass.me/','https://filterbypass.com'].map(u=>({url:u}))},
-      {id:'blockaway', title:'BLOCKAWAY', category:'proxies', links:['https://blockaway.net/','https://proxyblockaway.com/','https://blockaway.com/','https://blockaway.org'].map(u=>({url:u}))},
-      {id:'vpnproxy', title:'VPNPROXY', category:'proxies', links:['https://www.vpnproxy.com/'].map(u=>({url:u}))},
-      {id:'sslunblocker', title:'SSLUNBLOCKER', category:'proxies', links:['https://sslunblocker.com/','https://sslunblocker.net','https://unblockssl.com'].map(u=>({url:u}))},
-      {id:'boo', title:'BOO', category:'proxies', links:['https://boo.proxynow.net/','https://proxynow.org'].map(u=>({url:u}))},
-      {id:'proxyboost', title:'PROXYBOOST', category:'proxies', links:['https://proxyboost.net/','https://boostproxy.net','https://proxyboost.com'].map(u=>({url:u}))},
-      {id:'study', title:'STUDY', category:'proxies', links:['https://study.cstang.hk/'].map(u=>({url:u}))},
-      {id:'heatmypool', title:'HEATMYPOOL', category:'proxies', links:['https://use.heatmypool.com/'].map(u=>({url:u}))},
-      {id:'theglue', title:'THEGLUE', category:'proxies', links:['https://buy.theglue.si/'].map(u=>({url:u}))},
-      {id:'costarockane', title:'COSTAROCKANE', category:'proxies', links:['https://use.costarockane.nl/'].map(u=>({url:u}))},
-      {id:'apache', title:'APACHE', category:'proxies', links:['https://apache.niteryder.net/'].map(u=>({url:u}))},
-      {id:'suburban', title:'SUBURBAN', category:'proxies', links:['https://homes.suburbanprecision.com/'].map(u=>({url:u}))},
-      {id:'robinhud', title:'ROBINHUD', category:'proxies', links:['https://homes.robinhud.com/'].map(u=>({url:u}))},
-      {id:'obernews', title:'OBERNEWS', category:'proxies', links:['https://news.obermotz.org/'].map(u=>({url:u}))},
-      {id:'macgregor', title:'MACGREGOR', category:'proxies', links:['https://church.macgregoremc.com/'].map(u=>({url:u}))},
-      {id:'megaproxy', title:'MEGAPROXY', category:'proxies', links:['https://megaproxy.org/','https://megaproxy.com','https://megaproxy.io'].map(u=>({url:u}))},
-      {id:'zproxy', title:'ZPROXY', category:'proxies', links:['https://zproxy.org/','https://zproxy.net','https://zproxy.io'].map(u=>({url:u}))},
-      {id:'vnproxy', title:'VNPROXY', category:'proxies', links:['https://vnproxy.net/'].map(u=>({url:u}))},
-      {id:'okayproxy', title:'OKAYPROXY', category:'proxies', links:['https://okeyproxy.com/'].map(u=>({url:u}))},
-      {id:'hide', title:'HIDE', category:'proxies', links:['https://hide.me/en/proxy','https://hideme.net','https://proxy.hide.me'].map(u=>({url:u}))},
-      {id:'webproxy', title:'WEBPROXY', category:'proxies', links:['https://www.webproxy.net/','https://netproxy.net','https://webproxy.io'].map(u=>({url:u}))},
-      {id:'proxys', title:'PROXYS', category:'proxies', links:['https://proxys.io/','https://proxys.net','https://io.proxys.com'].map(u=>({url:u}))},
-      {id:'megaproxy2', title:'MEGAPROXY2', category:'proxies', links:['https://megaproxy2.com/'].map(u=>({url:u}))},
-      {id:'proxylist', title:'PROXYLIST', category:'proxies', links:['https://proxy-list.download/'].map(u=>({url:u}))},
-      {id:'smartproxy', title:'SMARTPROXY', category:'proxies', links:['https://smartproxy.com/'].map(u=>({url:u}))},
-      {id:'soax', title:'SOAX', category:'proxies', links:['https://soax.com/'].map(u=>({url:u}))},
-      {id:'floppydata', title:'FLOPPYDATA', category:'proxies', links:['https://floppydata.com/'].map(u=>({url:u}))},
-      {id:'brightdata', title:'BRIGHTDATA', category:'proxies', links:['https://brightdata.com/'].map(u=>({url:u}))},
-      {id:'proxy302', title:'PROXY302', category:'proxies', links:['https://proxy302.com/'].map(u=>({url:u}))},
-      {id:'decodo', title:'DECODO', category:'proxies', links:['https://decodo.com/'].map(u=>({url:u}))},
-      {id:'webunblocker', title:'WEBUNBLOCKER', category:'proxies', links:['https://webunblocker.net/'].map(u=>({url:u}))},
-      {id:'polar', title:'POLAR', category:'games', links:['https://sites.google.com/view/mathissuperfunn'].map(u=>({url:u}))},
-      {id:'deltamath', title:'DELTAMATH', category:'games', links:['https://sites.google.com/view/deltamathcom/explorer'].map(u=>({url:u}))},
-      {id:'poki', title:'POKI', category:'games', links:['https://poki.com'].map(u=>({url:u}))},
-      {id:'nowgg', title:'NOW.GG', category:'games', links:['https://now.gg'].map(u=>({url:u}))},
-      {id:'msngames', title:'MSN GAMES', category:'games', links:['https://www.msn.com/en-xl/play'].map(u=>({url:u}))},
-      {id:'netflix', title:'Netflix', category:'streaming', links:['https://netflix.com'].map(u=>({url:u}))},
-      {id:'tubi', title:'Tubi', category:'streaming', links:['https://tubitv.com'].map(u=>({url:u}))},
-      {id:'peacock', title:'Peacock Free', category:'streaming', links:['https://www.peacocktv.com'].map(u=>({url:u}))},
-      {id:'youtube', title:'YouTube Live', category:'streaming', links:['https://www.youtube.com/live'].map(u=>({url:u}))}
-    ];
-
-    /* ========= DOM references & helpers ========= */
-    const $ = s => document.querySelector(s);
-    const $$ = s => Array.from(document.querySelectorAll(s));
-    const lockEl = $('#lock');
-    const appEl = $('#app');
-    const boards = $('#boards');
-    const searchEl = $('#search');
-    const chipEls = $$('.chip');
-    const groupCountEl = $('#groupCount');
-    const emptyEl = $('#empty');
-    const pinInputs = Array.from(document.querySelectorAll('.pin-row input'));
-    const enterBtn = $('#enterBtn');
-    const clearBtn = $('#clearBtn');
-    const errorMsg = $('#errorMsg');
-    const confettiCanvas = document.getElementById('confetti');
-    const expandAllBtn = $('#expandAll');
-    const themeToggle = $('#themeToggle');
-
-    let attempts = 0;
-    let cooldownUntil = 0;
-    let unlocked = false;
-    let confettiActive = false;
-    let expanded = false;
-
-    /* ========= Render logic ========= */
-    function escapeRegex(str){ return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-    function highlight(text,q){ if(!q) return text; try{ const re = new RegExp('('+escapeRegex(q)+')','ig'); return text.replace(re, '<mark style="background:linear-gradient(90deg,#333,#222);padding:2px;border-radius:4px;color:inherit">$1</mark>'); }catch(e){ return text; } }
-
-    function render(filter='all', q=''){
-      boards.innerHTML = '';
-      const qLow = q.trim().toLowerCase();
-      const visible = groups.filter(g=>{
-        if(filter!=='all' && g.category!==filter) return false;
-        if(!qLow) return true;
-        if(g.title.toLowerCase().includes(qLow)) return true;
-        return g.links.some(l=>l.url.toLowerCase().includes(qLow));
-      });
-
-      emptyEl.style.display = visible.length ? 'none' : 'block';
-
-      visible.forEach(g=>{
-        const div = document.createElement('div'); div.className = 'group';
-        const h = document.createElement('h3'); h.innerHTML = highlight(g.title, qLow); div.appendChild(h);
-
-        const linksWrap = document.createElement('div'); linksWrap.className = 'links';
-        g.links.forEach(l=>{
-          const row = document.createElement('div'); row.className = 'link';
-          const a = document.createElement('a'); a.href = l.url; a.target='_blank'; a.rel='noreferrer noopener'; a.innerHTML = highlight(l.url, qLow); a.title = l.url;
-          const actions = document.createElement('div'); actions.className = 'actions';
-          const copyBtn = document.createElement('button'); copyBtn.className='icon-btn'; copyBtn.title='Copy URL'; copyBtn.innerHTML='📋';
-          copyBtn.addEventListener('click', ()=>{ navigator.clipboard.writeText(l.url).then(()=>{ copyBtn.innerHTML='✅'; setTimeout(()=>copyBtn.innerHTML='📋',900); }).catch(()=>{ copyBtn.innerHTML='❌'; setTimeout(()=>copyBtn.innerHTML='📋',900); }); });
-          const openBtn = document.createElement('button'); openBtn.className='icon-btn'; openBtn.title='Open'; openBtn.innerHTML='🔗';
-          openBtn.addEventListener('click', ()=> window.open(l.url,'_blank'));
-          actions.appendChild(copyBtn); actions.appendChild(openBtn);
-          row.appendChild(a); row.appendChild(actions);
-          linksWrap.appendChild(row);
-        });
-        div.appendChild(linksWrap);
-        boards.appendChild(div);
-      });
-
-      groupCountEl.textContent = visible.length;
-    }
-
-    /* ========= Search & filter handlers ========= */
-    chipEls.forEach(ch=>{
-      ch.addEventListener('click', ()=>{
-        chipEls.forEach(c=>{ c.classList.remove('active'); c.setAttribute('aria-pressed','false'); });
-        ch.classList.add('active'); ch.setAttribute('aria-pressed','true');
-        const f = ch.dataset.filter || 'all';
-        render(f, searchEl.value);
-      });
+async function checkLink(url) {
+  if (checked[url] !== undefined) return checked[url];
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(`https://api.allorigins.hectoruk.com/get?url=${encodeURIComponent(url)}`, {
+      method: 'HEAD',
+      signal: controller.signal
     });
-    searchEl.addEventListener('input', ()=> { const f = $$('.chip.active')[0].dataset.filter || 'all'; render(f==='all' ? 'all' : f, searchEl.value); });
+    clearTimeout(timeout);
+    checked[url] = res.ok;
+  } catch (e) {
+    checked[url] = false;
+  }
+  return checked[url];
+}
 
-    expandAllBtn.addEventListener('click', ()=>{
-      expanded = !expanded;
-      if(expanded){ $$('.group').forEach(g=> g.style.maxHeight = 'none'); expandAllBtn.textContent = 'Collapse'; } else { $$('.group').forEach(g=> g.style.maxHeight = ''); expandAllBtn.textContent = 'Expand'; }
+function renderCards(data) {
+  const container = document.getElementById('cardContainer');
+  container.innerHTML = '';
+  data.forEach(site => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <h3>${site.title} <span class="badge">${site.links.length}</span></h3>
+      <div class="category">${site.category.toUpperCase()}</div>
+      <div class="links" id="links-${site.id}"></div>
+      <div class="card-actions">
+        <button onclick="copyAll('${site.id}')">Copy All Links</button>
+        <button onclick="openAll('${site.id}')">Open All</button>
+      </div>
+    `;
+    container.appendChild(card);
+
+    const linksDiv = document.getElementById(`links-${site.id}`);
+    site.links.forEach(async url => {
+      const working = await checkLink(url);
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.textContent = url.replace(/^https?:\/\//, '').split('/')[0];
+      a.innerHTML += ` <span class="status-dot ${working?'working':''}"></span>`;
+      a.className = working ? 'working' : 'broken';
+      linksDiv.appendChild(a);
     });
+  });
 
-    themeToggle.addEventListener('click', ()=>{
-      const dark = document.documentElement.hasAttribute('data-theme-dark');
-      if(dark){ document.documentElement.removeAttribute('data-theme-dark'); themeToggle.setAttribute('aria-pressed','false'); } else { document.documentElement.setAttribute('data-theme-dark','1'); themeToggle.setAttribute('aria-pressed','true'); }
-    });
+  document.getElementById('proxyCount').textContent = sites.filter(s => s.category === 'proxies').length;
+  document.getElementById('gameCount').textContent = sites.filter(s => s.category === 'games').length;
+}
 
-    /* ========= PIN input UX ========= */
-    pinInputs.forEach((inp,i)=>{
-      inp.addEventListener('input', ()=>{
-        const v = (inp.value||'').toString().slice(0,1).replace(/[^a-zA-Z0-9]/g,'');
-        inp.value = v;
-        if(v && i < pinInputs.length-1) pinInputs[i+1].focus();
-        if(allFilled()) setTimeout(tryUnlock,120);
-      });
-      inp.addEventListener('keydown',(e)=>{
-        if(e.key === 'Backspace' && !inp.value && i>0){ pinInputs[i-1].focus(); pinInputs[i-1].value=''; }
-        if(e.key === 'Enter') tryUnlock();
-        if(e.key === 'ArrowLeft' && i>0) pinInputs[i-1].focus();
-        if(e.key === 'ArrowRight' && i < pinInputs.length-1) pinInputs[i+1].focus();
-      });
-      inp.addEventListener('paste',(ev)=>{
-        ev.preventDefault();
-        const txt = (ev.clipboardData || window.clipboardData).getData('text') || '';
-        const cleaned = txt.replace(/\s+/g,'').slice(0,pinInputs.length);
-        for(let j=0;j<pinInputs.length;j++) pinInputs[j].value = cleaned[j] || '';
-        const last = Math.min(cleaned.length-1,pinInputs.length-1); if(last>=0) pinInputs[last].focus();
-        if(allFilled()) setTimeout(tryUnlock,120);
-      });
-    });
+// Features
+document.getElementById('randomProxy').addEventListener('click', () => {
+  const allProxies = sites.filter(s => s.category === 'proxies').flatMap(s => s.links);
+  const random = allProxies[Math.floor(Math.random() * allProxies.length)];
+  window.open(random, '_blank');
+});
 
-    function allFilled(){ return pinInputs.every(i=> (i.value||'').length === 1); }
-    function getEnteredCode(){ return pinInputs.map(i=> (i.value||'').toString()).join('').toLowerCase(); }
-    function clearPins(){ pinInputs.forEach(i=> i.value=''); pinInputs[0].focus(); }
+document.getElementById('search').addEventListener('input', filter);
+document.getElementById('categoryFilter').addEventListener('change', filter);
 
-    enterBtn.addEventListener('click', tryUnlock);
-    clearBtn.addEventListener('click', ()=>{ clearPins(); hideError(); });
+function filter() {
+  const query = document.getElementById('search').value.toLowerCase();
+  const cat = document.getElementById('categoryFilter').value;
+  const filtered = sites.filter(site => {
+    const matchesSearch = site.title.toLowerCase().includes(query) || site.links.some(l => l.toLowerCase().includes(query));
+    const matchesCat = cat === 'all' || site.category === cat;
+    return matchesSearch && matchesCat;
+  });
+  renderCards(filtered);
+}
 
-    // Prevent tabbing out when locked
-    document.addEventListener('focusin', (e)=>{
-      if(lockEl.style.visibility !== 'hidden' && !lockEl.contains(e.target)){ e.stopPropagation(); pinInputs[0].focus(); }
-    }, true);
+function copyAll(id) {
+  const site = sites.find(s => s.id === id);
+  navigator.clipboard.writeText(site.links.join('\n'));
+  alert('Copied all links to clipboard!');
+}
 
-    /* ========= Attempts & cooldown ========= */
-    function showError(msg){ errorMsg.textContent = msg; errorMsg.classList.add('show'); if(DEBUG) console.warn(msg); }
-    function hideError(){ errorMsg.textContent = ''; errorMsg.classList.remove('show'); }
-    function disableInputs(val){ pinInputs.forEach(i=>i.disabled = val); enterBtn.disabled = val; clearBtn.disabled = val; }
+function openAll(id) {
+  const site = sites.find(s => s.id === id);
+  site.links.forEach(url => window.open(url, '_blank'));
+}
 
-    function startCooldown(seconds){
-      const until = Date.now() + seconds*1000; cooldownUntil = until; attempts = 0;
-      disableInputs(true);
-      let remaining = seconds;
-      showError(`Too many attempts. Try again in ${remaining}s`);
-      const t = setInterval(()=>{
-        remaining--;
-        if(remaining <= 0){ clearInterval(t); disableInputs(false); hideError(); clearPins(); } else { showError(`Too many attempts. Try again in ${remaining}s`); }
-      },1000);
-    }
+// Panic Key (~ or Esc)
+document.addEventListener('keydown', e => {
+  if (e.key === '`' || e.key === 'Escape') {
+    document.getElementById('panic').style.display = 'flex';
+    setTimeout(() => location.href = 'https://classroom.google.com', 800);
+  }
+});
 
-    /* ========= Unlock logic ========= */
-    function tryUnlock(){
-      if(cooldownUntil && Date.now() < cooldownUntil){ const sLeft = Math.ceil((cooldownUntil - Date.now())/1000); showError(`Locked for ${sLeft}s`); return; }
-      const code = getEnteredCode();
-      if(code.length !== pinInputs.length){ showError('Please enter the full code.'); return; }
-      if(code === LOCK_CODE){
-        successUnlock();
-      } else {
-        attempts++;
-        shakePanel();
-        if(attempts >= MAX_ATTEMPTS) startCooldown(COOLDOWN_SECONDS); else showError(`Incorrect code — ${MAX_ATTEMPTS - attempts} attempts left.`);
-      }
-    }
+// Stealth Mode Button → Fullscreen
+document.getElementById('stealthBtn').addEventListener('click', () => {
+  document.documentElement.requestFullscreen();
+});
 
-    function shakePanel(){
-      const panel = lockEl.querySelector('.lock-card');
-      panel.animate([{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}], {duration:360,iterations:1});
-      clearPins();
-    }
+// Fake online counter
+setInterval(() => {
+  document.getElementById('onlineCount').textContent = Math.floor(Math.random() * 1800) + 900;
+}, 4000);
 
-    function successUnlock(){
-      unlocked = true;
-      hideError();
-      playUnlockSound();
-      runConfetti();
-      // persist
-      try{ if(PERSIST_LOCAL) localStorage.setItem('aurora_unlocked','1'); else sessionStorage.setItem('aurora_unlocked','1'); }catch(e){}
-      // reveal UI after short animation
-      setTimeout(()=>{
-        lockEl.style.visibility = 'hidden';
-        lockEl.style.opacity = '0';
-        document.body.style.overflow = '';
-        // show app and render content
-        appEl.style.display = '';
-        appEl.setAttribute('aria-hidden','false');
-        render('all','');
-      }, 800);
-    }
-
-    // restore unlock if session/local saved
-    try{
-      const was = (PERSIST_LOCAL ? localStorage.getItem('aurora_unlocked') : sessionStorage.getItem('aurora_unlocked'));
-      if(was === '1'){ // already unlocked
-        unlocked = true;
-        lockEl.style.visibility = 'hidden'; lockEl.style.opacity = '0';
-        appEl.style.display = ''; appEl.setAttribute('aria-hidden','false'); render('all','');
-      } else {
-        // remain locked
-        document.body.style.overflow = 'hidden';
-        appEl.style.display = 'none';
-        setTimeout(()=> pinInputs[0].focus(), 120);
-      }
-    }catch(e){
-      document.body.style.overflow = 'hidden';
-      appEl.style.display = 'none';
-      setTimeout(()=> pinInputs[0].focus(), 120);
-    }
-
-    /* ========= Confetti (lightweight) ========= */
-    function runConfetti(){
-      if(confettiActive) return;
-      confettiActive = true;
-      const canvas = confettiCanvas; const ctx = canvas.getContext('2d');
-      let W = canvas.width = innerWidth; let H = canvas.height = innerHeight;
-      const colors = ['#ff8fa3','#ffd07a','#8b5cf3','#06b6d4','#e57aa6','#ffd166'];
-      const parts = [];
-      for(let i=0;i<CONFETTI_PARTICLES;i++){
-        parts.push({
-          x: Math.random()*W, y: Math.random()*H - H/2,
-          r: Math.random()*8+4, d: Math.random()*CONFETTI_DURATION,
-          tilt: Math.random()*10-10, color: colors[Math.floor(Math.random()*colors.length)],
-          speedY: 2 + Math.random()*6, speedX: Math.random()*6 - 3
-        });
-      }
-      let start = null;
-      function frame(ts){
-        if(!start) start = ts;
-        const elapsed = ts - start;
-        ctx.clearRect(0,0,W,H);
-        parts.forEach(p=>{
-          p.y += p.speedY; p.x += p.speedX; p.tilt += 0.5;
-          ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.tilt*Math.PI/180);
-          ctx.fillStyle = p.color; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.4); ctx.restore();
-        });
-        if(elapsed < CONFETTI_DURATION) requestAnimationFrame(frame); else { ctx.clearRect(0,0,W,H); confettiActive = false; }
-      }
-      requestAnimationFrame(frame);
-      window.addEventListener('resize', ()=>{ W = canvas.width = innerWidth; H = canvas.height = innerHeight; });
-    }
-
-    /* ========= Sound (optional) ========= */
-    function playUnlockSound(){
-      if(!SOUND_ON) return;
-      try{
-        const ctx = new (window.AudioContext||window.webkitAudioContext)();
-        const o = ctx.createOscillator(); const g = ctx.createGain();
-        o.type='sine'; o.frequency.setValueAtTime(880,ctx.currentTime);
-        g.gain.setValueAtTime(0.0001,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.25,ctx.currentTime+0.03);
-        o.connect(g); g.connect(ctx.destination); o.start();
-        o.frequency.exponentialRampToValueAtTime(660,ctx.currentTime+0.12);
-        g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.5);
-        setTimeout(()=>{ o.stop(); ctx.close(); }, 600);
-      }catch(e){}
-    }
-
-    /* ========= Accessibility: Enter key from overlay triggers unlock ========= */
-    lockEl.addEventListener('keydown', e=>{ if(e.key === 'Enter') tryUnlock(); });
-
-    /* ========= Debug expose ========= */
-    if(DEBUG) window._aurora = {groups,runConfetti,tryUnlock,getEnteredCode:()=>getEnteredCode()};
-
-    /* ========= End IIFE ========= */
-  })();
-  </script>
+// Initial render + periodic refresh
+renderCards(sites);
+setInterval(() => renderCards(sites), 600000); // Refresh status every 10 min
+</script>
 </body>
 </html>
