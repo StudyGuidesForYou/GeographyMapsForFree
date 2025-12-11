@@ -193,109 +193,464 @@ const DATA = {
 };
 
 
+
 /* ============================================================
-   🔐 CODE-WALL SYSTEM (2025 STYLE)
+   FULL FEATURE ENHANCEMENTS (paste AFTER your DATA object)
    ------------------------------------------------------------
-   Super clean, animated, and secure.
+   Features added:
+   - Search (debounced) + category filter UI hookup
+   - Multi-probe link health checker with caching + majority verdict
+   - Random working picker (fast, asynchronous)
+   - Favorites (localStorage) with star toggle
+   - Export / Import JSON of your DATA
+   - Keyboard shortcuts (Esc = panic, / = focus search, F = toggle favorite mode)
+   - Theme toggle (dark/neon / muted)
+   - Tiny toasts, loading indicators, and accessible focus handling
+   - Presence: attempts Firebase realtime if firebase is loaded and configured, else fallback
+   - Graceful fallbacks and defensive coding
 ============================================================ */
 
-const CORRECT_CODE = ["d", "i", "d", "d", "y"];
-let userCode = ["", "", "", "", ""];
+/* -----------------------
+   CONFIG / SMALL HELPERS
+   ----------------------- */
+const CHECK_TIMEOUTS = { cors: 7000, img: 5000, nocors: 4500 };
+const HEALTH_CACHE_TTL = 1000 * 60 * 5; // 5 minutes
+const healthCache = new Map(); // url -> { ok:bool, ts:ms }
+const favoritesKey = 'gamehub_favorites_v1';
+const themeKey = 'gamehub_theme';
+const presencePath = 'presence/unblockhub';
 
-document.addEventListener("DOMContentLoaded", () => {
-  const codeInputs = document.querySelectorAll(".code-input");
-
-  codeInputs.forEach((input, index) => {
-    input.addEventListener("input", () => {
-      // Keep only first character
-      input.value = input.value.slice(0, 1);
-
-      userCode[index] = input.value.toLowerCase();
-
-      // Move to next box automatically
-      if (input.value && index < codeInputs.length - 1) {
-        codeInputs[index + 1].focus();
-      }
-
-      // Check if full code is entered
-      if (userCode.join("") === CORRECT_CODE.join("")) {
-        unlockSite();
-      }
-    });
-
-    // Backspace → go back to previous box
-    input.addEventListener("keydown", (event) => {
-      if (event.key === "Backspace" && !input.value && index > 0) {
-        codeInputs[index - 1].focus();
-      }
-    });
+/* small DOM helpers */
+const $id = (s) => document.getElementById(s);
+const $qs = (s) => document.querySelector(s);
+const $qsa = (s) => Array.from(document.querySelectorAll(s));
+const el = (tag, attrs = {}) => {
+  const d = document.createElement(tag);
+  Object.entries(attrs).forEach(([k,v]) => {
+    if (k === 'class') d.className = v;
+    else if (k === 'html') d.innerHTML = v;
+    else d.setAttribute(k,v);
   });
-});
+  return d;
+};
 
-function unlockSite() {
-  document.querySelector(".lock-screen").classList.add("fadeOut");
-  setTimeout(() => {
-    document.querySelector(".lock-screen").style.display = "none";
-    document.querySelector(".content").classList.add("fadeIn");
-  }, 500);
+/* simple toast */
+function toast(msg, type = 'info', ms = 3000) {
+  const t = el('div',{class:'toast'});
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=> t.style.opacity = '1', 30);
+  setTimeout(()=> {
+    t.style.opacity = '0';
+    setTimeout(()=> t.remove(), 500);
+  }, ms);
 }
 
+/* debounce */
+function debounce(fn, wait=250){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), wait); }; }
 
-/* ============================================================
-   🎮 WEBSITE RENDERER
-   ------------------------------------------------------------
-   Generates the game/proxy cards automatically with animations.
-============================================================ */
+/* -----------------------
+   THEME
+   ----------------------- */
+function applyTheme(name) {
+  if (name === 'muted') {
+    document.documentElement.style.setProperty('--accent1','#7b7b88');
+    document.documentElement.style.setProperty('--accent2','#9aa0b0');
+  } else {
+    document.documentElement.style.setProperty('--accent1','#00e5ff');
+    document.documentElement.style.setProperty('--accent2','#7b61ff');
+  }
+  localStorage.setItem(themeKey, name);
+}
+(function initTheme(){
+  const t = localStorage.getItem(themeKey) || 'neon';
+  applyTheme(t);
+})();
 
-function loadCategory(type) {
-  const container = document.getElementById("itemsContainer");
-  container.innerHTML = "";
+/* -----------------------
+   FAVORITES (localStorage)
+   ----------------------- */
+function loadFavorites(){ try { return new Set(JSON.parse(localStorage.getItem(favoritesKey) || '[]')); } catch(e){ return new Set(); } }
+function saveFavorites(set){ localStorage.setItem(favoritesKey, JSON.stringify([...set])); }
+const favorites = loadFavorites();
 
-  const list = DATA[type];
+/* -----------------------
+   LINK HEALTH CHECKS (multi-probe)
+   ----------------------- */
+async function probe_corsproxy(url, timeout = CHECK_TIMEOUTS.cors){
+  try {
+    const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+    const controller = new AbortController();
+    const t = setTimeout(()=>controller.abort(), timeout);
+    const r = await fetch(proxy, {method:'GET', signal: controller.signal});
+    clearTimeout(t);
+    return r.ok;
+  } catch(e){ return false; }
+}
 
-  if (!list || list.length === 0) {
-    container.innerHTML = `<p class="empty-msg">No items added yet.</p>`;
-    return;
+function probe_image(url, timeout = CHECK_TIMEOUTS.img){
+  return new Promise(res=>{
+    try{
+      const u = new URL(url);
+      const img = new Image();
+      let done = false;
+      const timer = setTimeout(()=>{ if(!done){ done=true; img.src=''; res(false); } }, timeout);
+      img.onload = ()=>{ if(!done){ done=true; clearTimeout(timer); res(true); } };
+      img.onerror = ()=>{ if(!done){ done=true; clearTimeout(timer); res(false); } };
+      img.referrerPolicy = 'no-referrer';
+      img.src = u.origin + '/favicon.ico?cache=' + Date.now();
+    }catch(e){ res(false); }
+  });
+}
+
+async function probe_fetch_no_cors(url, timeout = CHECK_TIMEOUTS.nocors){
+  try{
+    const ctrl = new AbortController();
+    const t = setTimeout(()=>ctrl.abort(), timeout);
+    await fetch(url, {method:'GET', mode:'no-cors', signal: ctrl.signal});
+    clearTimeout(t);
+    return true;
+  }catch(e){ return false; }
+}
+
+async function checkUrlHealth(url) {
+  // Return cached if fresh
+  const cached = healthCache.get(url);
+  if (cached && (Date.now() - cached.ts) < HEALTH_CACHE_TTL) return cached.ok;
+
+  // Run probes in parallel
+  const [c1, c2, c3] = await Promise.allSettled([
+    probe_corsproxy(url),
+    probe_image(url),
+    probe_fetch_no_cors(url)
+  ]);
+
+  const oks = [c1, c2, c3].filter(r => r.status === 'fulfilled' && r.value).length;
+  // Majority logic: consider done if >=1 (be permissive) — adjust to >=2 if you want strictness
+  const ok = oks >= 1;
+  healthCache.set(url, { ok, ts: Date.now() });
+  return ok;
+}
+
+/* update a single status element (expects element with data-url attr) */
+async function updateStatusElement(statusEl) {
+  const url = statusEl.datasetUrl || statusEl.getAttribute('data-url') || statusEl.dataset.url;
+  if (!url) return;
+  statusEl.textContent = 'Checking...';
+  statusEl.classList.remove('online','offline');
+  try {
+    const ok = await checkUrlHealth(url);
+    statusEl.textContent = ok ? 'Online' : 'Offline';
+    statusEl.classList.add(ok ? 'online' : 'offline');
+  } catch(e){
+    statusEl.textContent = 'Error';
+    statusEl.classList.add('offline');
+  }
+}
+
+/* -----------------------
+   RENDERER (search + filter + favorites)
+   ----------------------- */
+const renderState = { query: '', category: 'all', showOnlyFavorites: false };
+
+function createControlBar() {
+  // Create search + filters + buttons at top of main content if not present
+  if ($id('controlBar')) return;
+  const main = $id('main-content');
+
+  const bar = el('div',{class:'container', id:'controlBar'});
+  bar.style.display = 'flex';
+  bar.style.gap = '12px';
+  bar.style.alignItems = 'center';
+  bar.style.marginBottom = '18px';
+
+  const search = el('input',{id:'searchBox', placeholder:'Search games, hosts, titles... (press / to focus)'});
+  search.style.flex = '1';
+  search.style.padding = '10px 12px';
+  search.style.borderRadius = '10px';
+  search.style.border = '1px solid rgba(255,255,255,0.04)';
+  search.addEventListener('input', debounce(e=>{
+    renderState.query = e.target.value.toLowerCase();
+    renderGrid();
+  }, 220));
+  bar.appendChild(search);
+
+  const cat = el('select',{id:'categorySelect'});
+  ['all','games','proxies','streaming','tools'].forEach(v=>{
+    const o = el('option'); o.value = v; o.textContent = v[0].toUpperCase() + v.slice(1);
+    if (v==='all') o.selected = true;
+    cat.appendChild(o);
+  });
+  cat.addEventListener('change', (e)=>{ renderState.category = e.target.value; renderGrid(); });
+  bar.appendChild(cat);
+
+  const favToggle = el('button',{class:'btn secondary', id:'favToggle', html:'Favorites'});
+  favToggle.addEventListener('click', ()=>{
+    renderState.showOnlyFavorites = !renderState.showOnlyFavorites;
+    favToggle.classList.toggle('active');
+    renderGrid();
+  });
+  bar.appendChild(favToggle);
+
+  const randomBtn = el('button',{class:'btn', id:'randomButton', html:'Random Working'});
+  randomBtn.addEventListener('click', pickRandomWorking);
+  bar.appendChild(randomBtn);
+
+  const exportBtn = el('button',{class:'btn secondary', html:'Export JSON'});
+  exportBtn.addEventListener('click', ()=> {
+    const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
+    const a = el('a',{href:URL.createObjectURL(blob), download:'site-data.json'});
+    a.style.display='none'; document.body.appendChild(a); a.click(); a.remove();
+    toast('Exported site-data.json', 'info', 2500);
+  });
+  bar.appendChild(exportBtn);
+
+  const importBtn = el('input', {type:'file', accept:'.json'});
+  importBtn.style.display='inline-block';
+  importBtn.addEventListener('change', (e)=>{
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try{
+        const parsed = JSON.parse(r.result);
+        if (parsed.games || parsed.proxies) {
+          // overwrite DATA in memory (won't persist unless you save)
+          DATA.games = parsed.games || [];
+          DATA.proxies = parsed.proxies || [];
+          renderGrid();
+          toast('Imported JSON into current session', 'info', 3000);
+        } else toast('JSON missing games/proxies arrays', 'bad', 3500);
+      }catch(err){ toast('Invalid JSON file', 'bad', 3000); }
+    };
+    r.readAsText(f);
+  });
+  bar.appendChild(importBtn);
+
+  // theme toggle
+  const themeBtn = el('button', {class:'btn secondary', html:'Toggle Theme'});
+  themeBtn.addEventListener('click', ()=> {
+    const cur = localStorage.getItem(themeKey) || 'neon';
+    const next = cur === 'neon' ? 'muted' : 'neon';
+    applyTheme(next);
+    toast('Theme: ' + next, 'info', 1500);
+  });
+  bar.appendChild(themeBtn);
+
+  main.prepend(bar);
+}
+
+/* core filter + search predicate */
+function matchesFilter(item) {
+  const q = renderState.query;
+  const cat = renderState.category;
+  if (renderState.showOnlyFavorites) {
+    if (!favorites.has(item.id)) return false;
+  }
+  if (cat !== 'all' && item.category !== cat) return false;
+  if (!q) return true;
+  const inTitle = item.title && item.title.toLowerCase().includes(q);
+  const inLinks = item.links && item.links.some(l => l.toLowerCase().includes(q));
+  return inTitle || inLinks;
+}
+
+let renderScheduled = false;
+function renderGrid() {
+  if (renderScheduled) return;
+  renderScheduled = true;
+  requestAnimationFrame(()=> {
+    renderScheduled = false;
+    const grid = $id('game-grid');
+    grid.innerHTML = '';
+    // combine lists into one array but preserve category
+    const items = [...DATA.games, ...DATA.proxies, ...(DATA.streaming||[]), ...(DATA.tools||[])];
+    const visible = items.filter(matchesFilter);
+
+    if (visible.length === 0) {
+      grid.appendChild(el('div',{class:'empty-msg', html:'No matching items.'}));
+      return;
+    }
+
+    visible.forEach((item, idx) => {
+      const card = el('div',{class:'item-card'});
+      card.style.animation = `fadeInUp 0.5s ease both`;
+      card.style.animationDelay = `${idx * 0.06}s`;
+
+      // title + small meta
+      const h = el('h3'); h.textContent = item.title;
+      const meta = el('div',{class:'meta'});
+      meta.style.fontSize = '12px';
+      meta.style.color = 'var(--muted)';
+      meta.textContent = `${item.category.toUpperCase()} • ${item.links.length} links`;
+
+      // links area
+      const linksWrap = el('div',{class:'links'});
+      item.links.forEach((link)=>{
+        const a = el('a',{href:link, target:'_blank', html:'Open'});
+        a.style.marginRight = '8px';
+        // add small status badge span
+        const status = el('span',{class:'status-badge', html:'?'});
+        status.style.marginLeft = '8px';
+        status.datasetUrl = link; // for updater
+        // lazy-check on hover
+        a.addEventListener('mouseenter', ()=> updateStatusElement(status));
+        linksWrap.appendChild(a);
+        linksWrap.appendChild(status);
+      });
+
+      // favorite button
+      const favBtn = el('button',{class:'btn', html: favorites.has(item.id) ? '★' : '☆' });
+      favBtn.title = 'Toggle Favorite';
+      favBtn.addEventListener('click', ()=>{
+        if (favorites.has(item.id)) { favorites.delete(item.id); favBtn.innerHTML = '☆'; }
+        else { favorites.add(item.id); favBtn.innerHTML = '★'; }
+        saveFavorites(favorites);
+        toast(favorites.has(item.id) ? 'Added to favorites' : 'Removed from favorites', 'info', 1200);
+      });
+
+      // open first working link quickly (fast-check)
+      const quickOpen = el('button',{class:'btn secondary', html:'Open Best'});
+      quickOpen.addEventListener('click', async ()=>{
+        quickOpen.disabled = true;
+        quickOpen.innerText = 'Searching…';
+        for (const u of item.links) {
+          try {
+            const ok = await checkUrlHealth(u);
+            if (ok) { window.open(u, '_blank'); break; }
+          } catch(e){}
+        }
+        quickOpen.disabled = false;
+        quickOpen.innerText = 'Open Best';
+      });
+
+      // assemble card
+      card.appendChild(h);
+      card.appendChild(meta);
+      card.appendChild(linksWrap);
+
+      const controls = el('div'); controls.style.marginTop = '10px'; controls.style.display='flex'; controls.style.gap='8px';
+      controls.appendChild(favBtn); controls.appendChild(quickOpen);
+      card.appendChild(controls);
+
+      grid.appendChild(card);
+    });
+  });
+}
+
+/* -----------------------
+   Random working picker
+   ----------------------- */
+async function pickRandomWorking(){
+  const all = DATA.proxies ? DATA.proxies.flatMap(p=>p.links) : [];
+  if(all.length === 0){ toast('No proxies found in DATA', 'bad', 2000); return; }
+  // sample a subset to test faster
+  const sample = [];
+  for (let i=0;i<Math.min(30, all.length); i++){
+    sample.push(all[Math.floor(Math.random()*all.length)]);
+  }
+  toast('Searching for a working proxy…', 'info', 2500);
+  for (const u of sample) {
+    try {
+      if (await checkUrlHealth(u)) { window.open(u, '_blank'); return; }
+    } catch(e){}
+  }
+  toast('No working proxy found in quick scan', 'bad', 3000);
+}
+
+/* -----------------------
+   PRESENCE (try Firebase, else fallback)
+   ----------------------- */
+async function initPresence() {
+  // if firebase exists and database available, use it
+  try {
+    if (window.firebase && firebase.database) {
+      const db = firebase.database();
+      const ref = db.ref(presencePath);
+      const myRef = ref.push();
+      myRef.set({ts: Date.now()});
+      myRef.onDisconnect().remove();
+      ref.on('value', snap => {
+        const count = snap.val() ? Object.keys(snap.val()).length : 0;
+        // show in top bar if exists
+        const elOnline = $id('onlineCount');
+        if (elOnline) elOnline.textContent = `${count} online`;
+      });
+      return;
+    }
+  } catch(e){ console.warn('Firebase presence failed', e); }
+  // fallback: local estimate with hits counter
+  (function fallback(){
+    const key = 'uh_visit_' + Math.floor(Date.now()/1000/60); // per minute
+    if (!localStorage.getItem(key)) {
+      const img = new Image(); img.src = 'https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=gamehub&t='+Date.now();
+      localStorage.setItem(key, '1');
+    }
+    // compute number of recent local sessions (very rough)
+    const now = Date.now();
+    const arr = JSON.parse(localStorage.getItem('uh_sessions') || '[]').filter(ts => now - ts < 1000*60*10);
+    arr.push(now);
+    localStorage.setItem('uh_sessions', JSON.stringify(arr));
+    const elOnline = $id('onlineCount'); if (elOnline) elOnline.textContent = `${arr.length} (est)`;
+  })();
+}
+
+/* -----------------------
+   KEYBOARD SHORTCUTS
+   ----------------------- */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    window.location.href = 'https://www.google.com';
+  } else if (e.key === '/') {
+    e.preventDefault();
+    $id('searchBox')?.focus();
+  } else if (e.key.toLowerCase() === 'f') {
+    // toggle favorite filter
+    const btn = $id('favToggle'); if (btn) btn.click();
+  }
+});
+
+/* -----------------------
+   INIT ONCE UNLOCKED
+   ----------------------- */
+(function initApp(){
+  // build control bar after main content exists
+  createControlBar();
+
+  // ensure search focus shortcut hint
+  const search = $id('searchBox');
+  if (search) search.placeholder += '  (press / to focus)';
+
+  // wire code input focus fallback (if .code-input elements exist)
+  const codeInputs = document.querySelectorAll('.code-input, .code-box');
+  codeInputs.forEach(i=>i.setAttribute('inputmode','text'));
+
+  // attempt presence
+  initPresence();
+
+  // when main content visible, render grid (but do not auto-show)
+  renderGrid();
+
+  // safety: if user has already unlocked (e.g. dev), show main
+  if (localStorage.getItem('gamehub_unlocked') === '1') {
+    document.getElementById('code-wall')?.remove();
+    $id('main-content')?.classList.remove('hidden');
+    renderGrid();
   }
 
-  list.forEach((item, i) => {
-    const card = document.createElement("div");
-    card.className = "item-card fadeInUp";
-    card.style.animationDelay = `${i * 0.05}s`;
+  // small UX: focus first code box automatically
+  setTimeout(()=> {
+    const first = document.querySelector('.code-input, .code-box');
+    if (first) first.focus();
+  }, 300);
+})();
 
-    const linksHTML = item.links
-      .map((link) => `<a href="${link}" target="_blank">Open</a>`)
-      .join("");
-
-    card.innerHTML = `
-      <h3>${item.title}</h3>
-      <div class="links">${linksHTML}</div>
-    `;
-
-    container.appendChild(card);
-  });
-}
-
-
-/* ============================================================
-   🎚 CATEGORY BUTTON CONTROLS
-============================================================ */
-
-document.addEventListener("DOMContentLoaded", () => {
-  const buttons = document.querySelectorAll(".category-btn");
-
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document
-        .querySelector(".category-btn.active")
-        ?.classList.remove("active");
-
-      btn.classList.add("active");
-
-      loadCategory(btn.dataset.category);
-    });
-  });
-
-  // Load default
-  loadCategory("games");
-});
+/* -----------------------
+   EXPORT small API for console debugging
+   ----------------------- */
+window.GameHub = {
+  DATA,
+  renderGrid,
+  checkUrlHealth,
+  pickRandomWorking,
+  favorites,
+  toast
+};
