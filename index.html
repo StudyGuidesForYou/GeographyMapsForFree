@@ -6,29 +6,34 @@
   <title>Game Hub</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="bg-gradient-to-br from-slate-900 to-black text-white overflow-hidden">
-  <!-- === FULLSCREEN ANIMATED BACKGROUND === -->
-  <div class="absolute inset-0 -z-10 opacity-40 bg-[radial-gradient(circle_at_center,rgba(0,200,255,0.35),transparent_70%)] animate-pulse"></div>
-  <div class="absolute inset-0 -z-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30"></div>
 
-  <!-- === CODE WALL SCREEN === -->
-  <div id="code-wall" class="min-h-screen flex flex-col justify-center items-center gap-6 animate-fade-in">
-    <h1 class="text-5xl font-bold tracking-widest drop-shadow-xl animate-title-float">ENTER ACCESS CODE</h1>
-    <div class="code-inputs flex gap-4">
-      <input maxlength="1" class="code-box" />
-      <input maxlength="1" class="code-box" />
-      <input maxlength="1" class="code-box" />
-      <input maxlength="1" class="code-box" />
-      <input maxlength="1" class="code-box" />
+<body>
+
+  <!-- Animated Background -->
+  <div class="background-layer pulse"></div>
+  <div class="background-noise"></div>
+
+  <!-- ========== ACCESS CODE SCREEN ========== -->
+  <section id="code-wall">
+    <h1 class="title animate-title-float">ENTER ACCESS CODE</h1>
+
+    <div class="code-container">
+      <input maxlength="1" class="code-input" />
+      <input maxlength="1" class="code-input" />
+      <input maxlength="1" class="code-input" />
+      <input maxlength="1" class="code-input" />
+      <input maxlength="1" class="code-input" />
     </div>
-    <p id="code-error" class="text-red-400 text-lg h-6"></p>
-  </div>
 
-  <!-- === MAIN CONTENT AFTER UNLOCK === -->
-  <div id="main-content" class="hidden p-10 animate-fade-in-up">
-    <h1 class="text-6xl font-extrabold mb-10 tracking-wide drop-shadow-lg">Game Library</h1>
-    <div id="game-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
-  </div>
+    <p id="code-error"></p>
+  </section>
+
+  <!-- ========== MAIN CONTENT AFTER UNLOCK ========== -->
+  <main id="main-content" class="hidden">
+    <h1 class="library-title">Game Library</h1>
+
+    <div id="game-grid"></div>
+  </main>
 
   <script src="script.js"></script>
 </body>
