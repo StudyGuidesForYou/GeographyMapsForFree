@@ -194,393 +194,169 @@ const DATA = {
 
 
 
-/* =========================
-   Upgraded app core (paste AFTER your DATA object)
-   - preserves favorites, export/import, search, random picker, Open Best
-   - removes presence/live student count
-   - faster health checks with short-circuit + caching
-   ========================= */
+/* -----------------------
+   DOM references
+------------------------ */
+const gridEl = document.getElementById("item-grid");
+const searchEl = document.getElementById("search");
+const categoryBar = document.getElementById("category-bar");
 
-/* CONFIG */
-const CHECK_TIMEOUTS = { cors: 4500, img: 2200, nocors: 1800 }; // faster probes
-const HEALTH_CACHE_TTL = 1000 * 60 * 5;
-const healthCache = new Map();
-const favoritesKey = 'gamehub_favorites_v1';
-const themeKey = 'gamehub_theme';
-
-/* DOM helpers */
-const $id = (s) => document.getElementById(s);
-const $qs = (s) => document.querySelector(s);
-const $qsa = (s) => Array.from(document.querySelectorAll(s));
-const el = (tag, attrs = {}) => {
-  const d = document.createElement(tag);
-  Object.entries(attrs).forEach(([k, v]) => {
-    if (k === 'class') d.className = v;
-    else if (k === 'html') d.innerHTML = v;
-    else d.setAttribute(k, v);
-  });
-  return d;
-};
-
-/* Toast system */
-(function mountToasts(){ if (!$id('__toasts')) { const c = el('div', {id:'__toasts'}); document.body.appendChild(c); }})();
-function toast(msg, type='info', ms=3000){
-  const container = $id('__toasts');
-  const node = el('div', {class:'toast'});
-  node.textContent = msg;
-  container.appendChild(node);
-  requestAnimationFrame(()=> node.classList.add('show'));
-  setTimeout(()=> { node.classList.remove('show'); setTimeout(()=> node.remove(), 400); }, ms);
+/* -----------------------
+   TOAST SYSTEM
+------------------------ */
+function toast(msg){
+  const box = document.getElementById("__toasts");
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.textContent = msg;
+  box.appendChild(t);
+  setTimeout(()=>t.classList.add("show"),10);
+  setTimeout(()=>{
+    t.classList.remove("show");
+    setTimeout(()=>t.remove(),280);
+  },2600);
 }
 
-/* debounce */
-function debounce(fn, wait=220){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), wait); }; }
-
-/* theme management */
-function applyTheme(name){
-  if(name === 'muted'){
-    document.documentElement.style.setProperty('--accent1','#7b7b88');
-    document.documentElement.style.setProperty('--accent2','#9aa0b0');
-  } else {
-    document.documentElement.style.setProperty('--accent1','#00e5ff');
-    document.documentElement.style.setProperty('--accent2','#7b61ff');
-  }
-  localStorage.setItem(themeKey, name);
-}
-(function(){ applyTheme(localStorage.getItem(themeKey) || 'neon'); })();
-
-/* favorites */
-function loadFavorites(){ try { return new Set(JSON.parse(localStorage.getItem(favoritesKey) || '[]')); } catch(e) { return new Set(); } }
-function saveFavorites(s){ localStorage.setItem(favoritesKey, JSON.stringify([...s])); }
-const favorites = loadFavorites();
-
-/* -------------------------
-   Health checks (improved)
-   Strategy:
-    - quick favicon probe first (fast)
-    - run cors-proxy and no-cors in parallel but short-circuit on first success
-    - cache results for HEALTH_CACHE_TTL
-   ------------------------- */
-function probe_image(url, timeout = CHECK_TIMEOUTS.img){
-  return new Promise(res => {
-    try {
-      const u = new URL(url);
-      const img = new Image();
-      let done = false;
-      const timer = setTimeout(()=>{ if(!done){ done=true; img.src=''; res(false); } }, timeout);
-      img.onload = ()=>{ if(!done){ done=true; clearTimeout(timer); res(true); } };
-      img.onerror = ()=>{ if(!done){ done=true; clearTimeout(timer); res(false); } };
-      img.referrerPolicy = 'no-referrer';
-      img.src = u.origin + '/favicon.ico?cache=' + Date.now();
-    } catch(e){ res(false); }
-  });
-}
-
-async function probe_corsproxy(url, timeout = CHECK_TIMEOUTS.cors){
-  // allorigins is reliable for simple GET proxy; uses shorter timeout
-  try {
-    const ctrl = new AbortController();
-    const t = setTimeout(()=>ctrl.abort(), timeout);
-    const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-    const r = await fetch(proxy, {method:'GET', signal: ctrl.signal});
-    clearTimeout(t);
-    return r.ok;
-  } catch(e){ return false; }
-}
-
-async function probe_fetch_no_cors(url, timeout = CHECK_TIMEOUTS.nocors){
-  try {
-    const ctrl = new AbortController();
-    const t = setTimeout(()=>ctrl.abort(), timeout);
-    await fetch(url, {method:'GET', mode:'no-cors', signal: ctrl.signal});
-    clearTimeout(t);
-    // no-cors doesn't guarantee success, but if it returns, assume reachable
-    return true;
-  } catch(e){ return false; }
-}
-
-async function checkUrlHealth(url, opts = { strict: false }){
-  // consult cache
-  const cached = healthCache.get(url);
-  if (cached && (Date.now() - cached.ts) < HEALTH_CACHE_TTL) return cached.ok;
-
-  // First, try favicon probe (fast) and short-circuit if true
-  try {
-    const fav = await probe_image(url, Math.min(1200, CHECK_TIMEOUTS.img));
-    if (fav) { healthCache.set(url, { ok:true, ts:Date.now() }); return true; }
-  } catch(_) {}
-
-  // Run remaining probes in parallel and short-circuit as soon as one returns true.
-  // We'll still gather results to decide strictness.
-  const p1 = probe_corsproxy(url, CHECK_TIMEOUTS.cors);
-  const p2 = probe_fetch_no_cors(url, CHECK_TIMEOUTS.nocors);
-
-  // race for first truthy; but we also wait for both to evaluate (so caching can be accurate)
-  // attempt a Promise.any-like short-circuit for truthy values:
-  let resolvedTrue = false;
-  const results = await Promise.allSettled([p1, p2].map(p => p.then(v => { if (v) resolvedTrue = true; return v; }).catch(()=>false)));
-  const oks = results.filter(r => r.status === 'fulfilled' && r.value).length + (resolvedTrue ? 0 : 0);
-  const ok = opts.strict ? oks >= 2 : oks >= 1;
-  healthCache.set(url, { ok, ts: Date.now() });
-  return ok;
-}
-
-/* update status element (attached to link) */
-async function updateStatusElement(statusEl){
-  if(!statusEl) return;
-  const url = statusEl.datasetUrl || statusEl.getAttribute('data-url') || statusEl.dataset.url;
-  if(!url) return;
-  statusEl.textContent = 'Checking…';
-  statusEl.classList.remove('online','offline');
-  try {
-    const ok = await checkUrlHealth(url);
-    statusEl.textContent = ok ? 'Online' : 'Offline';
-    statusEl.classList.add(ok ? 'online' : 'offline');
-  } catch(e){
-    statusEl.textContent = 'Error';
-    statusEl.classList.add('offline');
-  }
-}
-
-/* -------------------------
-   Renderer (search, filters, favorites)
-   ------------------------- */
-const renderState = { query: '', category: 'all', showOnlyFavorites: false };
-
-function createControlBar(){
-  if ($id('controlBar')) return;
-  const main = $id('main-content') || document.body;
-  const bar = el('div', {id:'controlBar', class:'container controls'});
-  // search
-  const search = el('input', {id:'searchBox', placeholder:'Search games, hosts, titles... (press /)'}); search.className = 'search';
-  search.addEventListener('input', debounce(e => { renderState.query = e.target.value.toLowerCase(); renderGrid(); }, 200));
-  bar.appendChild(search);
-  // categories
-  const cats = el('div', {class:'categories'});
-  ['all','games','proxies','streaming','tools'].forEach(v => {
-    const b = el('button', {class:'category-btn', html: v[0].toUpperCase()+v.slice(1)});
-    b.dataset.category = v;
-    if (v === 'all') b.classList.add('active');
-    b.addEventListener('click', () => {
-      document.querySelectorAll('.category-btn').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');
-      renderState.category = v;
-      renderGrid();
-    });
-    cats.appendChild(b);
-  });
-  bar.appendChild(cats);
-
-  // right-side controls
-  const right = el('div', {class:'controls-right'});
-  const favToggle = el('button', {class:'btn secondary', html:'⭐ Favorites'}); favToggle.addEventListener('click', ()=>{
-    renderState.showOnlyFavorites = !renderState.showOnlyFavorites;
-    favToggle.classList.toggle('active');
-    renderGrid();
-  });
-  const randomBtn = el('button', {class:'btn', html:'🎲 Random Working'}); randomBtn.addEventListener('click', pickRandomWorking);
-  const exportBtn = el('button', {class:'btn secondary', html:'📤 Export JSON'}); exportBtn.addEventListener('click', ()=>{
-    const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
-    const a = el('a', {href: URL.createObjectURL(blob), download: 'site-data.json'}); document.body.appendChild(a); a.click(); a.remove();
-    toast('Exported site-data.json', 'info', 2200);
-  });
-  const importInput = el('input', {type:'file', accept:'.json'}); importInput.style.display = 'inline-block';
-  importInput.addEventListener('change', e => {
-    const f = e.target.files[0]; if(!f) return;
-    const r = new FileReader();
-    r.onload = () => {
-      try {
-        const parsed = JSON.parse(r.result);
-        if (parsed.games || parsed.proxies) {
-          DATA.games = parsed.games || [];
-          DATA.proxies = parsed.proxies || [];
-          renderGrid();
-          toast('Imported JSON into session', 'info', 2500);
-        } else toast('JSON missing games/proxies arrays', 'bad', 3000);
-      } catch(err) { toast('Invalid JSON file', 'bad', 2600); }
-    };
-    r.readAsText(f);
-  });
-
-  const importBtn = el('label'); importBtn.className = 'btn secondary'; importBtn.style.cursor = 'pointer';
-  importBtn.style.display = 'inline-flex'; importBtn.appendChild(el('span',{html:'📥 Import'})); importBtn.appendChild(importInput);
-
-  const themeBtn = el('button', {class:'btn secondary', html:'🌙 Theme'}); themeBtn.addEventListener('click', ()=>{
-    const cur = localStorage.getItem(themeKey) || 'neon';
-    const next = cur === 'neon' ? 'muted' : 'neon';
-    applyTheme(next); toast('Theme: ' + next, 'info', 1200);
-  });
-
-  right.appendChild(favToggle);
-  right.appendChild(randomBtn);
-  right.appendChild(exportBtn);
-  right.appendChild(importBtn);
-  right.appendChild(themeBtn);
-
-  bar.appendChild(right);
-  ( $id('main-content') || document.body ).prepend(bar);
-}
-
-/* matching predicate */
-function matchesFilter(item){
-  const q = renderState.query;
-  const cat = renderState.category;
-  if (renderState.showOnlyFavorites && !favorites.has(item.id)) return false;
-  if (cat !== 'all' && item.category !== cat) return false;
-  if (!q) return true;
-  const inTitle = item.title && item.title.toLowerCase().includes(q);
-  const inLinks = item.links && item.links.some(l => l.toLowerCase().includes(q));
-  return inTitle || inLinks;
-}
-
-/* render grid */
-let renderScheduled = false;
-function renderGrid(){
-  if (renderScheduled) return;
-  renderScheduled = true;
-  requestAnimationFrame(() => {
-    renderScheduled = false;
-    const grid = $id('itemsContainer') || $id('game-grid') || (() => { const g=el('div',{id:'game-grid', class:'grid'}); document.querySelector('.content')?.appendChild(g); return g; })();
-    grid.className = 'grid';
-    grid.innerHTML = '';
-    const items = [...(DATA.games || []), ...(DATA.proxies || []), ...(DATA.streaming || []), ...(DATA.tools || [])];
-    const visible = items.filter(matchesFilter);
-    if (visible.length === 0) {
-      grid.appendChild(el('div',{class:'empty-msg', html:'No matching items.'}));
-      return;
-    }
-    visible.forEach((item, idx) => {
-      const card = el('div',{class:'item-card'});
-      card.style.animation = `fadeInUp 0.45s ease both`;
-      card.style.animationDelay = `${idx * 0.06}s`;
-
-      const h = el('h3'); h.textContent = item.title;
-      const meta = el('div',{class:'meta'}); meta.textContent = `${item.category.toUpperCase()} • ${item.links.length} links`;
-      const linksWrap = el('div',{class:'links'});
-
-      item.links.forEach(link => {
-        const display = link.replace(/^https?:\/\//,'').split('/')[0];
-        const a = el('a',{href:link, target:'_blank', html: display});
-        // quick status pill
-        const status = el('span',{class:'status-badge', html:'?'});
-        status.datasetUrl = link;
-        a.addEventListener('mouseenter', () => updateStatusElement(status));
-        a.addEventListener('focus', () => updateStatusElement(status));
-        linksWrap.appendChild(a);
-        linksWrap.appendChild(status);
-      });
-
-      // controls
-      const controls = el('div'); controls.className = 'card-controls';
-      const favBtn = el('button',{class:'btn', html: favorites.has(item.id) ? '★' : '☆' });
-      favBtn.title = 'Toggle Favorite';
-      favBtn.addEventListener('click', () => {
-        if (favorites.has(item.id)) { favorites.delete(item.id); favBtn.innerHTML = '☆'; toast('Removed from favorites', 'info', 900); }
-        else { favorites.add(item.id); favBtn.innerHTML = '★'; toast('Added to favorites', 'info', 900); }
-        saveFavorites(favorites);
-      });
-
-      const quickOpen = el('button',{class:'btn secondary', html:'Open Best'});
-      quickOpen.addEventListener('click', async () => {
-        quickOpen.disabled = true; quickOpen.innerText = 'Searching…';
-        for (const u of item.links) {
-          try { if (await checkUrlHealth(u)) { window.open(u, '_blank'); break; } } catch(e){}
-        }
-        quickOpen.disabled = false; quickOpen.innerText = 'Open Best';
-      });
-
-      controls.appendChild(favBtn); controls.appendChild(quickOpen);
-
-      card.appendChild(h); card.appendChild(meta); card.appendChild(linksWrap); card.appendChild(controls);
-      grid.appendChild(card);
-    });
-  });
-}
-
-/* Random working picker (samples subset for speed) */
-async function pickRandomWorking(){
-  const all = DATA.proxies ? DATA.proxies.flatMap(p => p.links) : [];
-  if (!all.length) { toast('No proxies in DATA', 'bad', 1600); return; }
-  // sample up to 40 random links
-  const sampleSize = Math.min(40, all.length);
-  const sample = new Set();
-  while (sample.size < sampleSize) sample.add(all[Math.floor(Math.random()*all.length)]);
-  toast('Searching for a working proxy…', 'info', 2200);
-  for (const u of sample) {
-    try { if (await checkUrlHealth(u)) { window.open(u, '_blank'); return; } } catch(e){}
-  }
-  toast('No working proxy found (quick scan)', 'bad', 2000);
-}
-
-/* Code-wall (diddy) — improved navigation and enter handling */
-(function initCodeWall(){
-  const PASS = 'diddy';
-  const boxes = Array.from(document.querySelectorAll('.code-input, .code-box'));
-  const codeWall = $id('code-wall');
-  const mainContent = document.querySelector('.content') || $id('main-content') || document.body;
-  if (!boxes.length || !codeWall) {
-    // if missing, just show main content
-    mainContent.style.display = '';
+/* -----------------------
+   RENDER SYSTEM
+------------------------ */
+function renderItems(items){
+  gridEl.innerHTML = "";
+  if(items.length===0){
+    gridEl.innerHTML = `<div class="empty-msg">No results.</div>`;
     return;
   }
-  boxes.forEach((b, i) => {
-    b.setAttribute('maxlength','1'); b.setAttribute('inputmode','text');
-    b.addEventListener('input', () => {
-      b.value = b.value.replace(/[^a-zA-Z0-9]/g,'').slice(0,1);
-      if (b.value && i < boxes.length - 1) boxes[i+1].focus();
-    });
-    b.addEventListener('keydown', (ev) => {
-      if (ev.key === 'Backspace' && !b.value && i > 0) { boxes[i-1].focus(); ev.preventDefault(); }
-      else if (ev.key === 'ArrowLeft' && i > 0) { boxes[i-1].focus(); ev.preventDefault(); }
-      else if (ev.key === 'ArrowRight' && i < boxes.length-1) { boxes[i+1].focus(); ev.preventDefault(); }
-      else if (ev.key === 'Enter') { attemptUnlock(); ev.preventDefault(); }
-    });
+
+  items.forEach(item=>{
+    const card = document.createElement("div");
+    card.className = "item-card";
+
+    card.innerHTML = `
+      <h3>${item.title}</h3>
+      <div class="meta">${item.category.toUpperCase()}</div>
+
+      <div class="links">
+        ${item.links.map(l => `<a href="${l}" target="_blank">Open</a>`).join("")}
+      </div>
+    `;
+
+    gridEl.appendChild(card);
   });
+}
 
-  // Allow Enter anywhere to attempt unlock
-  document.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptUnlock(); });
+/* initial render */
+renderItems(DATA);
 
-  function attemptUnlock(){
-    const entered = boxes.map(x => x.value || '').join('').toLowerCase();
-    if (entered === PASS) {
-      codeWall.remove();
-      try { mainContent.style.display = ''; } catch(e){}
-      localStorage.setItem('gamehub_unlocked','1');
-      toast('ACCESS GRANTED ✔️', 'info', 1200);
-      renderGrid();
-      return;
-    }
-    // failure animation + clear
-    boxes.forEach(x => { x.classList.add('invalid'); x.value=''; });
-    setTimeout(()=> boxes.forEach(x=>x.classList.remove('invalid')), 400);
-    boxes[0].focus();
-    toast('Incorrect code', 'bad', 1100);
-  }
-
-  // if previously unlocked, skip
-  if (localStorage.getItem('gamehub_unlocked') === '1') {
-    codeWall.remove();
-    mainContent.style.display = '';
-    renderGrid();
-  } else {
-    // initial focus
-    setTimeout(()=> boxes[0]?.focus(), 160);
-  }
-})();
-
-/* Keyboard shortcuts */
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { window.location.href = 'https://www.google.com'; }
-  else if (e.key === '/') { e.preventDefault(); $id('searchBox')?.focus(); }
-  else if (e.key.toLowerCase() === 'f') { $id('favToggle')?.click(); }
+/* -----------------------
+   SEARCH
+------------------------ */
+searchEl.addEventListener("input", ()=>{
+  const val = searchEl.value.toLowerCase();
+  const filtered = DATA.filter(x =>
+    x.title.toLowerCase().includes(val) ||
+    x.category.toLowerCase().includes(val)
+  );
+  renderItems(filtered);
 });
 
-/* Init app */
-(function initApp(){
-  createControlBar();
-  const search = $id('searchBox'); if (search) search.placeholder += '  (press /)';
-  renderGrid();
-})();
+/* -----------------------
+   CATEGORY FILTER
+------------------------ */
+categoryBar.addEventListener("click", e=>{
+  if(!e.target.classList.contains("category-btn")) return;
 
-/* Expose API */
-window.GameHub = Object.assign(window.GameHub || {}, { DATA, renderGrid, checkUrlHealth, pickRandomWorking, favorites, toast });
+  document.querySelectorAll(".category-btn").forEach(btn=>btn.classList.remove("active"));
+  e.target.classList.add("active");
+
+  const cat = e.target.dataset.category;
+  if(cat==="all") renderItems(DATA);
+  else renderItems(DATA.filter(x=>x.category===cat));
+});
+
+/* -----------------------
+   REFRESH / SHUFFLE / THEME
+------------------------ */
+document.getElementById("refresh-btn").onclick = ()=>{
+  toast("Refreshed.");
+  renderItems(DATA);
+};
+
+document.getElementById("shuffle-btn").onclick = ()=>{
+  toast("Shuffled.");
+  const arr = [...DATA].sort(()=>Math.random()-0.5);
+  renderItems(arr);
+};
+
+document.getElementById("theme-btn").onclick = ()=>{
+  toast("Theme toggled.");
+  document.body.classList.toggle("dark");
+};
+
+/* -----------------------
+   FIREWALL CODE INPUT
+------------------------ */
+const codeInputs = [...document.querySelectorAll(".code-input")];
+const correctCode = "1234";  // your code here
+const codeWall = document.getElementById("code-wall");
+const mainApp = document.getElementById("main-app");
+
+codeInputs.forEach((box,idx)=>{
+  box.addEventListener("input", ()=>{
+    box.value = box.value.replace(/[^0-9A-Za-z]/g,"");
+
+    if(box.value && idx < codeInputs.length-1){
+      codeInputs[idx+1].focus();
+    }
+
+    checkFirewall();
+  });
+
+  box.addEventListener("keydown", e=>{
+    if(e.key==="Backspace" && !box.value && idx>0){
+      codeInputs[idx-1].focus();
+    }
+    if(e.key==="Enter"){
+      checkFirewall(true);
+    }
+  });
+});
+
+function checkFirewall(force=false){
+  const joined = codeInputs.map(i=>i.value).join("");
+
+  if(force && joined!==correctCode){
+    shakeBoxes();
+    return;
+  }
+
+  if(joined.length===4){
+    if(joined===correctCode){
+      unlockPortal();
+    } else {
+      shakeBoxes();
+    }
+  }
+}
+
+function shakeBoxes(){
+  codeInputs.forEach(i=>{
+    i.classList.remove("invalid");
+    void i.offsetWidth; 
+    i.classList.add("invalid");
+  });
+}
+
+function unlockPortal(){
+  codeWall.style.display = "none";
+  mainApp.style.display = "block";
+  toast("Access granted.");
+}
+
+/* -----------------------
+   GLOBAL HOTKEYS
+------------------------ */
+document.addEventListener("keydown", e=>{
+  if(e.key === "`"){
+    window.location.href = "https://classroom.google.com/";
+  }
+});
