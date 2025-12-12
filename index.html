@@ -2,82 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Game Hub — Modern</title>
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- Optional: Firebase (only if you plan to use realtime presence)
-       Add these lines and replace with your config. See runtime comments.
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-  <script>
-    // paste your firebase config here if used:
-    // const firebaseConfig = { apiKey: "...", authDomain: "...", databaseURL: "...", projectId: "...", ... };
-    // firebase.initializeApp(firebaseConfig);
-  </script>
-  -->
-
-  <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultra Portal</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- header -->
-  <header>
-    <div class="logo">GH</div>
-    <div class="title">Game Hub</div>
+<header>
+  <div class="logo">UP</div>
+  <div class="title">Ultra Portal</div>
+</header>
 
-    <div class="header-right">
-      <div class="pill"><span id="onlineCount">—</span></div>
-      <button id="panicBtn" class="btn secondary">Esc → Panic</button>
+<div id="code-wall">
+  <h1 class="site-title">ENTER ACCESS CODE</h1>
+  <div class="code-row">
+    <input class="code-input" maxlength="1" />
+    <input class="code-input" maxlength="1" />
+    <input class="code-input" maxlength="1" />
+    <input class="code-input" maxlength="1" />
+  </div>
+</div>
+
+<div class="container" id="main-app" style="display:none;">
+
+  <div class="controls">
+    <input type="text" class="search" id="search" placeholder="Search…">
+
+    <div class="controls-right">
+      <button class="btn secondary" id="refresh-btn">Refresh</button>
+      <button class="btn" id="shuffle-btn">Shuffle</button>
+      <button class="btn secondary" id="theme-btn">Theme</button>
     </div>
-  </header>
+  </div>
 
-  <!-- CODE WALL (locked view) -->
-  <main id="code-wall" class="code-screen" role="dialog" aria-modal="true">
-    <h1 class="site-title">ENTER ACCESS CODE</h1>
-    <div class="code-row" role="group" aria-label="Access code">
-      <input class="code-input" inputmode="text" maxlength="1" />
-      <input class="code-input" inputmode="text" maxlength="1" />
-      <input class="code-input" inputmode="text" maxlength="1" />
-      <input class="code-input" inputmode="text" maxlength="1" />
-      <input class="code-input" inputmode="text" maxlength="1" />
-    </div>
-    <div id="code-error" aria-live="polite"></div>
-    <div class="code-hint">Type the five-letter code and press Enter — or drag to bookmark</div>
-  </main>
+  <div class="categories" id="category-bar">
+    <button class="category-btn active" data-category="all">All</button>
+    <button class="category-btn" data-category="games">Games</button>
+    <button class="category-btn" data-category="proxies">Proxies</button>
+  </div>
 
-  <!-- MAIN APP (hidden until unlocked) -->
-  <main id="main-content" class="hidden" role="main">
-    <section id="controls" class="controls container">
-      <input id="searchBox" class="search" placeholder="Search games, proxies, tools... (press /)" />
+  <div class="grid" id="item-grid"></div>
 
-      <div class="categories" role="tablist" aria-label="Categories">
-        <button class="category-btn active" data-category="games">Games</button>
-        <button class="category-btn" data-category="proxies">Proxies</button>
-        <button class="category-btn" data-category="tools">Tools</button>
-        <button class="category-btn" data-category="streaming">Streaming</button>
-      </div>
+</div>
 
-      <div class="controls-right">
-        <button id="favToggle" class="btn secondary">Favorites (F)</button>
-        <button id="randomButton" class="btn">Random Working</button>
-        <button id="exportBtn" class="btn secondary">Export JSON</button>
-        <label class="file-upload btn secondary">
-          <input id="importFile" type="file" accept=".json" style="display:none" />
-          Import
-        </label>
-        <button id="themeToggle" class="btn secondary">Toggle Theme</button>
-      </div>
-    </section>
+<div id="__toasts"></div>
 
-    <section class="container">
-      <div id="game-grid" class="grid" aria-live="polite"></div>
-    </section>
-  </main>
-
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
