@@ -194,66 +194,52 @@ const DATA = {
 
 
 
-/* ============================================================
-   FULL FEATURE ENHANCEMENTS (paste AFTER your DATA object)
-   ------------------------------------------------------------
-   Features added:
-   - Search (debounced) + category filter UI hookup
-   - Multi-probe link health checker with caching + majority verdict
-   - Random working picker (fast, asynchronous)
-   - Favorites (localStorage) with star toggle
-   - Export / Import JSON of your DATA
-   - Keyboard shortcuts (Esc = panic, / = focus search, F = toggle favorite mode)
-   - Theme toggle (dark/neon / muted)
-   - Tiny toasts, loading indicators, and accessible focus handling
-   - Presence: attempts Firebase realtime if firebase is loaded and configured, else fallback
-   - Graceful fallbacks and defensive coding
-============================================================ */
+/* =========================
+   Game Hub runtime (paste AFTER your DATA object)
+   - expects `DATA` object with keys: games, proxies, tools, streaming (etc.)
+   - preserves features: search, filter, favorites, import/export, random working,
+     multi-probe health checks, code-wall (diddy), theme toggle, presence (Firebase fallback)
+   ========================= */
 
-/* -----------------------
-   CONFIG / SMALL HELPERS
-   ----------------------- */
-const CHECK_TIMEOUTS = { cors: 7000, img: 5000, nocors: 4500 };
-const HEALTH_CACHE_TTL = 1000 * 60 * 5; // 5 minutes
-const healthCache = new Map(); // url -> { ok:bool, ts:ms }
+/* CONFIG */
+const CHECK_TIMEOUTS = { cors: 7000, img: 4500, nocors: 3500 };
+const HEALTH_CACHE_TTL = 1000 * 60 * 5;
+const healthCache = new Map();
 const favoritesKey = 'gamehub_favorites_v1';
 const themeKey = 'gamehub_theme';
 const presencePath = 'presence/unblockhub';
 
-/* small DOM helpers */
+/* DOM helpers */
 const $id = (s) => document.getElementById(s);
 const $qs = (s) => document.querySelector(s);
 const $qsa = (s) => Array.from(document.querySelectorAll(s));
 const el = (tag, attrs = {}) => {
   const d = document.createElement(tag);
-  Object.entries(attrs).forEach(([k,v]) => {
+  Object.entries(attrs).forEach(([k,v])=>{
     if (k === 'class') d.className = v;
     else if (k === 'html') d.innerHTML = v;
-    else d.setAttribute(k,v);
+    else d.setAttribute(k, v);
   });
   return d;
 };
 
-/* simple toast */
-function toast(msg, type = 'info', ms = 3000) {
+/* toasts area */
+(function(){ if (!$id('__toasts')){ const c = el('div',{id:'__toasts'}); document.body.appendChild(c); }})();
+function toast(msg, type='info', ms=3000){
+  const c = $id('__toasts');
   const t = el('div',{class:'toast'});
   t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(()=> t.style.opacity = '1', 30);
-  setTimeout(()=> {
-    t.style.opacity = '0';
-    setTimeout(()=> t.remove(), 500);
-  }, ms);
+  c.appendChild(t);
+  requestAnimationFrame(()=> t.classList.add('show'));
+  setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=> t.remove(),350); }, ms);
 }
 
 /* debounce */
-function debounce(fn, wait=250){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), wait); }; }
+function debounce(fn, wait=220){ let t; return (...a)=>{ clearTimeout(t); t = setTimeout(()=> fn(...a), wait); }; }
 
-/* -----------------------
-   THEME
-   ----------------------- */
-function applyTheme(name) {
-  if (name === 'muted') {
+/* THEME */
+function applyTheme(name){
+  if (name === 'muted'){
     document.documentElement.style.setProperty('--accent1','#7b7b88');
     document.documentElement.style.setProperty('--accent2','#9aa0b0');
   } else {
@@ -262,78 +248,69 @@ function applyTheme(name) {
   }
   localStorage.setItem(themeKey, name);
 }
-(function initTheme(){
-  const t = localStorage.getItem(themeKey) || 'neon';
-  applyTheme(t);
-})();
+(function(){ const t = localStorage.getItem(themeKey) || 'neon'; applyTheme(t); })();
 
-/* -----------------------
-   FAVORITES (localStorage)
-   ----------------------- */
+/* FAVORITES */
 function loadFavorites(){ try { return new Set(JSON.parse(localStorage.getItem(favoritesKey) || '[]')); } catch(e){ return new Set(); } }
 function saveFavorites(set){ localStorage.setItem(favoritesKey, JSON.stringify([...set])); }
 const favorites = loadFavorites();
 
 /* -----------------------
-   LINK HEALTH CHECKS (multi-probe)
+   HEALTH CHECKS (3-probe, cache)
    ----------------------- */
 async function probe_corsproxy(url, timeout = CHECK_TIMEOUTS.cors){
   try {
     const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-    const controller = new AbortController();
-    const t = setTimeout(()=>controller.abort(), timeout);
-    const r = await fetch(proxy, {method:'GET', signal: controller.signal});
+    const ctrl = new AbortController();
+    const t = setTimeout(()=> ctrl.abort(), timeout);
+    const r = await fetch(proxy, {method:'GET', signal: ctrl.signal});
     clearTimeout(t);
     return r.ok;
   } catch(e){ return false; }
 }
 
 function probe_image(url, timeout = CHECK_TIMEOUTS.img){
-  return new Promise(res=>{
-    try{
+  return new Promise(res => {
+    try {
       const u = new URL(url);
       const img = new Image();
       let done = false;
-      const timer = setTimeout(()=>{ if(!done){ done=true; img.src=''; res(false); } }, timeout);
-      img.onload = ()=>{ if(!done){ done=true; clearTimeout(timer); res(true); } };
-      img.onerror = ()=>{ if(!done){ done=true; clearTimeout(timer); res(false); } };
+      const timer = setTimeout(()=> { if(!done){ done=true; img.src=''; res(false); } }, timeout);
+      img.onload = ()=> { if(!done){ done=true; clearTimeout(timer); res(true); } };
+      img.onerror = ()=> { if(!done){ done=true; clearTimeout(timer); res(false); } };
       img.referrerPolicy = 'no-referrer';
       img.src = u.origin + '/favicon.ico?cache=' + Date.now();
-    }catch(e){ res(false); }
+    } catch(e) { res(false); }
   });
 }
 
 async function probe_fetch_no_cors(url, timeout = CHECK_TIMEOUTS.nocors){
-  try{
+  try {
     const ctrl = new AbortController();
-    const t = setTimeout(()=>ctrl.abort(), timeout);
-    await fetch(url, {method:'GET', mode:'no-cors', signal: ctrl.signal});
+    const t = setTimeout(()=> ctrl.abort(), timeout);
+    await fetch(url, { method: 'GET', mode: 'no-cors', signal: ctrl.signal });
     clearTimeout(t);
     return true;
-  }catch(e){ return false; }
+  } catch(e){ return false; }
 }
 
-async function checkUrlHealth(url) {
-  // Return cached if fresh
+async function checkUrlHealth(url, opts={strict:false}){
   const cached = healthCache.get(url);
   if (cached && (Date.now() - cached.ts) < HEALTH_CACHE_TTL) return cached.ok;
 
-  // Run probes in parallel
-  const [c1, c2, c3] = await Promise.allSettled([
+  const [r1, r2, r3] = await Promise.allSettled([
     probe_corsproxy(url),
     probe_image(url),
     probe_fetch_no_cors(url)
   ]);
 
-  const oks = [c1, c2, c3].filter(r => r.status === 'fulfilled' && r.value).length;
-  // Majority logic: consider done if >=1 (be permissive) — adjust to >=2 if you want strictness
-  const ok = oks >= 1;
+  const oks = [r1, r2, r3].filter(r => r.status === 'fulfilled' && r.value).length;
+  const ok = opts.strict ? oks >= 2 : oks >= 1; // permissive by default
   healthCache.set(url, { ok, ts: Date.now() });
   return ok;
 }
 
-/* update a single status element (expects element with data-url attr) */
-async function updateStatusElement(statusEl) {
+async function updateStatusElement(statusEl){
   const url = statusEl.datasetUrl || statusEl.getAttribute('data-url') || statusEl.dataset.url;
   if (!url) return;
   statusEl.textContent = 'Checking...';
@@ -342,110 +319,85 @@ async function updateStatusElement(statusEl) {
     const ok = await checkUrlHealth(url);
     statusEl.textContent = ok ? 'Online' : 'Offline';
     statusEl.classList.add(ok ? 'online' : 'offline');
-  } catch(e){
+  } catch(e) {
     statusEl.textContent = 'Error';
     statusEl.classList.add('offline');
   }
 }
 
 /* -----------------------
-   RENDERER (search + filter + favorites)
+   RENDERER
    ----------------------- */
 const renderState = { query: '', category: 'all', showOnlyFavorites: false };
 
-function createControlBar() {
-  // Create search + filters + buttons at top of main content if not present
-  if ($id('controlBar')) return;
-  const main = $id('main-content');
+function createControlBar(){ // we already have controls in HTML; just wire them
+  const search = $id('searchBox');
+  if (search) {
+    search.addEventListener('input', debounce(e => {
+      renderState.query = e.target.value.toLowerCase();
+      renderGrid();
+    }, 180));
+  }
 
-  const bar = el('div',{class:'container', id:'controlBar'});
-  bar.style.display = 'flex';
-  bar.style.gap = '12px';
-  bar.style.alignItems = 'center';
-  bar.style.marginBottom = '18px';
-
-  const search = el('input',{id:'searchBox', placeholder:'Search games, hosts, titles... (press / to focus)'});
-  search.style.flex = '1';
-  search.style.padding = '10px 12px';
-  search.style.borderRadius = '10px';
-  search.style.border = '1px solid rgba(255,255,255,0.04)';
-  search.addEventListener('input', debounce(e=>{
-    renderState.query = e.target.value.toLowerCase();
-    renderGrid();
-  }, 220));
-  bar.appendChild(search);
-
-  const cat = el('select',{id:'categorySelect'});
-  ['all','games','proxies','streaming','tools'].forEach(v=>{
-    const o = el('option'); o.value = v; o.textContent = v[0].toUpperCase() + v.slice(1);
-    if (v==='all') o.selected = true;
-    cat.appendChild(o);
+  // category buttons
+  $qsa('.category-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $qsa('.category-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderState.category = btn.dataset.category || 'all';
+      renderGrid();
+    });
   });
-  cat.addEventListener('change', (e)=>{ renderState.category = e.target.value; renderGrid(); });
-  bar.appendChild(cat);
 
-  const favToggle = el('button',{class:'btn secondary', id:'favToggle', html:'Favorites'});
-  favToggle.addEventListener('click', ()=>{
+  // favorites toggle
+  $id('favToggle')?.addEventListener('click', ()=> {
     renderState.showOnlyFavorites = !renderState.showOnlyFavorites;
-    favToggle.classList.toggle('active');
+    $id('favToggle').classList.toggle('active');
     renderGrid();
   });
-  bar.appendChild(favToggle);
 
-  const randomBtn = el('button',{class:'btn', id:'randomButton', html:'Random Working'});
-  randomBtn.addEventListener('click', pickRandomWorking);
-  bar.appendChild(randomBtn);
+  // random
+  $id('randomButton')?.addEventListener('click', pickRandomWorking);
 
-  const exportBtn = el('button',{class:'btn secondary', html:'Export JSON'});
-  exportBtn.addEventListener('click', ()=> {
-    const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
-    const a = el('a',{href:URL.createObjectURL(blob), download:'site-data.json'});
-    a.style.display='none'; document.body.appendChild(a); a.click(); a.remove();
-    toast('Exported site-data.json', 'info', 2500);
+  // export
+  $id('exportBtn')?.addEventListener('click', ()=> {
+    const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
+    const a = el('a', { href: URL.createObjectURL(blob), download: 'site-data.json' });
+    a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove();
+    toast('Exported site-data.json', 'info', 2000);
   });
-  bar.appendChild(exportBtn);
 
-  const importBtn = el('input', {type:'file', accept:'.json'});
-  importBtn.style.display='inline-block';
-  importBtn.addEventListener('change', (e)=>{
-    const f = e.target.files[0]; if(!f) return;
+  // import
+  $id('importFile')?.addEventListener('change', (e) => {
+    const f = e.target.files[0]; if (!f) return;
     const r = new FileReader();
     r.onload = () => {
-      try{
+      try {
         const parsed = JSON.parse(r.result);
         if (parsed.games || parsed.proxies) {
-          // overwrite DATA in memory (won't persist unless you save)
           DATA.games = parsed.games || [];
           DATA.proxies = parsed.proxies || [];
           renderGrid();
-          toast('Imported JSON into current session', 'info', 3000);
-        } else toast('JSON missing games/proxies arrays', 'bad', 3500);
-      }catch(err){ toast('Invalid JSON file', 'bad', 3000); }
+          toast('Imported JSON into session', 'info', 2500);
+        } else toast('JSON missing games/proxies arrays', 'bad', 2500);
+      } catch(err) { toast('Invalid JSON file', 'bad', 2500); }
     };
     r.readAsText(f);
   });
-  bar.appendChild(importBtn);
 
   // theme toggle
-  const themeBtn = el('button', {class:'btn secondary', html:'Toggle Theme'});
-  themeBtn.addEventListener('click', ()=> {
+  $id('themeToggle')?.addEventListener('click', () => {
     const cur = localStorage.getItem(themeKey) || 'neon';
     const next = cur === 'neon' ? 'muted' : 'neon';
     applyTheme(next);
-    toast('Theme: ' + next, 'info', 1500);
+    toast('Theme: ' + next, 'info', 1200);
   });
-  bar.appendChild(themeBtn);
-
-  main.prepend(bar);
 }
 
-/* core filter + search predicate */
-function matchesFilter(item) {
+function matchesFilter(item){
   const q = renderState.query;
   const cat = renderState.category;
-  if (renderState.showOnlyFavorites) {
-    if (!favorites.has(item.id)) return false;
-  }
+  if (renderState.showOnlyFavorites && !favorites.has(item.id)) return false;
   if (cat !== 'all' && item.category !== cat) return false;
   if (!q) return true;
   const inTitle = item.title && item.title.toLowerCase().includes(q);
@@ -454,15 +406,21 @@ function matchesFilter(item) {
 }
 
 let renderScheduled = false;
-function renderGrid() {
+function renderGrid(){
   if (renderScheduled) return;
   renderScheduled = true;
-  requestAnimationFrame(()=> {
+  requestAnimationFrame(() => {
     renderScheduled = false;
     const grid = $id('game-grid');
+    if (!grid) return;
     grid.innerHTML = '';
-    // combine lists into one array but preserve category
-    const items = [...DATA.games, ...DATA.proxies, ...(DATA.streaming||[]), ...(DATA.tools||[])];
+
+    const items = [
+      ...(DATA.games || []),
+      ...(DATA.proxies || []),
+      ...(DATA.tools || []),
+      ...(DATA.streaming || [])
+    ];
     const visible = items.filter(matchesFilter);
 
     if (visible.length === 0) {
@@ -472,65 +430,49 @@ function renderGrid() {
 
     visible.forEach((item, idx) => {
       const card = el('div',{class:'item-card'});
-      card.style.animation = `fadeInUp 0.5s ease both`;
+      card.style.animation = `fadeInUp 0.45s ease both`;
       card.style.animationDelay = `${idx * 0.06}s`;
 
-      // title + small meta
       const h = el('h3'); h.textContent = item.title;
-      const meta = el('div',{class:'meta'});
-      meta.style.fontSize = '12px';
-      meta.style.color = 'var(--muted)';
-      meta.textContent = `${item.category.toUpperCase()} • ${item.links.length} links`;
+      const meta = el('div',{class:'meta', html: `${item.category.toUpperCase()} • ${item.links.length} links`});
 
-      // links area
       const linksWrap = el('div',{class:'links'});
-      item.links.forEach((link)=>{
-        const a = el('a',{href:link, target:'_blank', html:'Open'});
+      item.links.forEach(link => {
+        const hostText = link.replace(/^https?:\/\//, '').split('/')[0];
+        const a = el('a',{href:link, target:'_blank', html: hostText });
         a.style.marginRight = '8px';
-        // add small status badge span
-        const status = el('span',{class:'status-badge', html:'?'});
-        status.style.marginLeft = '8px';
-        status.datasetUrl = link; // for updater
-        // lazy-check on hover
+        const status = el('span',{class:'status-badge', html:'?'}); status.datasetUrl = link;
+        // lazy check on hover/focus
         a.addEventListener('mouseenter', ()=> updateStatusElement(status));
+        a.addEventListener('focus', ()=> updateStatusElement(status));
         linksWrap.appendChild(a);
         linksWrap.appendChild(status);
       });
 
-      // favorite button
       const favBtn = el('button',{class:'btn', html: favorites.has(item.id) ? '★' : '☆' });
       favBtn.title = 'Toggle Favorite';
-      favBtn.addEventListener('click', ()=>{
+      favBtn.addEventListener('click', ()=> {
         if (favorites.has(item.id)) { favorites.delete(item.id); favBtn.innerHTML = '☆'; }
         else { favorites.add(item.id); favBtn.innerHTML = '★'; }
         saveFavorites(favorites);
-        toast(favorites.has(item.id) ? 'Added to favorites' : 'Removed from favorites', 'info', 1200);
+        toast(favorites.has(item.id) ? 'Added to favorites' : 'Removed from favorites', 'info', 1100);
       });
 
-      // open first working link quickly (fast-check)
-      const quickOpen = el('button',{class:'btn secondary', html:'Open Best'});
-      quickOpen.addEventListener('click', async ()=>{
-        quickOpen.disabled = true;
-        quickOpen.innerText = 'Searching…';
+      const quickOpen = el('button',{class:'btn secondary', html: 'Open Best' });
+      quickOpen.addEventListener('click', async () => {
+        quickOpen.disabled = true; quickOpen.innerText = 'Searching…';
         for (const u of item.links) {
           try {
-            const ok = await checkUrlHealth(u);
-            if (ok) { window.open(u, '_blank'); break; }
+            if (await checkUrlHealth(u)) { window.open(u, '_blank'); break; }
           } catch(e){}
         }
-        quickOpen.disabled = false;
-        quickOpen.innerText = 'Open Best';
+        quickOpen.disabled = false; quickOpen.innerText = 'Open Best';
       });
 
-      // assemble card
-      card.appendChild(h);
-      card.appendChild(meta);
-      card.appendChild(linksWrap);
-
-      const controls = el('div'); controls.style.marginTop = '10px'; controls.style.display='flex'; controls.style.gap='8px';
+      card.appendChild(h); card.appendChild(meta); card.appendChild(linksWrap);
+      const controls = el('div'); controls.style.marginTop = '10px'; controls.style.display = 'flex'; controls.style.gap='8px';
       controls.appendChild(favBtn); controls.appendChild(quickOpen);
       card.appendChild(controls);
-
       grid.appendChild(card);
     });
   });
@@ -540,51 +482,47 @@ function renderGrid() {
    Random working picker
    ----------------------- */
 async function pickRandomWorking(){
-  const all = DATA.proxies ? DATA.proxies.flatMap(p=>p.links) : [];
-  if(all.length === 0){ toast('No proxies found in DATA', 'bad', 2000); return; }
-  // sample a subset to test faster
+  const all = DATA.proxies ? DATA.proxies.flatMap(p => p.links) : [];
+  if (all.length === 0) { toast('No proxies found in DATA', 'bad', 1800); return; }
   const sample = [];
-  for (let i=0;i<Math.min(30, all.length); i++){
+  for (let i=0;i<Math.min(40, all.length); i++){
     sample.push(all[Math.floor(Math.random()*all.length)]);
   }
-  toast('Searching for a working proxy…', 'info', 2500);
-  for (const u of sample) {
+  toast('Searching for a working proxy…', 'info', 2200);
+  for (const u of sample){
     try {
       if (await checkUrlHealth(u)) { window.open(u, '_blank'); return; }
     } catch(e){}
   }
-  toast('No working proxy found in quick scan', 'bad', 3000);
+  toast('No working proxy found in quick scan', 'bad', 2200);
 }
 
 /* -----------------------
-   PRESENCE (try Firebase, else fallback)
+   Presence (Firebase optional fallback)
    ----------------------- */
-async function initPresence() {
-  // if firebase exists and database available, use it
+async function initPresence(){
   try {
     if (window.firebase && firebase.database) {
       const db = firebase.database();
       const ref = db.ref(presencePath);
       const myRef = ref.push();
-      myRef.set({ts: Date.now()});
+      myRef.set({ ts: Date.now() });
       myRef.onDisconnect().remove();
       ref.on('value', snap => {
         const count = snap.val() ? Object.keys(snap.val()).length : 0;
-        // show in top bar if exists
-        const elOnline = $id('onlineCount');
-        if (elOnline) elOnline.textContent = `${count} online`;
+        const elOnline = $id('onlineCount'); if (elOnline) elOnline.textContent = `${count} online`;
       });
       return;
     }
-  } catch(e){ console.warn('Firebase presence failed', e); }
-  // fallback: local estimate with hits counter
+  } catch(e) { console.warn('Firebase presence failed', e); }
+
+  // fallback: local sessions counting (approximate)
   (function fallback(){
-    const key = 'uh_visit_' + Math.floor(Date.now()/1000/60); // per minute
+    const key = 'uh_visit_' + Math.floor(Date.now() / 1000 / 60);
     if (!localStorage.getItem(key)) {
       const img = new Image(); img.src = 'https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=gamehub&t='+Date.now();
       localStorage.setItem(key, '1');
     }
-    // compute number of recent local sessions (very rough)
     const now = Date.now();
     const arr = JSON.parse(localStorage.getItem('uh_sessions') || '[]').filter(ts => now - ts < 1000*60*10);
     arr.push(now);
@@ -594,63 +532,93 @@ async function initPresence() {
 }
 
 /* -----------------------
-   KEYBOARD SHORTCUTS
+   Keyboard shortcuts
    ----------------------- */
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    // panic button
     window.location.href = 'https://www.google.com';
   } else if (e.key === '/') {
-    e.preventDefault();
-    $id('searchBox')?.focus();
+    e.preventDefault(); $id('searchBox')?.focus();
   } else if (e.key.toLowerCase() === 'f') {
-    // toggle favorite filter
-    const btn = $id('favToggle'); if (btn) btn.click();
+    $id('favToggle')?.click();
   }
 });
 
 /* -----------------------
-   INIT ONCE UNLOCKED
+   Code-wall (passcode = "diddy")
+   - auto-advance, backspace jump, Enter to submit
    ----------------------- */
-(function initApp(){
-  // build control bar after main content exists
-  createControlBar();
+(function initCodeWall(){
+  const PASS = 'diddy';
+  const boxes = Array.from(document.querySelectorAll('.code-input, .code-box'));
+  const codeWall = $id('code-wall');
+  const main = $id('main-content');
 
-  // ensure search focus shortcut hint
-  const search = $id('searchBox');
-  if (search) search.placeholder += '  (press / to focus)';
+  if (!boxes.length || !codeWall || !main) return;
 
-  // wire code input focus fallback (if .code-input elements exist)
-  const codeInputs = document.querySelectorAll('.code-input, .code-box');
-  codeInputs.forEach(i=>i.setAttribute('inputmode','text'));
+  boxes.forEach((b,i) => {
+    b.setAttribute('maxlength','1');
+    b.setAttribute('inputmode','text');
+    b.addEventListener('input', ()=> {
+      b.value = b.value.replace(/[^a-zA-Z0-9]/g, '').slice(0,1);
+      if (b.value && i < boxes.length - 1) boxes[i+1].focus();
+    });
+    b.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Backspace' && !b.value && i > 0) {
+        boxes[i-1].focus();
+      } else if (ev.key === 'Enter') {
+        attemptUnlock();
+      }
+    });
+  });
 
-  // attempt presence
-  initPresence();
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') attemptUnlock(); });
 
-  // when main content visible, render grid (but do not auto-show)
-  renderGrid();
-
-  // safety: if user has already unlocked (e.g. dev), show main
-  if (localStorage.getItem('gamehub_unlocked') === '1') {
-    document.getElementById('code-wall')?.remove();
-    $id('main-content')?.classList.remove('hidden');
-    renderGrid();
+  function attemptUnlock(){
+    const entered = boxes.map(x => x.value).join('').toLowerCase();
+    if (entered === PASS) {
+      codeWall.remove();
+      main.classList.remove('hidden');
+      localStorage.setItem('gamehub_unlocked','1');
+      toast('ACCESS GRANTED ✔️', 'info', 1000);
+      renderGrid();
+    } else {
+      boxes.forEach(x => { x.classList.add('invalid'); x.value = ''; });
+      setTimeout(()=> boxes.forEach(x=> x.classList.remove('invalid')), 350);
+      boxes[0].focus();
+      toast('Incorrect code ❌', 'bad', 1400);
+    }
   }
 
-  // small UX: focus first code box automatically
-  setTimeout(()=> {
-    const first = document.querySelector('.code-input, .code-box');
-    if (first) first.focus();
-  }, 300);
+  // if already unlocked in localStorage show main
+  if (localStorage.getItem('gamehub_unlocked') === '1') {
+    codeWall?.remove();
+    main.classList.remove('hidden');
+    renderGrid();
+  } else {
+    // focus first box after a short delay
+    setTimeout(()=> { boxes[0]?.focus(); }, 250);
+  }
 })();
 
 /* -----------------------
-   EXPORT small API for console debugging
+   INIT
    ----------------------- */
-window.GameHub = {
+(function initApp(){
+  createControlBar();
+  initPresence();
+  renderGrid();
+})();
+  
+/* -----------------------
+   Expose small API for debugging
+   ----------------------- */
+window.GameHub = Object.assign(window.GameHub || {}, {
   DATA,
   renderGrid,
   checkUrlHealth,
   pickRandomWorking,
   favorites,
   toast
-};
+});
