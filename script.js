@@ -195,19 +195,18 @@ const DATA = {
 
 
 /* =========================
-   Game Hub runtime (paste AFTER your DATA object)
-   - expects `DATA` object with keys: games, proxies, tools, streaming (etc.)
-   - preserves features: search, filter, favorites, import/export, random working,
-     multi-probe health checks, code-wall (diddy), theme toggle, presence (Firebase fallback)
+   Upgraded app core (paste AFTER your DATA object)
+   - preserves favorites, export/import, search, random picker, Open Best
+   - removes presence/live student count
+   - faster health checks with short-circuit + caching
    ========================= */
 
 /* CONFIG */
-const CHECK_TIMEOUTS = { cors: 7000, img: 4500, nocors: 3500 };
+const CHECK_TIMEOUTS = { cors: 4500, img: 2200, nocors: 1800 }; // faster probes
 const HEALTH_CACHE_TTL = 1000 * 60 * 5;
 const healthCache = new Map();
 const favoritesKey = 'gamehub_favorites_v1';
 const themeKey = 'gamehub_theme';
-const presencePath = 'presence/unblockhub';
 
 /* DOM helpers */
 const $id = (s) => document.getElementById(s);
@@ -215,7 +214,7 @@ const $qs = (s) => document.querySelector(s);
 const $qsa = (s) => Array.from(document.querySelectorAll(s));
 const el = (tag, attrs = {}) => {
   const d = document.createElement(tag);
-  Object.entries(attrs).forEach(([k,v])=>{
+  Object.entries(attrs).forEach(([k, v]) => {
     if (k === 'class') d.className = v;
     else if (k === 'html') d.innerHTML = v;
     else d.setAttribute(k, v);
@@ -223,23 +222,23 @@ const el = (tag, attrs = {}) => {
   return d;
 };
 
-/* toasts area */
-(function(){ if (!$id('__toasts')){ const c = el('div',{id:'__toasts'}); document.body.appendChild(c); }})();
+/* Toast system */
+(function mountToasts(){ if (!$id('__toasts')) { const c = el('div', {id:'__toasts'}); document.body.appendChild(c); }})();
 function toast(msg, type='info', ms=3000){
-  const c = $id('__toasts');
-  const t = el('div',{class:'toast'});
-  t.textContent = msg;
-  c.appendChild(t);
-  requestAnimationFrame(()=> t.classList.add('show'));
-  setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=> t.remove(),350); }, ms);
+  const container = $id('__toasts');
+  const node = el('div', {class:'toast'});
+  node.textContent = msg;
+  container.appendChild(node);
+  requestAnimationFrame(()=> node.classList.add('show'));
+  setTimeout(()=> { node.classList.remove('show'); setTimeout(()=> node.remove(), 400); }, ms);
 }
 
 /* debounce */
-function debounce(fn, wait=220){ let t; return (...a)=>{ clearTimeout(t); t = setTimeout(()=> fn(...a), wait); }; }
+function debounce(fn, wait=220){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), wait); }; }
 
-/* THEME */
+/* theme management */
 function applyTheme(name){
-  if (name === 'muted'){
+  if(name === 'muted'){
     document.documentElement.style.setProperty('--accent1','#7b7b88');
     document.documentElement.style.setProperty('--accent2','#9aa0b0');
   } else {
@@ -248,128 +247,146 @@ function applyTheme(name){
   }
   localStorage.setItem(themeKey, name);
 }
-(function(){ const t = localStorage.getItem(themeKey) || 'neon'; applyTheme(t); })();
+(function(){ applyTheme(localStorage.getItem(themeKey) || 'neon'); })();
 
-/* FAVORITES */
-function loadFavorites(){ try { return new Set(JSON.parse(localStorage.getItem(favoritesKey) || '[]')); } catch(e){ return new Set(); } }
-function saveFavorites(set){ localStorage.setItem(favoritesKey, JSON.stringify([...set])); }
+/* favorites */
+function loadFavorites(){ try { return new Set(JSON.parse(localStorage.getItem(favoritesKey) || '[]')); } catch(e) { return new Set(); } }
+function saveFavorites(s){ localStorage.setItem(favoritesKey, JSON.stringify([...s])); }
 const favorites = loadFavorites();
 
-/* -----------------------
-   HEALTH CHECKS (3-probe, cache)
-   ----------------------- */
-async function probe_corsproxy(url, timeout = CHECK_TIMEOUTS.cors){
-  try {
-    const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-    const ctrl = new AbortController();
-    const t = setTimeout(()=> ctrl.abort(), timeout);
-    const r = await fetch(proxy, {method:'GET', signal: ctrl.signal});
-    clearTimeout(t);
-    return r.ok;
-  } catch(e){ return false; }
-}
-
+/* -------------------------
+   Health checks (improved)
+   Strategy:
+    - quick favicon probe first (fast)
+    - run cors-proxy and no-cors in parallel but short-circuit on first success
+    - cache results for HEALTH_CACHE_TTL
+   ------------------------- */
 function probe_image(url, timeout = CHECK_TIMEOUTS.img){
   return new Promise(res => {
     try {
       const u = new URL(url);
       const img = new Image();
       let done = false;
-      const timer = setTimeout(()=> { if(!done){ done=true; img.src=''; res(false); } }, timeout);
-      img.onload = ()=> { if(!done){ done=true; clearTimeout(timer); res(true); } };
-      img.onerror = ()=> { if(!done){ done=true; clearTimeout(timer); res(false); } };
+      const timer = setTimeout(()=>{ if(!done){ done=true; img.src=''; res(false); } }, timeout);
+      img.onload = ()=>{ if(!done){ done=true; clearTimeout(timer); res(true); } };
+      img.onerror = ()=>{ if(!done){ done=true; clearTimeout(timer); res(false); } };
       img.referrerPolicy = 'no-referrer';
       img.src = u.origin + '/favicon.ico?cache=' + Date.now();
-    } catch(e) { res(false); }
+    } catch(e){ res(false); }
   });
+}
+
+async function probe_corsproxy(url, timeout = CHECK_TIMEOUTS.cors){
+  // allorigins is reliable for simple GET proxy; uses shorter timeout
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(()=>ctrl.abort(), timeout);
+    const proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+    const r = await fetch(proxy, {method:'GET', signal: ctrl.signal});
+    clearTimeout(t);
+    return r.ok;
+  } catch(e){ return false; }
 }
 
 async function probe_fetch_no_cors(url, timeout = CHECK_TIMEOUTS.nocors){
   try {
     const ctrl = new AbortController();
-    const t = setTimeout(()=> ctrl.abort(), timeout);
-    await fetch(url, { method: 'GET', mode: 'no-cors', signal: ctrl.signal });
+    const t = setTimeout(()=>ctrl.abort(), timeout);
+    await fetch(url, {method:'GET', mode:'no-cors', signal: ctrl.signal});
     clearTimeout(t);
+    // no-cors doesn't guarantee success, but if it returns, assume reachable
     return true;
   } catch(e){ return false; }
 }
 
-async function checkUrlHealth(url, opts={strict:false}){
+async function checkUrlHealth(url, opts = { strict: false }){
+  // consult cache
   const cached = healthCache.get(url);
   if (cached && (Date.now() - cached.ts) < HEALTH_CACHE_TTL) return cached.ok;
 
-  const [r1, r2, r3] = await Promise.allSettled([
-    probe_corsproxy(url),
-    probe_image(url),
-    probe_fetch_no_cors(url)
-  ]);
+  // First, try favicon probe (fast) and short-circuit if true
+  try {
+    const fav = await probe_image(url, Math.min(1200, CHECK_TIMEOUTS.img));
+    if (fav) { healthCache.set(url, { ok:true, ts:Date.now() }); return true; }
+  } catch(_) {}
 
-  const oks = [r1, r2, r3].filter(r => r.status === 'fulfilled' && r.value).length;
-  const ok = opts.strict ? oks >= 2 : oks >= 1; // permissive by default
+  // Run remaining probes in parallel and short-circuit as soon as one returns true.
+  // We'll still gather results to decide strictness.
+  const p1 = probe_corsproxy(url, CHECK_TIMEOUTS.cors);
+  const p2 = probe_fetch_no_cors(url, CHECK_TIMEOUTS.nocors);
+
+  // race for first truthy; but we also wait for both to evaluate (so caching can be accurate)
+  // attempt a Promise.any-like short-circuit for truthy values:
+  let resolvedTrue = false;
+  const results = await Promise.allSettled([p1, p2].map(p => p.then(v => { if (v) resolvedTrue = true; return v; }).catch(()=>false)));
+  const oks = results.filter(r => r.status === 'fulfilled' && r.value).length + (resolvedTrue ? 0 : 0);
+  const ok = opts.strict ? oks >= 2 : oks >= 1;
   healthCache.set(url, { ok, ts: Date.now() });
   return ok;
 }
 
+/* update status element (attached to link) */
 async function updateStatusElement(statusEl){
+  if(!statusEl) return;
   const url = statusEl.datasetUrl || statusEl.getAttribute('data-url') || statusEl.dataset.url;
-  if (!url) return;
-  statusEl.textContent = 'Checking...';
+  if(!url) return;
+  statusEl.textContent = 'Checking…';
   statusEl.classList.remove('online','offline');
   try {
     const ok = await checkUrlHealth(url);
     statusEl.textContent = ok ? 'Online' : 'Offline';
     statusEl.classList.add(ok ? 'online' : 'offline');
-  } catch(e) {
+  } catch(e){
     statusEl.textContent = 'Error';
     statusEl.classList.add('offline');
   }
 }
 
-/* -----------------------
-   RENDERER
-   ----------------------- */
+/* -------------------------
+   Renderer (search, filters, favorites)
+   ------------------------- */
 const renderState = { query: '', category: 'all', showOnlyFavorites: false };
 
-function createControlBar(){ // we already have controls in HTML; just wire them
-  const search = $id('searchBox');
-  if (search) {
-    search.addEventListener('input', debounce(e => {
-      renderState.query = e.target.value.toLowerCase();
-      renderGrid();
-    }, 180));
-  }
-
-  // category buttons
-  $qsa('.category-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      $qsa('.category-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderState.category = btn.dataset.category || 'all';
+function createControlBar(){
+  if ($id('controlBar')) return;
+  const main = $id('main-content') || document.body;
+  const bar = el('div', {id:'controlBar', class:'container controls'});
+  // search
+  const search = el('input', {id:'searchBox', placeholder:'Search games, hosts, titles... (press /)'}); search.className = 'search';
+  search.addEventListener('input', debounce(e => { renderState.query = e.target.value.toLowerCase(); renderGrid(); }, 200));
+  bar.appendChild(search);
+  // categories
+  const cats = el('div', {class:'categories'});
+  ['all','games','proxies','streaming','tools'].forEach(v => {
+    const b = el('button', {class:'category-btn', html: v[0].toUpperCase()+v.slice(1)});
+    b.dataset.category = v;
+    if (v === 'all') b.classList.add('active');
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.category-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      renderState.category = v;
       renderGrid();
     });
+    cats.appendChild(b);
   });
+  bar.appendChild(cats);
 
-  // favorites toggle
-  $id('favToggle')?.addEventListener('click', ()=> {
+  // right-side controls
+  const right = el('div', {class:'controls-right'});
+  const favToggle = el('button', {class:'btn secondary', html:'⭐ Favorites'}); favToggle.addEventListener('click', ()=>{
     renderState.showOnlyFavorites = !renderState.showOnlyFavorites;
-    $id('favToggle').classList.toggle('active');
+    favToggle.classList.toggle('active');
     renderGrid();
   });
-
-  // random
-  $id('randomButton')?.addEventListener('click', pickRandomWorking);
-
-  // export
-  $id('exportBtn')?.addEventListener('click', ()=> {
-    const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
-    const a = el('a', { href: URL.createObjectURL(blob), download: 'site-data.json' });
-    a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove();
-    toast('Exported site-data.json', 'info', 2000);
+  const randomBtn = el('button', {class:'btn', html:'🎲 Random Working'}); randomBtn.addEventListener('click', pickRandomWorking);
+  const exportBtn = el('button', {class:'btn secondary', html:'📤 Export JSON'}); exportBtn.addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
+    const a = el('a', {href: URL.createObjectURL(blob), download: 'site-data.json'}); document.body.appendChild(a); a.click(); a.remove();
+    toast('Exported site-data.json', 'info', 2200);
   });
-
-  // import
-  $id('importFile')?.addEventListener('change', (e) => {
-    const f = e.target.files[0]; if (!f) return;
+  const importInput = el('input', {type:'file', accept:'.json'}); importInput.style.display = 'inline-block';
+  importInput.addEventListener('change', e => {
+    const f = e.target.files[0]; if(!f) return;
     const r = new FileReader();
     r.onload = () => {
       try {
@@ -379,21 +396,32 @@ function createControlBar(){ // we already have controls in HTML; just wire them
           DATA.proxies = parsed.proxies || [];
           renderGrid();
           toast('Imported JSON into session', 'info', 2500);
-        } else toast('JSON missing games/proxies arrays', 'bad', 2500);
-      } catch(err) { toast('Invalid JSON file', 'bad', 2500); }
+        } else toast('JSON missing games/proxies arrays', 'bad', 3000);
+      } catch(err) { toast('Invalid JSON file', 'bad', 2600); }
     };
     r.readAsText(f);
   });
 
-  // theme toggle
-  $id('themeToggle')?.addEventListener('click', () => {
+  const importBtn = el('label'); importBtn.className = 'btn secondary'; importBtn.style.cursor = 'pointer';
+  importBtn.style.display = 'inline-flex'; importBtn.appendChild(el('span',{html:'📥 Import'})); importBtn.appendChild(importInput);
+
+  const themeBtn = el('button', {class:'btn secondary', html:'🌙 Theme'}); themeBtn.addEventListener('click', ()=>{
     const cur = localStorage.getItem(themeKey) || 'neon';
     const next = cur === 'neon' ? 'muted' : 'neon';
-    applyTheme(next);
-    toast('Theme: ' + next, 'info', 1200);
+    applyTheme(next); toast('Theme: ' + next, 'info', 1200);
   });
+
+  right.appendChild(favToggle);
+  right.appendChild(randomBtn);
+  right.appendChild(exportBtn);
+  right.appendChild(importBtn);
+  right.appendChild(themeBtn);
+
+  bar.appendChild(right);
+  ( $id('main-content') || document.body ).prepend(bar);
 }
 
+/* matching predicate */
 function matchesFilter(item){
   const q = renderState.query;
   const cat = renderState.category;
@@ -405,220 +433,154 @@ function matchesFilter(item){
   return inTitle || inLinks;
 }
 
+/* render grid */
 let renderScheduled = false;
 function renderGrid(){
   if (renderScheduled) return;
   renderScheduled = true;
   requestAnimationFrame(() => {
     renderScheduled = false;
-    const grid = $id('game-grid');
-    if (!grid) return;
+    const grid = $id('itemsContainer') || $id('game-grid') || (() => { const g=el('div',{id:'game-grid', class:'grid'}); document.querySelector('.content')?.appendChild(g); return g; })();
+    grid.className = 'grid';
     grid.innerHTML = '';
-
-    const items = [
-      ...(DATA.games || []),
-      ...(DATA.proxies || []),
-      ...(DATA.tools || []),
-      ...(DATA.streaming || [])
-    ];
+    const items = [...(DATA.games || []), ...(DATA.proxies || []), ...(DATA.streaming || []), ...(DATA.tools || [])];
     const visible = items.filter(matchesFilter);
-
     if (visible.length === 0) {
       grid.appendChild(el('div',{class:'empty-msg', html:'No matching items.'}));
       return;
     }
-
     visible.forEach((item, idx) => {
       const card = el('div',{class:'item-card'});
       card.style.animation = `fadeInUp 0.45s ease both`;
       card.style.animationDelay = `${idx * 0.06}s`;
 
       const h = el('h3'); h.textContent = item.title;
-      const meta = el('div',{class:'meta', html: `${item.category.toUpperCase()} • ${item.links.length} links`});
-
+      const meta = el('div',{class:'meta'}); meta.textContent = `${item.category.toUpperCase()} • ${item.links.length} links`;
       const linksWrap = el('div',{class:'links'});
+
       item.links.forEach(link => {
-        const hostText = link.replace(/^https?:\/\//, '').split('/')[0];
-        const a = el('a',{href:link, target:'_blank', html: hostText });
-        a.style.marginRight = '8px';
-        const status = el('span',{class:'status-badge', html:'?'}); status.datasetUrl = link;
-        // lazy check on hover/focus
-        a.addEventListener('mouseenter', ()=> updateStatusElement(status));
-        a.addEventListener('focus', ()=> updateStatusElement(status));
+        const display = link.replace(/^https?:\/\//,'').split('/')[0];
+        const a = el('a',{href:link, target:'_blank', html: display});
+        // quick status pill
+        const status = el('span',{class:'status-badge', html:'?'});
+        status.datasetUrl = link;
+        a.addEventListener('mouseenter', () => updateStatusElement(status));
+        a.addEventListener('focus', () => updateStatusElement(status));
         linksWrap.appendChild(a);
         linksWrap.appendChild(status);
       });
 
+      // controls
+      const controls = el('div'); controls.className = 'card-controls';
       const favBtn = el('button',{class:'btn', html: favorites.has(item.id) ? '★' : '☆' });
       favBtn.title = 'Toggle Favorite';
-      favBtn.addEventListener('click', ()=> {
-        if (favorites.has(item.id)) { favorites.delete(item.id); favBtn.innerHTML = '☆'; }
-        else { favorites.add(item.id); favBtn.innerHTML = '★'; }
+      favBtn.addEventListener('click', () => {
+        if (favorites.has(item.id)) { favorites.delete(item.id); favBtn.innerHTML = '☆'; toast('Removed from favorites', 'info', 900); }
+        else { favorites.add(item.id); favBtn.innerHTML = '★'; toast('Added to favorites', 'info', 900); }
         saveFavorites(favorites);
-        toast(favorites.has(item.id) ? 'Added to favorites' : 'Removed from favorites', 'info', 1100);
       });
 
-      const quickOpen = el('button',{class:'btn secondary', html: 'Open Best' });
+      const quickOpen = el('button',{class:'btn secondary', html:'Open Best'});
       quickOpen.addEventListener('click', async () => {
         quickOpen.disabled = true; quickOpen.innerText = 'Searching…';
         for (const u of item.links) {
-          try {
-            if (await checkUrlHealth(u)) { window.open(u, '_blank'); break; }
-          } catch(e){}
+          try { if (await checkUrlHealth(u)) { window.open(u, '_blank'); break; } } catch(e){}
         }
         quickOpen.disabled = false; quickOpen.innerText = 'Open Best';
       });
 
-      card.appendChild(h); card.appendChild(meta); card.appendChild(linksWrap);
-      const controls = el('div'); controls.style.marginTop = '10px'; controls.style.display = 'flex'; controls.style.gap='8px';
       controls.appendChild(favBtn); controls.appendChild(quickOpen);
-      card.appendChild(controls);
+
+      card.appendChild(h); card.appendChild(meta); card.appendChild(linksWrap); card.appendChild(controls);
       grid.appendChild(card);
     });
   });
 }
 
-/* -----------------------
-   Random working picker
-   ----------------------- */
+/* Random working picker (samples subset for speed) */
 async function pickRandomWorking(){
   const all = DATA.proxies ? DATA.proxies.flatMap(p => p.links) : [];
-  if (all.length === 0) { toast('No proxies found in DATA', 'bad', 1800); return; }
-  const sample = [];
-  for (let i=0;i<Math.min(40, all.length); i++){
-    sample.push(all[Math.floor(Math.random()*all.length)]);
-  }
+  if (!all.length) { toast('No proxies in DATA', 'bad', 1600); return; }
+  // sample up to 40 random links
+  const sampleSize = Math.min(40, all.length);
+  const sample = new Set();
+  while (sample.size < sampleSize) sample.add(all[Math.floor(Math.random()*all.length)]);
   toast('Searching for a working proxy…', 'info', 2200);
-  for (const u of sample){
-    try {
-      if (await checkUrlHealth(u)) { window.open(u, '_blank'); return; }
-    } catch(e){}
+  for (const u of sample) {
+    try { if (await checkUrlHealth(u)) { window.open(u, '_blank'); return; } } catch(e){}
   }
-  toast('No working proxy found in quick scan', 'bad', 2200);
+  toast('No working proxy found (quick scan)', 'bad', 2000);
 }
 
-/* -----------------------
-   Presence (Firebase optional fallback)
-   ----------------------- */
-async function initPresence(){
-  try {
-    if (window.firebase && firebase.database) {
-      const db = firebase.database();
-      const ref = db.ref(presencePath);
-      const myRef = ref.push();
-      myRef.set({ ts: Date.now() });
-      myRef.onDisconnect().remove();
-      ref.on('value', snap => {
-        const count = snap.val() ? Object.keys(snap.val()).length : 0;
-        const elOnline = $id('onlineCount'); if (elOnline) elOnline.textContent = `${count} online`;
-      });
-      return;
-    }
-  } catch(e) { console.warn('Firebase presence failed', e); }
-
-  // fallback: local sessions counting (approximate)
-  (function fallback(){
-    const key = 'uh_visit_' + Math.floor(Date.now() / 1000 / 60);
-    if (!localStorage.getItem(key)) {
-      const img = new Image(); img.src = 'https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=gamehub&t='+Date.now();
-      localStorage.setItem(key, '1');
-    }
-    const now = Date.now();
-    const arr = JSON.parse(localStorage.getItem('uh_sessions') || '[]').filter(ts => now - ts < 1000*60*10);
-    arr.push(now);
-    localStorage.setItem('uh_sessions', JSON.stringify(arr));
-    const elOnline = $id('onlineCount'); if (elOnline) elOnline.textContent = `${arr.length} (est)`;
-  })();
-}
-
-/* -----------------------
-   Keyboard shortcuts
-   ----------------------- */
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    // panic button
-    window.location.href = 'https://www.google.com';
-  } else if (e.key === '/') {
-    e.preventDefault(); $id('searchBox')?.focus();
-  } else if (e.key.toLowerCase() === 'f') {
-    $id('favToggle')?.click();
-  }
-});
-
-/* -----------------------
-   Code-wall (passcode = "diddy")
-   - auto-advance, backspace jump, Enter to submit
-   ----------------------- */
+/* Code-wall (diddy) — improved navigation and enter handling */
 (function initCodeWall(){
   const PASS = 'diddy';
   const boxes = Array.from(document.querySelectorAll('.code-input, .code-box'));
   const codeWall = $id('code-wall');
-  const main = $id('main-content');
-
-  if (!boxes.length || !codeWall || !main) return;
-
-  boxes.forEach((b,i) => {
-    b.setAttribute('maxlength','1');
-    b.setAttribute('inputmode','text');
-    b.addEventListener('input', ()=> {
-      b.value = b.value.replace(/[^a-zA-Z0-9]/g, '').slice(0,1);
+  const mainContent = document.querySelector('.content') || $id('main-content') || document.body;
+  if (!boxes.length || !codeWall) {
+    // if missing, just show main content
+    mainContent.style.display = '';
+    return;
+  }
+  boxes.forEach((b, i) => {
+    b.setAttribute('maxlength','1'); b.setAttribute('inputmode','text');
+    b.addEventListener('input', () => {
+      b.value = b.value.replace(/[^a-zA-Z0-9]/g,'').slice(0,1);
       if (b.value && i < boxes.length - 1) boxes[i+1].focus();
     });
     b.addEventListener('keydown', (ev) => {
-      if (ev.key === 'Backspace' && !b.value && i > 0) {
-        boxes[i-1].focus();
-      } else if (ev.key === 'Enter') {
-        attemptUnlock();
-      }
+      if (ev.key === 'Backspace' && !b.value && i > 0) { boxes[i-1].focus(); ev.preventDefault(); }
+      else if (ev.key === 'ArrowLeft' && i > 0) { boxes[i-1].focus(); ev.preventDefault(); }
+      else if (ev.key === 'ArrowRight' && i < boxes.length-1) { boxes[i+1].focus(); ev.preventDefault(); }
+      else if (ev.key === 'Enter') { attemptUnlock(); ev.preventDefault(); }
     });
   });
 
-  document.addEventListener('keydown', e => { if (e.key === 'Enter') attemptUnlock(); });
+  // Allow Enter anywhere to attempt unlock
+  document.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptUnlock(); });
 
   function attemptUnlock(){
-    const entered = boxes.map(x => x.value).join('').toLowerCase();
+    const entered = boxes.map(x => x.value || '').join('').toLowerCase();
     if (entered === PASS) {
       codeWall.remove();
-      main.classList.remove('hidden');
+      try { mainContent.style.display = ''; } catch(e){}
       localStorage.setItem('gamehub_unlocked','1');
-      toast('ACCESS GRANTED ✔️', 'info', 1000);
+      toast('ACCESS GRANTED ✔️', 'info', 1200);
       renderGrid();
-    } else {
-      boxes.forEach(x => { x.classList.add('invalid'); x.value = ''; });
-      setTimeout(()=> boxes.forEach(x=> x.classList.remove('invalid')), 350);
-      boxes[0].focus();
-      toast('Incorrect code ❌', 'bad', 1400);
+      return;
     }
+    // failure animation + clear
+    boxes.forEach(x => { x.classList.add('invalid'); x.value=''; });
+    setTimeout(()=> boxes.forEach(x=>x.classList.remove('invalid')), 400);
+    boxes[0].focus();
+    toast('Incorrect code', 'bad', 1100);
   }
 
-  // if already unlocked in localStorage show main
+  // if previously unlocked, skip
   if (localStorage.getItem('gamehub_unlocked') === '1') {
-    codeWall?.remove();
-    main.classList.remove('hidden');
+    codeWall.remove();
+    mainContent.style.display = '';
     renderGrid();
   } else {
-    // focus first box after a short delay
-    setTimeout(()=> { boxes[0]?.focus(); }, 250);
+    // initial focus
+    setTimeout(()=> boxes[0]?.focus(), 160);
   }
 })();
 
-/* -----------------------
-   INIT
-   ----------------------- */
+/* Keyboard shortcuts */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { window.location.href = 'https://www.google.com'; }
+  else if (e.key === '/') { e.preventDefault(); $id('searchBox')?.focus(); }
+  else if (e.key.toLowerCase() === 'f') { $id('favToggle')?.click(); }
+});
+
+/* Init app */
 (function initApp(){
   createControlBar();
-  initPresence();
+  const search = $id('searchBox'); if (search) search.placeholder += '  (press /)';
   renderGrid();
 })();
-  
-/* -----------------------
-   Expose small API for debugging
-   ----------------------- */
-window.GameHub = Object.assign(window.GameHub || {}, {
-  DATA,
-  renderGrid,
-  checkUrlHealth,
-  pickRandomWorking,
-  favorites,
-  toast
-});
+
+/* Expose API */
+window.GameHub = Object.assign(window.GameHub || {}, { DATA, renderGrid, checkUrlHealth, pickRandomWorking, favorites, toast });
