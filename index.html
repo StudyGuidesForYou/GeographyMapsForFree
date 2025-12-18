@@ -1,65 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Croxy Proxy Launcher</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-
-    h1 {
-      color: #333;
-      margin-bottom: 40px;
-    }
-
-    .button-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      width: 250px;
-    }
-
-    button {
-      padding: 15px;
-      font-size: 18px;
-      border: none;
-      border-radius: 8px;
-      background-color: #4CAF50;
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-
-    button:hover {
-      background-color: #45a049;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Croxy Proxy Launcher</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+  }
+  h1 { margin-bottom: 40px; color: #333; }
+  .button-container { display: flex; flex-direction: column; gap: 20px; width: 250px; }
+  button {
+    padding: 15px; font-size: 18px; border: none; border-radius: 8px;
+    background-color: #4CAF50; color: white; cursor: pointer;
+  }
+  button:hover { background-color: #45a049; }
+</style>
 </head>
 <body>
 
-  <h1>Croxy Proxy Launcher</h1>
+<h1>Croxy Proxy Launcher</h1>
+<div class="button-container">
+  <button onclick="openCroxy('https://www.tiktok.com')">TikTok</button>
+  <button onclick="openCroxy('https://www.youtube.com')">YouTube</button>
+  <button onclick="openCroxy('https://remotedesktop.google.com')">Google Remote Desktop</button>
+</div>
 
-  <div class="button-container">
-    <button onclick="openCroxy('https://www.tiktok.com')">TikTok</button>
-    <button onclick="openCroxy('https://www.youtube.com')">YouTube</button>
-    <button onclick="openCroxy('https://remotedesktop.google.com')">Google Remote Desktop</button>
-  </div>
+<script>
+function openCroxy(url) {
+  // Create a temporary form
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'https://www.croxyproxy.com/';
+  form.target = '_blank';
 
-  <script>
-    function openCroxy(url) {
-      const croxyUrl = "https://www.croxyproxy.com/?" + url;
-      window.open(croxyUrl, "_blank");
-    }
-  </script>
+  // Add the URL as an input
+  const input = document.createElement('input');
+  input.type = 'hidden';
+  input.name = 'url';
+  input.value = url;
+  form.appendChild(input);
+
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+}
+</script>
 
 </body>
 </html>
