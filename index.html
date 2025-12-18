@@ -1,52 +1,65 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ultra Portal</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Croxy Proxy Launcher</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 40px;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 250px;
+    }
+
+    button {
+      padding: 15px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">UP</div>
-  <div class="title">Ultra Portal</div>
-</header>
+  <h1>Croxy Proxy Launcher</h1>
 
-<div id="code-wall">
-  <h1 class="site-title">ENTER ACCESS CODE</h1>
-  <div class="code-row">
-    <input class="code-input" maxlength="1" />
-    <input class="code-input" maxlength="1" />
-    <input class="code-input" maxlength="1" />
-    <input class="code-input" maxlength="1" />
-  </div>
-</div>
-
-<div class="container" id="main-app" style="display:none;">
-
-  <div class="controls">
-    <input type="text" class="search" id="search" placeholder="Search…">
-
-    <div class="controls-right">
-      <button class="btn secondary" id="refresh-btn">Refresh</button>
-      <button class="btn" id="shuffle-btn">Shuffle</button>
-      <button class="btn secondary" id="theme-btn">Theme</button>
-    </div>
+  <div class="button-container">
+    <button onclick="openCroxy('https://www.tiktok.com')">TikTok</button>
+    <button onclick="openCroxy('https://www.youtube.com')">YouTube</button>
+    <button onclick="openCroxy('https://remotedesktop.google.com')">Google Remote Desktop</button>
   </div>
 
-  <div class="categories" id="category-bar">
-    <button class="category-btn active" data-category="all">All</button>
-    <button class="category-btn" data-category="games">Games</button>
-    <button class="category-btn" data-category="proxies">Proxies</button>
-  </div>
+  <script>
+    function openCroxy(url) {
+      const croxyUrl = "https://www.croxyproxy.com/?" + url;
+      window.open(croxyUrl, "_blank");
+    }
+  </script>
 
-  <div class="grid" id="item-grid"></div>
-
-</div>
-
-<div id="__toasts"></div>
-
-<script src="script.js"></script>
 </body>
 </html>
